@@ -11,7 +11,7 @@
   html, body {
     width: 100%; height: 100%;
     overflow: hidden;
-    background: #060d0a;
+    background: #f0f4f2;
     font-family: 'Syne', sans-serif;
   }
 
@@ -19,8 +19,8 @@
   .bg {
     position: fixed; inset: 0; z-index: 0;
     background:
-      radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,80,50,0.55) 0%, transparent 70%),
-      radial-gradient(ellipse 100% 100% at 50% 50%, #060d0a 55%, #071510 100%);
+      radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,180,140,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, #f0f4f2 55%, #e8ede9 100%);
     animation: bgPulse 4s ease-in-out infinite alternate;
   }
   @keyframes bgPulse {
@@ -32,8 +32,8 @@
   .grid {
     position: fixed; inset: 0; z-index: 0;
     background-image:
-      linear-gradient(rgba(0,212,130,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,130,0.04) 1px, transparent 1px);
+      linear-gradient(rgba(0,140,100,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,140,100,0.06) 1px, transparent 1px);
     background-size: 48px 48px;
     animation: gridFade 1.2s ease forwards;
     opacity: 0;
@@ -44,11 +44,11 @@
   .orb {
     position: fixed; border-radius: 50%; filter: blur(90px); z-index: 0; pointer-events: none;
   }
-  .orb1 { width:500px;height:500px; background:rgba(0,200,100,0.12); top:-120px; left:-120px;
+  .orb1 { width:500px;height:500px; background:rgba(0,200,100,0.08); top:-120px; left:-120px;
            animation: orbDrift1 9s ease-in-out infinite alternate; }
-  .orb2 { width:400px;height:400px; background:rgba(0,160,220,0.08); bottom:-80px; right:-80px;
+  .orb2 { width:400px;height:400px; background:rgba(0,160,220,0.06); bottom:-80px; right:-80px;
            animation: orbDrift2 11s ease-in-out infinite alternate; }
-  .orb3 { width:280px;height:280px; background:rgba(80,220,120,0.07); top:40%; left:60%;
+  .orb3 { width:280px;height:280px; background:rgba(80,220,120,0.05); top:40%; left:60%;
            animation: orbDrift1 7s ease-in-out infinite alternate; }
   @keyframes orbDrift1 { to { transform: translate(40px, 30px) scale(1.1); } }
   @keyframes orbDrift2 { to { transform: translate(-30px, -40px) scale(1.08); } }
@@ -85,7 +85,7 @@
   /* glow pulse behind logo */
   .logo-glow {
     position: absolute; inset: -20px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,212,100,0.35) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0,180,120,0.15) 0%, transparent 70%);
     animation: glowPulse 2.5s ease-in-out infinite;
   }
   @keyframes glowPulse {
@@ -98,9 +98,9 @@
     border-radius: 50%;
     object-fit: cover;
     object-position: center 10%;
-    border: 3px solid rgba(0,212,100,0.5);
+    border: 3px solid rgba(0,180,120,0.4);
     position: relative; z-index: 2;
-    box-shadow: 0 0 40px rgba(0,212,100,0.4), 0 0 80px rgba(0,212,100,0.15);
+    box-shadow: 0 0 30px rgba(0,180,120,0.2), 0 0 60px rgba(0,180,120,0.08);
   }
 
   /* ── app name ── */
@@ -108,12 +108,12 @@
     font-size: 52px; font-weight: 800;
     letter-spacing: -2px; line-height: 1;
     color: transparent;
-    background: linear-gradient(135deg, #00d4aa 0%, #4ade80 40%, #00b4d8 100%);
+    background: linear-gradient(135deg, #009e7e 0%, #2ea55c 40%, #0090ab 100%);
     -webkit-background-clip: text;
     background-clip: text;
     margin-bottom: 10px;
     animation: nameEntry 0.7s ease 0.7s both;
-    filter: drop-shadow(0 0 24px rgba(0,212,170,0.4));
+    filter: drop-shadow(0 0 16px rgba(0,160,130,0.2));
   }
   @keyframes nameEntry {
     from { opacity: 0; transform: translateY(20px); }
@@ -124,7 +124,7 @@
   .tagline {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px; font-weight: 400;
-    color: #4a7a60;
+    color: #5a8a70;
     letter-spacing: 4px; text-transform: uppercase;
     margin-bottom: 56px;
     animation: nameEntry 0.7s ease 0.9s both;
@@ -137,19 +137,19 @@
   }
   .loader-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: #2a5a40; letter-spacing: 2px;
+    font-size: 10px; color: #6a9a80; letter-spacing: 2px;
     text-transform: uppercase; text-align: center;
     margin-bottom: 10px;
   }
   .loader-track {
     width: 100%; height: 3px;
-    background: rgba(0,212,100,0.12);
+    background: rgba(0,180,120,0.15);
     border-radius: 2px; overflow: hidden;
   }
   .loader-fill {
     height: 100%; border-radius: 2px;
-    background: linear-gradient(90deg, #00d4aa, #4ade80);
-    box-shadow: 0 0 10px rgba(0,212,170,0.6);
+    background: linear-gradient(90deg, #009e7e, #2ea55c);
+    box-shadow: 0 0 8px rgba(0,160,130,0.3);
     width: 0%;
     animation: loadFill 2.2s cubic-bezier(0.4,0,0.2,1) 1.2s forwards;
   }
@@ -167,26 +167,26 @@
   }
   .dot {
     width: 6px; height: 6px; border-radius: 50%;
-    background: rgba(0,212,100,0.25);
+    background: rgba(0,180,120,0.2);
     animation: dotPop 0.4s ease both;
   }
   .dot:nth-child(1) { animation-delay: 1.5s; }
   .dot:nth-child(2) { animation-delay: 1.7s; }
   .dot:nth-child(3) { animation-delay: 1.9s; }
   @keyframes dotPop {
-    from { background: rgba(0,212,100,0.15); transform: scale(0.5); }
-    to   { background: rgba(0,212,100,0.9); transform: scale(1); box-shadow: 0 0 8px rgba(0,212,100,0.6); }
+    from { background: rgba(0,180,120,0.12); transform: scale(0.5); }
+    to   { background: rgba(0,180,120,0.7); transform: scale(1); box-shadow: 0 0 6px rgba(0,180,120,0.3); }
   }
 
   /* ── NSE badge ── */
   .nse-badge {
     position: fixed; bottom: 32px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: #1e4030;
+    font-size: 10px; color: #7a9a8a;
     letter-spacing: 2px; text-transform: uppercase;
     animation: nameEntry 0.5s ease 1.4s both;
   }
-  .nse-badge span { color: #2a6048; }
+  .nse-badge span { color: #5a8a70; }
 
   /* ── exit animation ── */
   .splash.exit {
@@ -221,9 +221,9 @@
         stroke-linecap="round"/>
       <defs>
         <linearGradient id="ringGrad" x1="0" y1="0" x2="204" y2="204" gradientUnits="userSpaceOnUse">
-          <stop offset="0%"   stop-color="#00d4aa" stop-opacity="0.9"/>
-          <stop offset="50%"  stop-color="#4ade80" stop-opacity="0.4"/>
-          <stop offset="100%" stop-color="#00d4aa" stop-opacity="0.1"/>
+          <stop offset="0%"   stop-color="#009e7e" stop-opacity="0.6"/>
+          <stop offset="50%"  stop-color="#2ea55c" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#009e7e" stop-opacity="0.08"/>
         </linearGradient>
       </defs>
     </svg>
