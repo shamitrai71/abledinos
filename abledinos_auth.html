@@ -951,10 +951,9 @@ if (users.length > 0 && !users[0].role) {
   }
 }
 
-// ── AUTO-REDIRECT: already logged in → go straight to dashboard ──
-if (currentUser) {
-  window.location.href = 'india_portfolio_tracker.html';
-}
+// ── ALWAYS SHOW LOGIN: clear any stale session so user must sign in ──
+clearSession();
+currentUser = null;
 </script>
 </body>
 </html>
