@@ -1359,15 +1359,15 @@ function adminLogout() {
 const session = JSON.parse(localStorage.getItem('abledinos_session') || 'null');
 if (!session || session.role !== 'admin') {
   document.body.innerHTML = `
-    <div style="min-height:100vh;display:grid;place-items:center;background:#070a0f;font-family:'Outfit',sans-serif;text-align:center;padding:40px">
+    <div style="min-height:100vh;display:grid;place-items:center;background:#f5f7fa;font-family:'Outfit',sans-serif;text-align:center;padding:40px">
       <div>
         <div style="font-size:48px;margin-bottom:16px">🔒</div>
-        <div style="font-size:22px;font-weight:800;color:#dce6f0;margin-bottom:8px">Access Denied</div>
-        <div style="font-size:14px;color:#3d5470;margin-bottom:28px;font-family:'JetBrains Mono',monospace">You must be an admin to access this panel.</div>
+        <div style="font-size:22px;font-weight:800;color:#1a2030;margin-bottom:8px">Access Denied</div>
+        <div style="font-size:14px;color:#5a6a7a;margin-bottom:28px;font-family:'JetBrains Mono',monospace">You must be an admin to access this panel.</div>
         <a href="abledinos_auth.html" style="
           display:inline-block;padding:12px 28px;
           background:linear-gradient(135deg,#00d4aa,#3b82f6);
-          color:#000;border-radius:9px;text-decoration:none;
+          color:#fff;border-radius:9px;text-decoration:none;
           font-weight:700;font-size:14px;
         ">← Back to Login</a>
       </div>

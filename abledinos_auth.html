@@ -62,11 +62,11 @@ body {
 }
 
 /* ── LAYOUT ── */
-.page { position: relative; z-index: 1; min-height: 100vh; display: flex; }
+.page { position: relative; z-index: 1; min-height: 100vh; display: flex; max-width: 1400px; margin: 0 auto; }
 
 /* LEFT PANEL */
 .left-panel {
-  width: 480px; flex-shrink: 0;
+  flex: 1; max-width: 540px; min-width: 380px;
   background: var(--surface);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
@@ -105,7 +105,7 @@ body {
   font-family: var(--display); font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
   cursor: pointer; color: var(--text3); transition: all .2s; border: none; background: none;
 }
-.tab.active { background: var(--card2); color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.tab.active { background: var(--surface); color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
 /* FORM */
 .form { display: flex; flex-direction: column; gap: 18px; }
@@ -408,8 +408,8 @@ body {
 .fade-up-3 { animation-delay: .15s; }
 .fade-up-4 { animation-delay: .2s; }
 
-@media (max-width: 900px) {
-  .left-panel { width: 100%; }
+@media (max-width: 960px) {
+  .left-panel { max-width: 100%; min-width: 0; }
   .right-panel { display: none; }
   .profile-grid { grid-template-columns: 1fr; }
   .profile-header { flex-direction: column; text-align: center; }
@@ -611,7 +611,7 @@ body {
       </div>
       <div class="profile-info">
         <div class="profile-name" id="profileName">Shamit Sharma</div>
-        <div class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dda8aeb8af9dbcbfb1b8b9b4b3b2aef3b4b3">[email&#160;protected]</a></div>
+        <div class="profile-email" id="profileEmail"></div>
         <div class="profile-badges">
           <span class="badge badge-pro">⭐ Pro Member</span>
           <span class="badge badge-nse">🇮🇳 NSE Trader</span>
@@ -766,7 +766,7 @@ body {
   </div><!-- /profile-wrap -->
 </div><!-- /profilePage -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── Simple in-memory user store (localStorage) ──
 let users = JSON.parse(localStorage.getItem('abledinos_users') || '[]');
 let currentUser = JSON.parse(localStorage.getItem('abledinos_session') || 'null');
@@ -951,4 +951,10 @@ if (users.length > 0 && !users[0].role) {
   }
 }
 
-// ── AUTO-REDIRECT: already logged in → go s
+// ── AUTO-REDIRECT: already logged in → go straight to dashboard ──
+if (currentUser) {
+  window.location.href = 'india_portfolio_tracker.html';
+}
+</script>
+</body>
+</html>
