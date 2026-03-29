@@ -525,6 +525,44 @@ td.cell-full    { background: rgba(239,68,68,0.08);  }
         </div>
       </div>
     </div>
+    <!-- PRESET INDEX WATCHLIST -->
+    <div class="modal-field" id="presetField" style="display:none">
+      <label class="modal-label">Quick-add Index Watchlist</label>
+      <select class="modal-input" id="presetIndex" onchange="onPresetChange()">
+        <option value="">— Custom (empty watchlist) —</option>
+        <optgroup label="Broad Market">
+          <option value="NIFTY50">Nifty 50</option>
+          <option value="NIFTYNEXT50">Nifty Next 50</option>
+          <option value="NIFTY100">Nifty 100</option>
+        </optgroup>
+        <optgroup label="Market Cap">
+          <option value="NIFTYMIDCAP50">Nifty Midcap 50</option>
+          <option value="NIFTYSMALLCAP50">Nifty Smallcap 50</option>
+          <option value="NIFTYMICROCAP">Nifty Microcap 250 (top 30)</option>
+        </optgroup>
+        <optgroup label="Strategy">
+          <option value="BANKNIFTY">Bank Nifty</option>
+          <option value="FINNIFTY">Fin Nifty</option>
+        </optgroup>
+        <optgroup label="Sectoral Indices">
+          <option value="NIFTYIT">Nifty IT</option>
+          <option value="NIFTYPHARMA">Nifty Pharma</option>
+          <option value="NIFTYAUTO">Nifty Auto</option>
+          <option value="NIFTYFMCG">Nifty FMCG</option>
+          <option value="NIFTYMETAL">Nifty Metal</option>
+          <option value="NIFTYREALTY">Nifty Realty</option>
+          <option value="NIFTYENERGY">Nifty Energy</option>
+          <option value="NIFTYINFRA">Nifty Infra</option>
+          <option value="NIFTYPSU">Nifty PSU Bank</option>
+          <option value="NIFTYPVTBANK">Nifty Private Bank</option>
+          <option value="NIFTYMEDIA">Nifty Media</option>
+          <option value="NIFTYHEALTHCARE">Nifty Healthcare</option>
+          <option value="NIFTYCONSUMER">Nifty Consumer Durables</option>
+          <option value="NIFTYOILGAS">Nifty Oil & Gas</option>
+        </optgroup>
+      </select>
+      <div id="presetInfo" style="font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--mono)"></div>
+    </div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-cancel" onclick="closeCreateList()">Cancel</button>
       <button class="modal-btn modal-btn-create portfolio" id="createListBtn" onclick="createList()">Create Portfolio</button>
@@ -996,9 +1034,53 @@ function deleteList(event, id) {
 // ─────────────────────────────────────────────
 let newListType = 'portfolio';
 
+// ── PRESET INDEX CONSTITUENTS ──
+const INDEX_PRESETS = {
+  NIFTY50: { name:'Nifty 50', syms:['RELIANCE','TCS','HDFCBANK','INFY','ICICIBANK','HINDUNILVR','ITC','SBIN','BHARTIARTL','KOTAKBANK','LT','HCLTECH','AXISBANK','ASIANPAINT','MARUTI','SUNPHARMA','TITAN','BAJFINANCE','DMART','WIPRO','ULTRACEMCO','NTPC','ONGC','NESTLEIND','JSWSTEEL','TATAMOTORS','M&M','POWERGRID','ADANIENT','TECHM','HDFCLIFE','COALINDIA','BAJAJFINSV','TATASTEEL','GRASIM','APOLLOHOSP','ADANIPORTS','SBILIFE','CIPLA','EICHERMOT','DIVISLAB','INDUSINDBK','BPCL','DRREDDY','TATACONSUM','BRITANNIA','HEROMOTOCO','BAJAJ-AUTO','HINDALCO','LTIM'] },
+  NIFTYNEXT50: { name:'Nifty Next 50', syms:['SIEMENS','ZOMATO','DLF','ABB','TRENT','HAL','VEDL','IOC','GODREJCP','JINDALSTEL','BANKBARODA','PNB','TVSMOTOR','DABUR','SHREECEM','AMBUJACEM','HAVELLS','PEL','ICICIPRULI','INDIGO','PIDILITIND','MARICO','SRF','MUTHOOTFIN','NAUKRI','ACC','CHOLAFIN','TORNTPHARM','CANBK','IRCTC'] },
+  NIFTY100: { name:'Nifty 100', syms:['RELIANCE','TCS','HDFCBANK','INFY','ICICIBANK','HINDUNILVR','ITC','SBIN','BHARTIARTL','KOTAKBANK','LT','HCLTECH','AXISBANK','ASIANPAINT','MARUTI','SUNPHARMA','TITAN','BAJFINANCE','WIPRO','ULTRACEMCO','NTPC','ONGC','NESTLEIND','JSWSTEEL','TATAMOTORS','M&M','POWERGRID','ADANIENT','TECHM','COALINDIA','TATASTEEL','GRASIM','APOLLOHOSP','ADANIPORTS','CIPLA','EICHERMOT','DIVISLAB','INDUSINDBK','BPCL','DRREDDY','TATACONSUM','BRITANNIA','HEROMOTOCO','BAJAJ-AUTO','HINDALCO','SIEMENS','ZOMATO','DLF','ABB','TRENT'] },
+  BANKNIFTY: { name:'Bank Nifty', syms:['HDFCBANK','ICICIBANK','SBIN','KOTAKBANK','AXISBANK','INDUSINDBK','BANKBARODA','PNB','AUBANK','IDFCFIRSTB','FEDERALBNK','BANDHANBNK'] },
+  FINNIFTY: { name:'Fin Nifty', syms:['HDFCBANK','ICICIBANK','SBIN','KOTAKBANK','AXISBANK','BAJFINANCE','BAJAJFINSV','HDFCLIFE','SBILIFE','ICICIPRULI','CHOLAFIN','MUTHOOTFIN','SHRIRAMFIN','ICICIGI','PFC','RECLTD'] },
+  NIFTYIT: { name:'Nifty IT', syms:['TCS','INFY','HCLTECH','WIPRO','TECHM','LTIM','MPHASIS','COFORGE','PERSISTENT','LTTS'] },
+  NIFTYPHARMA: { name:'Nifty Pharma', syms:['SUNPHARMA','DRREDDY','CIPLA','DIVISLAB','APOLLOHOSP','TORNTPHARM','AUROPHARMA','LUPIN','BIOCON','ALKEM','IPCALAB','LAURUSLABS'] },
+  NIFTYAUTO: { name:'Nifty Auto', syms:['TATAMOTORS','M&M','MARUTI','BAJAJ-AUTO','HEROMOTOCO','EICHERMOT','TVSMOTOR','ASHOKLEY','BALKRISIND','BHARATFORG','MRF','BOSCHLTD','EXIDEIND','MOTHERSON'] },
+  NIFTYFMCG: { name:'Nifty FMCG', syms:['HINDUNILVR','ITC','NESTLEIND','BRITANNIA','TATACONSUM','GODREJCP','DABUR','MARICO','COLPAL','VBL','UBL','EMAMILTD','PGHH'] },
+  NIFTYMETAL: { name:'Nifty Metal', syms:['TATASTEEL','JSWSTEEL','HINDALCO','VEDL','COALINDIA','JINDALSTEL','NMDC','SAIL','NATIONALUM','APLAPOLLO','RATNAMANI','WELCORP'] },
+  NIFTYREALTY: { name:'Nifty Realty', syms:['DLF','GODREJPROP','OBEROIRLTY','PHOENIXLTD','PRESTIGE','BRIGADE','SOBHA','SUNTECK'] },
+  NIFTYENERGY: { name:'Nifty Energy', syms:['RELIANCE','NTPC','ONGC','POWERGRID','BPCL','IOC','GAIL','ADANIGREEN','TATAPOWER','COALINDIA'] },
+  NIFTYINFRA: { name:'Nifty Infra', syms:['LT','ADANIPORTS','ULTRACEMCO','GRASIM','SHREECEM','AMBUJACEM','ACC','SIEMENS','ABB','IRCON'] },
+  NIFTYPSU: { name:'Nifty PSU Bank', syms:['SBIN','BANKBARODA','PNB','CANBK','UNIONBANK','IOB','INDIANB','CENTRALBK','MAHABANK','BANKINDIA','UCOBANK'] },
+  NIFTYPVTBANK: { name:'Nifty Private Bank', syms:['HDFCBANK','ICICIBANK','KOTAKBANK','AXISBANK','INDUSINDBK','IDFCFIRSTB','FEDERALBNK','BANDHANBNK','AUBANK','RBLBANK'] },
+  NIFTYMEDIA: { name:'Nifty Media', syms:['ZEEL','SUNTV','PVR','NETWORK18','TV18BRDCST','DISHTV','NAVNETEDUL','SAREGAMA'] },
+  NIFTYHEALTHCARE: { name:'Nifty Healthcare', syms:['SUNPHARMA','DRREDDY','CIPLA','APOLLOHOSP','DIVISLAB','TORNTPHARM','AUROPHARMA','LUPIN','MAXHEALTH','FORTIS','METROPOLIS','LALPATHLAB'] },
+  NIFTYCONSUMER: { name:'Nifty Consumer Durables', syms:['TITAN','HAVELLS','VOLTAS','CROMPTON','WHIRLPOOL','RAJESHEXPO','BATAINDIA','RELAXO','PAGEIND','KAJARIACER'] },
+  NIFTYOILGAS: { name:'Nifty Oil & Gas', syms:['RELIANCE','ONGC','BPCL','IOC','GAIL','PETRONET','HINDPETRO','OIL','MRPL','CASTROLIND'] },
+  NIFTYMIDCAP50: { name:'Nifty Midcap 50', syms:['TRENT','HAL','TVSMOTOR','JINDALSTEL','PEL','CHOLAFIN','MUTHOOTFIN','CANBK','IRCTC','INDIANHOTELS','COLPAL','PHOENIXLTD','OBEROIRLTY','SOLARINDS','PRESTIGE','AUROPHARMA','LUPIN','ASTRAL','COFORGE','PERSISTENT','MAXHEALTH','FORTIS','POLYCAB','PIIND','VOLTAS','CROMPTON','BEL','BHEL','NMDC','CONCOR'] },
+  NIFTYSMALLCAP50: { name:'Nifty Smallcap 50', syms:['BRIGADE','SOBHA','RADICO','EIHOTEL','IIFL','EQUITASBNK','CENTURYTEX','GRINDWELL','FINEORG','JUSTDIAL','KPITTECH','HAPPSTMNDS','STARHEALTH','CLEAN','AFFLE','CASTROLIND','ZENSARTECH','MASTEK','TRIVENI','GPPL','MAHLIFE','BASF','BLUESTARCO','CESC','MAHSEAMLES','NIACL','SCHNEIDER','TIINDIA','TEAMLEASE','WELSPUNLIV'] },
+  NIFTYMICROCAP: { name:'Nifty Microcap 250 (top 30)', syms:['TANLA','KRSNAA','SHYAMMETL','EASEMYTRIP','GLENMARK','CAPLIPOINT','LXCHEM','NAZARA','ROUTE','PARAS','APTUS','CAMPUS','MEDPLUS','RATEGAIN','KAYNES','NETWEB','JYOTHYLAB','CAMS','DATAPATTNS','CRAFTSMAN','GRAVITA','DOMS','MAPMYINDIA','DEEPAKNTR','GRSE','RVNL','IRFC','NHPC','SJVN','RECLTD'] },
+};
+
+function onPresetChange() {
+  const sel = document.getElementById('presetIndex').value;
+  const info = document.getElementById('presetInfo');
+  const nameInput = document.getElementById('newListName');
+  if (sel && INDEX_PRESETS[sel]) {
+    const preset = INDEX_PRESETS[sel];
+    if (!nameInput.value || Object.values(INDEX_PRESETS).some(p => p.name === nameInput.value)) {
+      nameInput.value = preset.name;
+    }
+    info.textContent = `${preset.syms.length} stocks will be auto-added`;
+  } else {
+    info.textContent = '';
+  }
+}
+
 function openCreateList() {
   newListType = 'portfolio';
   document.getElementById('newListName').value = '';
+  document.getElementById('presetIndex').value = '';
+  document.getElementById('presetInfo').textContent = '';
+  document.getElementById('presetField').style.display = 'none';
   selectType('portfolio');
   document.getElementById('createListModal').classList.add('show');
   document.getElementById('newListName').focus();
@@ -1013,15 +1095,32 @@ function selectType(type) {
   const btn = document.getElementById('createListBtn');
   btn.textContent = type === 'portfolio' ? 'Create Portfolio' : 'Create Watchlist';
   btn.className = `modal-btn modal-btn-create ${type}`;
+  // Show/hide preset dropdown
+  document.getElementById('presetField').style.display = type === 'watchlist' ? 'flex' : 'none';
+  if (type !== 'watchlist') {
+    document.getElementById('presetIndex').value = '';
+    document.getElementById('presetInfo').textContent = '';
+  }
 }
 function createList() {
   const name = document.getElementById('newListName').value.trim();
   if (!name) { document.getElementById('newListName').focus(); return; }
   const id = 'list-' + Date.now();
-  lists.push({ id, name, type: newListType, items: [] });
+  const presetKey = document.getElementById('presetIndex').value;
+  let items = [];
+  if (newListType === 'watchlist' && presetKey && INDEX_PRESETS[presetKey]) {
+    items = INDEX_PRESETS[presetKey].syms.map(sym => ({
+      sym, qty: 0, cost: 0, sector: 'Other', pledged: 0, broker: ''
+    }));
+  }
+  lists.push({ id, name, type: newListType, items });
   saveLists();
   closeCreateList();
   switchList(id);
+  // Auto-fetch prices for preset watchlists
+  if (items.length > 0) {
+    setTimeout(() => fetchAll(), 300);
+  }
 }
 
 function escHtml(s) {
