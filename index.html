@@ -904,7 +904,7 @@ td.cell-full    { background: rgba(239,68,68,0.08); }
 
 <!-- TABLE -->
 <div class="section-hdr">
-  <span class="section-title">Portfolio Positions</span>
+  <span class="section-title" id="tableSectionTitle">Portfolio Positions</span>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">RSI(14) · Click column headers to sort</span>
 </div>
 <div class="pledge-legend">
@@ -1173,10 +1173,54 @@ function renderListHeader() {
   const tableWrap = document.getElementById('mainTable');
   if (tableWrap) tableWrap.classList.toggle('watchlist-mode', al.type === 'watchlist');
   const isWL = al.type === 'watchlist';
-  document.getElementById('addPanelTitle').textContent = isWL ? '+ Add to Watchlist' : '+ Add to Portfolio';
-  document.getElementById('addStockBtn').textContent = isWL ? 'ADD TO WATCHLIST' : 'ADD & FETCH';
-  document.getElementById('fieldQty').style.display = isWL ? 'none' : '';
-  document.getElementById('fieldCost').style.display = isWL ? 'none' : '';
+
+  // Hide portfolio-only sections for watchlists
+  document.getElementById('kpiStrip').style.display = isWL ? 'none' : '';
+  document.querySelector('.add-panel').style.display = isWL ? 'none' : '';
+  document.querySelector('.pledge-legend').style.display = isWL ? 'none' : '';
+  const sChart = document.getElementById('sectorChart');
+  if (sChart) sChart.style.display = isWL ? 'none' : '';
+
+  // Show watchlist-specific KPI strip
+  let wlKpi = document.getElementById('watchlistKpi');
+  if (isWL) {
+    if (!wlKpi) {
+      wlKpi = document.createElement('div');
+      wlKpi.id = 'watchlistKpi';
+      wlKpi.className = 'kpi-strip';
+      wlKpi.style.gridTemplateColumns = 'repeat(auto-fit, minmax(160px, 1fr))';
+      document.getElementById('kpiStrip').after(wlKpi);
+    }
+    // Count stats
+    const cached = al.items.filter(h => priceCache[h.sym]?.ltp).length;
+    const gainers = al.items.filter(h => { const c = priceCache[h.sym]; return c && c.ltp && c.prevClose && c.ltp > c.prevClose; }).length;
+    const losers = al.items.filter(h => { const c = priceCache[h.sym]; return c && c.ltp && c.prevClose && c.ltp < c.prevClose; }).length;
+    const rsiOversold = al.items.filter(h => { const c = priceCache[h.sym]; if (!c?.prices15) return false; const rsi = calcRSI(c.prices15); return rsi != null && rsi < 30; }).length;
+    const rsiOverbought = al.items.filter(h => { const c = priceCache[h.sym]; if (!c?.prices15) return false; const rsi = calcRSI(c.prices15); return rsi != null && rsi > 70; }).length;
+    wlKpi.innerHTML = `
+      <div class="kpi anim-fade anim-fade-1"><div class="kpi-label">Symbols</div><div class="kpi-val">${al.items.length}</div><div class="kpi-sub">in watchlist</div></div>
+      <div class="kpi anim-fade anim-fade-2"><div class="kpi-label">Data Loaded</div><div class="kpi-val">${cached}/${al.items.length}</div><div class="kpi-sub">prices fetched</div></div>
+      <div class="kpi anim-fade anim-fade-3"><div class="kpi-label">Gainers Today</div><div class="kpi-val pos">${gainers}</div><div class="kpi-sub">stocks up</div></div>
+      <div class="kpi anim-fade anim-fade-4"><div class="kpi-label">Losers Today</div><div class="kpi-val neg">${losers}</div><div class="kpi-sub">stocks down</div></div>
+      <div class="kpi anim-fade anim-fade-5"><div class="kpi-label">RSI Oversold</div><div class="kpi-val" style="color:var(--green)">${rsiOversold}</div><div class="kpi-sub">buy signals</div></div>
+      <div class="kpi anim-fade anim-fade-6"><div class="kpi-label">RSI Overbought</div><div class="kpi-val" style="color:var(--red)">${rsiOverbought}</div><div class="kpi-sub">caution signals</div></div>
+    `;
+    wlKpi.style.display = '';
+  } else {
+    if (wlKpi) wlKpi.style.display = 'none';
+  }
+
+  // Portfolio add panel
+  if (!isWL) {
+    document.getElementById('addPanelTitle').textContent = '+ Add to Portfolio';
+    document.getElementById('addStockBtn').textContent = 'ADD & FETCH';
+    document.getElementById('fieldQty').style.display = '';
+    document.getElementById('fieldCost').style.display = '';
+  }
+
+  // Update section title
+  const secTitle = document.getElementById('tableSectionTitle');
+  if (secTitle) secTitle.textContent = isWL ? 'Watchlist Stocks' : 'Portfolio Positions';
 }
 
 function switchList(id) {
@@ -1313,30 +1357,63 @@ function selectType(type) {
   const btn = document.getElementById('createListBtn');
   btn.textContent = type === 'portfolio' ? 'Create Portfolio' : 'Create Watchlist';
   btn.className = `modal-btn modal-btn-create ${type}`;
-  document.getElementById('presetField').style.display = type === 'watchlist' ? 'flex' : 'none';
-  if (type !== 'watchlist') { document.getElementById('presetIndex').value = ''; document.getElementById('presetInfo').textContent = ''; }
+  const presetField = document.getElementById('presetField');
+  const presetSelect = document.getElementById('presetIndex');
+  const presetInfo = document.getElementById('presetInfo');
+  if (type === 'watchlist') {
+    presetField.style.display = 'flex';
+    // Auto-select Nifty 50 as default if nothing selected
+    if (!presetSelect.value) {
+      presetSelect.value = 'NIFTY50';
+      onPresetChange();
+    }
+  } else {
+    presetField.style.display = 'none';
+    presetSelect.value = '';
+    presetInfo.textContent = '';
+  }
 }
 function createList() {
   const maxLists = getAdminSettings().maxLists || 10;
   if (lists.length >= maxLists) { alert(`Maximum ${maxLists} lists allowed. Delete an existing list first.`); return; }
   const name = document.getElementById('newListName').value.trim();
-  if (!name) { document.getElementById('newListName').focus(); return; }
+  if (!name) { alert('Please enter a list name.'); document.getElementById('newListName').focus(); return; }
   const id = 'list-' + Date.now();
-  const presetKey = document.getElementById('presetIndex').value;
   let items = [];
-  if (newListType === 'watchlist' && presetKey && INDEX_PRESETS[presetKey]) {
-    items = INDEX_PRESETS[presetKey].syms.map(sym => ({sym, qty:0, cost:0, sector:'Other', pledged:0, broker:''}));
+  // For watchlists, check if a preset index was selected
+  if (newListType === 'watchlist') {
+    const presetKey = document.getElementById('presetIndex').value;
+    if (presetKey && INDEX_PRESETS[presetKey]) {
+      const preset = INDEX_PRESETS[presetKey];
+      items = preset.syms.map(sym => ({sym, qty:0, cost:0, sector:'Other', pledged:0, broker:''}));
+    }
   }
-  lists.push({id, name, type: newListType, items});
-  saveLists(); closeCreateList(); switchList(id);
-  if (items.length > 0) setTimeout(() => fetchAll(), 300);
+  const newList = {id, name, type: newListType, items};
+  lists.push(newList);
+  saveLists();
+  closeCreateList();
+  // Switch to the new list
+  activeListId = id;
+  saveActive();
+  holdings = newList.items;
+  renderListsBar();
+  renderListHeader();
+  render();
+  // Auto-fetch if preset had items
+  if (items.length > 0) {
+    setTimeout(() => fetchAll(), 500);
+  }
 }
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 // ─────────────────────────────────────────────
 // YAHOO FINANCE FETCH (with retry)
 // ─────────────────────────────────────────────
-const CORS_PROXIES = ['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url='];
+const CORS_PROXIES = [
+  'https://corsproxy.io/?url=',
+  'https://api.allorigins.win/raw?url=',
+  'https://api.codetabs.com/v1/proxy?quest=',
+];
 async function fetchYahoo(sym, retries=2) {
   const ticker = sym + '.NS';
   const yahooURL = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=1mo&interval=1d&includePrePost=false`;
@@ -1503,6 +1580,8 @@ function render() {
   updateCacheBadge();
   filterTable();
   applyFeatureVisibility();
+  // Refresh watchlist-specific KPIs if in watchlist mode
+  if (getActiveList().type === 'watchlist') renderListHeader();
 }
 
 function renderKPIs(data) {
@@ -1559,7 +1638,13 @@ async function fetchAll() {
   btn.classList.remove('loading'); icon.innerHTML = '⟳';
   document.getElementById('progressWrap').style.display = 'none';
   document.getElementById('lastRefresh').textContent = `Updated ${new Date().toLocaleTimeString('en-IN')}`;
-  if (errors.length > 0) setStatus('err', `Done. Failed: ${errors.join(', ')} — NSE hours: 9:15–15:30 IST`);
+  if (errors.length > 0) {
+    if (errors.length === total) {
+      setStatus('err', `All ${total} stocks failed. This may be a network/CORS issue — deploy on Netlify for full functionality. If deployed, check NSE hours: 9:15–15:30 IST.`);
+    } else {
+      setStatus('err', `Done. Failed ${errors.length}/${total}: ${errors.slice(0,5).join(', ')}${errors.length>5?' + '+(errors.length-5)+' more':''}`);
+    }
+  }
   else setStatus('ok', `✓ All ${total} stocks refreshed`);
   updateCacheBadge();
 }
@@ -1671,7 +1756,6 @@ function doSignup() {
   const email = document.getElementById('signupEmail').value.trim().toLowerCase();
   const pass = document.getElementById('signupPassword').value;
   const confirm = document.getElementById('signupConfirm').value;
-  const errEl = document.getElementById('signupError');
 
   if (!first || !last) { errEl.textContent = 'Please enter your first and last name.'; errEl.className = 'auth-error show'; return; }
   if (!email) { errEl.textContent = 'Please enter your email address.'; errEl.className = 'auth-error show'; return; }
