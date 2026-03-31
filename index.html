@@ -29,19 +29,16 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       font-family: 'Syne', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
+      min-height: 100vh; overflow-x: hidden;
     }
 
     /* ── SPLASH ── */
     #splash-screen {
       position: fixed; inset: 0; z-index: 9999;
       background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column;
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
       transition: opacity 0.6s ease, visibility 0.6s ease;
     }
     #splash-screen.hidden { opacity: 0; visibility: hidden; }
@@ -56,8 +53,7 @@
     .splash-logo-wrap {
       width: 72px; height: 72px; border-radius: 20px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem;
+      display: flex; align-items: center; justify-content: center; font-size: 2rem;
       box-shadow: 0 0 40px rgba(91,94,245,0.5);
       animation: pulse 1.8s ease-in-out infinite;
     }
@@ -94,8 +90,7 @@
     #loading-overlay.active { display: flex; }
     .spinner {
       width: 36px; height: 36px; border-radius: 50%;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
+      border: 3px solid var(--border); border-top-color: var(--accent);
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -117,8 +112,7 @@
     .logo-badge {
       width: 34px; height: 34px; border-radius: 10px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
     }
     .nav-title {
       font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em;
@@ -129,8 +123,7 @@
     .nav-right a {
       padding: 6px 14px; border-radius: 8px; text-decoration: none;
       color: var(--muted); font-size: 0.82rem; font-weight: 600;
-      transition: color 0.2s, background 0.2s;
-      font-family: 'Space Mono', monospace;
+      transition: color 0.2s, background 0.2s; font-family: 'Space Mono', monospace;
     }
     .nav-right a:hover { color: var(--text); background: var(--surface2); }
     .nav-right a.active { color: var(--accent); }
@@ -160,24 +153,20 @@
     .live-badge {
       display: flex; align-items: center; gap: 6px;
       padding: 6px 12px; border-radius: 20px;
-      border: 1px solid rgba(0,212,170,0.3);
-      background: rgba(0,212,170,0.08);
+      border: 1px solid rgba(0,212,170,0.3); background: rgba(0,212,170,0.08);
       font-family: 'Space Mono', monospace; font-size: 0.65rem;
       color: var(--accent2); letter-spacing: 0.1em;
     }
     .live-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent2);
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent2);
       animation: blink 1.2s ease-in-out infinite;
     }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
 
     /* ── CONTROLS ── */
     #controls {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 20px;
       display: flex; align-items: center; gap: 12px;
       margin-bottom: 24px; flex-wrap: wrap;
     }
@@ -187,10 +176,8 @@
     }
     #watchlist-input {
       flex: 1; min-width: 280px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px; padding: 9px 14px;
-      color: var(--text);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 14px; color: var(--text);
       font-family: 'Space Mono', monospace; font-size: 0.78rem;
       outline: none; transition: border-color 0.2s;
     }
@@ -201,33 +188,27 @@
       border: none; color: #fff;
       font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700;
       cursor: pointer; letter-spacing: 0.04em;
-      transition: opacity 0.2s, transform 0.15s;
-      white-space: nowrap;
+      transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
     }
     #refresh-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
     #refresh-btn:active { transform: translateY(0); }
     #refresh-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
     #countdown {
       font-family: 'Space Mono', monospace; font-size: 0.65rem;
-      color: var(--muted); letter-spacing: 0.06em;
-      margin-left: auto; white-space: nowrap;
+      color: var(--muted); letter-spacing: 0.06em; margin-left: auto; white-space: nowrap;
     }
 
     /* ── TABLE ── */
     .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden; margin-bottom: 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden; margin-bottom: 24px;
     }
     #signals-table { width: 100%; border-collapse: collapse; }
     #signals-table thead th {
       padding: 13px 16px;
       font-family: 'Space Mono', monospace; font-size: 0.65rem;
-      color: var(--muted); text-align: left; letter-spacing: 0.1em;
-      text-transform: uppercase;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
+      color: var(--muted); text-align: left; letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--surface2); border-bottom: 1px solid var(--border);
     }
     #signals-table tbody tr {
       border-bottom: 1px solid var(--border);
@@ -236,8 +217,7 @@
     #signals-table tbody tr:last-child { border-bottom: none; }
     #signals-table tbody tr:hover { background: var(--surface2); }
     #signals-table tbody td {
-      padding: 12px 16px;
-      font-size: 0.85rem; font-family: 'Space Mono', monospace;
+      padding: 12px 16px; font-size: 0.85rem; font-family: 'Space Mono', monospace;
     }
     .stock-name { font-weight: 700; color: var(--text); font-family: 'Syne', sans-serif; }
     .price-cell { color: var(--text); }
@@ -267,10 +247,8 @@
 
     /* ── CHART ── */
     .chart-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px; margin-bottom: 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin-bottom: 24px;
     }
     .chart-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -297,15 +275,13 @@
     .alerts-label {
       font-family: 'Space Mono', monospace; font-size: 0.65rem;
       color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
-      margin-bottom: 10px;
-      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
     }
     .alerts-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .alerts-wrap { display: flex; flex-direction: column; gap: 8px; }
     .alert-item {
       padding: 11px 16px; border-radius: 10px;
-      border-left: 3px solid var(--border);
-      background: var(--surface);
+      border-left: 3px solid var(--border); background: var(--surface);
       font-family: 'Space Mono', monospace; font-size: 0.7rem;
       color: var(--muted); line-height: 1.5;
       animation: alertIn 0.3s ease forwards;
@@ -320,14 +296,12 @@
     .alert-item.breakout { border-color: var(--accent); background: rgba(91,94,245,0.05);   color: var(--accent); }
     .alert-item.error    { border-color: var(--muted);  color: var(--muted); }
 
-    /* ── EMPTY / ERROR STATE ── */
     .empty-state {
       text-align: center; padding: 40px;
       color: var(--muted); font-family: 'Space Mono', monospace;
       font-size: 0.75rem; letter-spacing: 0.08em;
     }
 
-    /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -341,6 +315,13 @@
   </style>
 </head>
 <body>
+
+  <!-- Auth guard — runs before anything renders -->
+  <script>
+    if (!sessionStorage.getItem('abledinos_loggedin')) {
+      window.location.href = 'login.html';
+    }
+  </script>
 
   <!-- Splash -->
   <div id="splash-screen">
@@ -369,7 +350,7 @@
       <a href="index.html" class="active">Dashboard</a>
       <a href="profile.html">Profile</a>
       <a href="alerts.html">Alerts</a>
-      <a href="login.html">Logout</a>
+      <a href="login.html" onclick="sessionStorage.clear()">Logout</a>
     </div>
   </nav>
 
@@ -398,15 +379,8 @@
       <table id="signals-table">
         <thead>
           <tr>
-            <th>Stock</th>
-            <th>Price</th>
-            <th>Trend</th>
-            <th>Momentum</th>
-            <th>RSI</th>
-            <th>Volume</th>
-            <th>Breakout</th>
-            <th>Score</th>
-            <th>Signal</th>
+            <th>Stock</th><th>Price</th><th>Trend</th><th>Momentum</th>
+            <th>RSI</th><th>Volume</th><th>Breakout</th><th>Score</th><th>Signal</th>
           </tr>
         </thead>
         <tbody id="signals-body">
@@ -442,22 +416,21 @@
   </div>
 
   <script>
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     // CONFIG
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     const API_URL          = 'https://military-jobye-haiqstudios-14f59639.koyeb.app/stock?symbol=';
     const AUTO_REFRESH_SEC = 30;
 
-    // ═══════════════════════════════════════════════════════
-    // INDICATOR MATH  (from script.js, unchanged)
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // INDICATOR MATH
+    // ═══════════════════════════════════════════════
     function calcEma(values, window) {
       const k = 2 / (window + 1);
       let out = [values[0]], prev = values[0];
       for (let i = 1; i < values.length; i++) {
         const cur = values[i] * k + prev * (1 - k);
-        out.push(cur);
-        prev = cur;
+        out.push(cur); prev = cur;
       }
       return out;
     }
@@ -467,8 +440,7 @@
       let gains = [], losses = [];
       for (let i = 1; i <= period; i++) {
         const d = values[i] - values[i - 1];
-        gains.push(Math.max(d, 0));
-        losses.push(Math.max(-d, 0));
+        gains.push(Math.max(d, 0)); losses.push(Math.max(-d, 0));
       }
       let avgGain = gains.reduce((a, b) => a + b, 0) / period;
       let avgLoss = losses.reduce((a, b) => a + b, 0) / period;
@@ -501,47 +473,35 @@
       return out;
     }
 
-    // ═══════════════════════════════════════════════════════
-    // SIGNAL ENGINE  (from script.js, unchanged logic)
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // SIGNAL ENGINE
+    // ═══════════════════════════════════════════════
     function computeSignals(data) {
       const closes  = data.map(d => d.close);
       const volumes = data.map(d => d.volume);
-
-      const ema21  = calcEma(closes, 21);
-      const ema50  = calcEma(closes, 50);
-      const rsiArr = calcRsi(closes, 14);
+      const ema21   = calcEma(closes, 21);
+      const ema50   = calcEma(closes, 50);
+      const rsiArr  = calcRsi(closes, 14);
       const { macdLine, signalLine } = calcMacd(closes);
       const volAvg20 = rollingMean(volumes, 20);
-
       const n = data.length - 1;
-      const latestClose   = closes[n];
-      const latestVol     = volumes[n];
-      const latestEma21   = ema21[n];
-      const latestEma50   = ema50[n];
-      const latestRsi     = rsiArr[n];
-      const latestMacd    = macdLine[n];
-      const latestMacdSig = signalLine[n];
-      const latestVolAvg  = volAvg20[n];
 
-      const trend    = latestEma21 > latestEma50 ? 'Bullish' : 'Bearish';
-      const momentum = latestMacd  > latestMacdSig ? 'Bullish' : 'Bearish';
+      const trend    = ema21[n] > ema50[n]          ? 'Bullish' : 'Bearish';
+      const momentum = macdLine[n] > signalLine[n]  ? 'Bullish' : 'Bearish';
 
       let rsiSignal = 'Weak';
-      if (latestRsi > 60)      rsiSignal = 'Strong';
-      else if (latestRsi > 40) rsiSignal = 'Building';
+      if (rsiArr[n] > 60)      rsiSignal = 'Strong';
+      else if (rsiArr[n] > 40) rsiSignal = 'Building';
 
-      const volSignal = latestVolAvg && latestVol > 1.5 * latestVolAvg ? 'Spike' : 'Normal';
+      const volSignal = volAvg20[n] && volumes[n] > 1.5 * volAvg20[n] ? 'Spike' : 'Normal';
 
-      // 20-bar breakout
       let breakout = false;
       const lookback = 20;
       if (closes.length > lookback) {
         const prevHigh = Math.max(...closes.slice(closes.length - lookback - 1, closes.length - 1));
-        breakout = latestClose > prevHigh;
+        breakout = closes[n] > prevHigh;
       }
 
-      // Score
       let score = 0;
       if (trend === 'Bullish')          score += 30;
       if (momentum === 'Bullish')        score += 20;
@@ -550,41 +510,37 @@
       if (volSignal === 'Spike')         score += 20;
       if (breakout)                      score += 10;
 
-      // Signal
       let signal = 'SELL';
       if (score >= 70)      signal = 'BUY';
       else if (score >= 40) signal = 'WATCH';
 
       return {
-        price: latestClose,
-        trend, momentum,
-        rsiSignal, rsiValue: latestRsi,
-        volSignal, breakout,
-        score, signal,
+        price: closes[n], trend, momentum,
+        rsiSignal, rsiValue: rsiArr[n],
+        volSignal, breakout, score, signal,
         ema21, ema50
       };
     }
 
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     // API
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     async function fetchStock(symbol) {
       const res = await fetch(API_URL + symbol);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     }
 
-    // ═══════════════════════════════════════════════════════
-    // CHART  (upgraded: EMA-21 + EMA-50 overlay on real data)
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // CHART
+    // ═══════════════════════════════════════════════
     let chart = null, candleSeries = null, ema21Series = null, ema50Series = null;
 
     function initChart() {
       const container = document.getElementById('chart-container');
       container.innerHTML = '';
       chart = LightweightCharts.createChart(container, {
-        width: container.clientWidth,
-        height: 340,
+        width: container.clientWidth, height: 340,
         layout: { background: { color: '#111120' }, textColor: '#6b6b8a' },
         grid: { vertLines: { color: '#1e1e3a' }, horzLines: { color: '#1e1e3a' } },
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
@@ -594,7 +550,7 @@
       candleSeries = chart.addCandlestickSeries({
         upColor: '#00d4aa', downColor: '#ff6b6b',
         borderUpColor: '#00d4aa', borderDownColor: '#ff6b6b',
-        wickUpColor: '#00d4aa',   wickDownColor: '#ff6b6b',
+        wickUpColor: '#00d4aa', wickDownColor: '#ff6b6b',
       });
       ema21Series = chart.addLineSeries({ color: '#00bcd4', lineWidth: 1 });
       ema50Series = chart.addLineSeries({ color: '#ff9800', lineWidth: 1 });
@@ -606,8 +562,7 @@
     function renderChart(symbol, data, ema21, ema50) {
       if (!chart) initChart();
       candleSeries.setData(data.map((d, i) => ({
-        time: d.date || i,
-        open: d.open, high: d.high, low: d.low, close: d.close
+        time: d.date || i, open: d.open, high: d.high, low: d.low, close: d.close
       })));
       ema21Series.setData(data.map((d, i) => ({ time: d.date || i, value: ema21[i] })));
       ema50Series.setData(data.map((d, i) => ({ time: d.date || i, value: ema50[i] })));
@@ -615,29 +570,23 @@
       chart.timeScale().fitContent();
     }
 
-    // ═══════════════════════════════════════════════════════
-    // TABLE RENDERING
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // TABLE
+    // ═══════════════════════════════════════════════
     function pillClass(val, type) {
       if (type === 'signal') {
-        if (val === 'BUY')   return 'pill pill-buy';
-        if (val === 'SELL')  return 'pill pill-sell';
+        if (val === 'BUY')  return 'pill pill-buy';
+        if (val === 'SELL') return 'pill pill-sell';
         return 'pill pill-watch';
       }
-      if (type === 'trend' || type === 'mom') {
-        return val === 'Bullish' ? 'pill pill-up' : 'pill pill-down';
-      }
+      if (type === 'trend' || type === 'mom') return val === 'Bullish' ? 'pill pill-up' : 'pill pill-down';
       if (type === 'rsi') {
         if (val === 'Strong')   return 'pill pill-buy';
         if (val === 'Building') return 'pill pill-watch';
         return 'pill pill-neutral';
       }
-      if (type === 'vol') {
-        return val === 'Spike' ? 'pill pill-spike' : 'pill pill-neutral';
-      }
-      if (type === 'brk') {
-        return val ? 'pill pill-up' : 'pill pill-neutral';
-      }
+      if (type === 'vol') return val === 'Spike' ? 'pill pill-spike' : 'pill pill-neutral';
+      if (type === 'brk') return val ? 'pill pill-up' : 'pill pill-neutral';
       return 'pill pill-neutral';
     }
 
@@ -645,8 +594,7 @@
       const tbody = document.getElementById('signals-body');
       const tr    = document.createElement('tr');
       const label = symbol.replace('.NS', '').replace('.BO', '');
-      const rsiColor = sig.rsiValue > 70 ? 'var(--sell)'
-                      : sig.rsiValue < 30 ? 'var(--buy)' : 'var(--text)';
+      const rsiColor = sig.rsiValue > 70 ? 'var(--sell)' : sig.rsiValue < 30 ? 'var(--buy)' : 'var(--text)';
 
       tr.innerHTML = `
         <td><span class="stock-name">${label}</span></td>
@@ -656,31 +604,26 @@
         <td>
           <span class="${pillClass(sig.rsiSignal,'rsi')}" style="color:${rsiColor}">
             ${sig.rsiSignal}
-            <span style="opacity:0.65;font-size:0.6rem">
-              (${sig.rsiValue != null ? sig.rsiValue.toFixed(1) : '—'})
-            </span>
+            <span style="opacity:0.65;font-size:0.6rem">(${sig.rsiValue != null ? sig.rsiValue.toFixed(1) : '—'})</span>
           </span>
         </td>
         <td><span class="${pillClass(sig.volSignal,'vol')}">${sig.volSignal}</span></td>
         <td><span class="${pillClass(sig.breakout,'brk')}">${sig.breakout ? '✓ Yes' : 'No'}</span></td>
         <td>
           <div class="score-bar-wrap">
-            <div class="score-bar">
-              <div class="score-bar-fill" style="width:${sig.score}%"></div>
-            </div>
+            <div class="score-bar"><div class="score-bar-fill" style="width:${sig.score}%"></div></div>
             <span class="score-num">${sig.score}</span>
           </div>
         </td>
         <td><span class="${pillClass(sig.signal,'signal')}">${sig.signal}</span></td>`;
 
-      // Click row → update chart with that stock's real data
       tr.addEventListener('click', () => renderChart(symbol, rawData, sig.ema21, sig.ema50));
       tbody.appendChild(tr);
     }
 
-    // ═══════════════════════════════════════════════════════
-    // ALERTS / NOTIFICATIONS  (from script.js, unchanged)
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // ALERTS
+    // ═══════════════════════════════════════════════
     function pushAlert(msg, type = '') {
       const panel = document.getElementById('alerts-panel');
       const el    = document.createElement('div');
@@ -702,9 +645,9 @@
       }
     }
 
-    // ═══════════════════════════════════════════════════════
-    // MAIN REFRESH LOOP
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // MAIN REFRESH
+    // ═══════════════════════════════════════════════
     let isFirstRender = true;
 
     async function refreshDashboard() {
@@ -730,16 +673,13 @@
         try {
           const data = await fetchStock(symbol);
           const sig  = computeSignals(data);
-
           appendRow(symbol, sig, data);
 
-          // Auto-chart first symbol
           if (isFirstRender) {
             renderChart(symbol, data, sig.ema21, sig.ema50);
             isFirstRender = false;
           }
 
-          // Signal alerts
           if (sig.signal === 'BUY') {
             pushAlert(`${symbol}: BUY — Score ${sig.score}, RSI ${sig.rsiValue != null ? sig.rsiValue.toFixed(1) : '—'}`, 'buy');
             notifyUser(`${symbol}: BUY signal from abledinos`);
@@ -749,8 +689,6 @@
           } else {
             pushAlert(`${symbol}: WATCH — Score ${sig.score}`, 'watch');
           }
-
-          // Breakout alert
           if (sig.breakout) {
             pushAlert(`${symbol}: 20-bar breakout detected 🚀`, 'breakout');
             notifyUser(`${symbol}: Breakout detected`);
@@ -760,8 +698,7 @@
           console.error(symbol, err);
           const tr = document.createElement('tr');
           tr.innerHTML = `<td colspan="9" class="empty-state" style="color:var(--sell)">
-            ✗ ${symbol}: ${err.message}
-          </td>`;
+            ✗ ${symbol}: ${err.message}</td>`;
           tbody.appendChild(tr);
           pushAlert(`${symbol}: fetch error — ${err.message}`, 'error');
         }
@@ -772,12 +709,11 @@
       resetCountdown();
     }
 
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     // AUTO-REFRESH COUNTDOWN
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     let countdownVal = AUTO_REFRESH_SEC;
-    let countdownInterval = null;
-    let refreshTimeout    = null;
+    let countdownInterval = null, refreshTimeout = null;
 
     function resetCountdown() {
       clearInterval(countdownInterval);
@@ -785,25 +721,21 @@
       countdownVal = AUTO_REFRESH_SEC;
       const el = document.getElementById('countdown');
       el.textContent = `AUTO ↻ ${countdownVal}s`;
-
       countdownInterval = setInterval(() => {
         countdownVal--;
         el.textContent = `AUTO ↻ ${countdownVal}s`;
         if (countdownVal <= 0) clearInterval(countdownInterval);
       }, 1000);
-
       refreshTimeout = setTimeout(refreshDashboard, AUTO_REFRESH_SEC * 1000);
     }
 
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     // INIT
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
     window.addEventListener('load', () => {
-      // Dismiss splash after 2s
       setTimeout(() => {
         document.getElementById('splash-screen').classList.add('hidden');
       }, 2000);
-
       initChart();
       refreshDashboard();
     });

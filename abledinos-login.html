@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>abledinos Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090f;
+      --surface: #111120;
+      --surface2: #181830;
+      --border: #1e1e3a;
+      --accent: #5b5ef5;
+      --accent2: #00d4aa;
+      --accent3: #ff6b6b;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --nav-h: 60px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(91,94,245,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,94,245,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(91,94,245,0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--nav-h);
+      background: rgba(9,9,15,0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 24px;
+    }
+    .nav-left { display: flex; align-items: center; gap: 10px; }
+    .logo-badge {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .nav-title {
+      font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── PAGE ── */
+    .auth-container {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--nav-h) 20px 40px;
+    }
+
+    /* ── CARD ── */
+    .auth-card {
+      width: 100%; max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px;
+      position: relative; overflow: hidden;
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    /* ── LOGO BLOCK ── */
+    .logo-container {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 12px; margin-bottom: 32px;
+    }
+    .logo-badge-lg {
+      width: 60px; height: 60px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 0 32px rgba(91,94,245,0.4);
+    }
+    .logo-container h2 {
+      font-size: 1.45rem; font-weight: 800; letter-spacing: -0.03em;
+      text-align: center;
+    }
+    .logo-container p {
+      font-family: 'Space Mono', monospace; font-size: 0.68rem;
+      color: var(--muted); letter-spacing: 0.1em; text-align: center;
+    }
+
+    /* ── FLOW STEPS ── */
+    .flow-steps {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 28px;
+    }
+    .flow-step {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .flow-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700;
+    }
+    .flow-dot.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; box-shadow: 0 0 14px rgba(91,94,245,0.4);
+    }
+    .flow-dot.inactive {
+      background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .flow-lbl {
+      font-family: 'Space Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.08em; color: var(--muted);
+    }
+    .flow-lbl.active { color: var(--accent2); }
+    .flow-line {
+      width: 36px; height: 1px; background: var(--border);
+      margin-bottom: 16px; flex-shrink: 0;
+    }
+
+    /* ── FORM ── */
+    .auth-form { display: flex; flex-direction: column; gap: 0; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .field label {
+      font-family: 'Space Mono', monospace; font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap .icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      font-size: 0.85rem; pointer-events: none; opacity: 0.5;
+    }
+    .auth-form input {
+      width: 100%;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 14px 11px 38px;
+      color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.82rem;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .auth-form input::placeholder { color: var(--muted); }
+    .auth-form input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(91,94,245,0.12);
+    }
+    .toggle-pw {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 0.85rem; padding: 2px; transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--text); }
+    .forgot { text-align: right; margin-top: -8px; margin-bottom: 10px; }
+    .forgot a {
+      font-family: 'Space Mono', monospace; font-size: 0.65rem;
+      color: var(--accent); text-decoration: none; letter-spacing: 0.06em; transition: opacity 0.2s;
+    }
+    .forgot a:hover { opacity: 0.75; }
+
+    /* ── SUBMIT ── */
+    .submit-btn {
+      width: 100%; padding: 13px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #7c7ef9);
+      border: none; color: #fff;
+      font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.04em;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      margin-top: 8px; position: relative; overflow: hidden;
+    }
+    .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(91,94,245,0.35); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn.loading { pointer-events: none; opacity: 0.7; }
+    .submit-btn .btn-text { transition: opacity 0.2s; }
+    .submit-btn .btn-spinner {
+      display: none; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .submit-btn.loading .btn-text { opacity: 0; }
+    .submit-btn.loading .btn-spinner { display: block; }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    /* ── MSG BOX ── */
+    .msg-box {
+      border-radius: 8px; padding: 10px 14px;
+      font-family: 'Space Mono', monospace; font-size: 0.7rem;
+      line-height: 1.5; display: none; margin-bottom: 14px;
+    }
+    .msg-box.error   { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: #ff6b6b; display: block; }
+    .msg-box.success { background: rgba(0,212,170,0.1);   border: 1px solid rgba(0,212,170,0.3);   color: #00d4aa; display: block; }
+
+    .auth-note {
+      text-align: center; margin-top: 20px;
+      font-family: 'Space Mono', monospace; font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.06em; line-height: 1.7;
+    }
+    .auth-note a { color: var(--accent); text-decoration: none; }
+    .auth-note a:hover { text-decoration: underline; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="logo-badge">🦕</div>
+      <span class="nav-title">abledinos</span>
+    </div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-card">
+
+      <div class="logo-container">
+        <div class="logo-badge-lg">🦕</div>
+        <h2>Welcome back</h2>
+        <p>SIGN IN TO YOUR ABLEDINOS ACCOUNT</p>
+      </div>
+
+      <!-- Flow indicator: Login → Profile → Dashboard -->
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-dot active">1</div>
+          <div class="flow-lbl active">LOGIN</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step">
+          <div class="flow-dot inactive">2</div>
+          <div class="flow-lbl">PROFILE</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step">
+          <div class="flow-dot inactive">3</div>
+          <div class="flow-lbl">DASHBOARD</div>
+        </div>
+      </div>
+
+      <div class="msg-box" id="msg-box"></div>
+
+      <form class="auth-form" id="login-form" onsubmit="handleLogin(event)">
+
+        <div class="field">
+          <label>Email</label>
+          <div class="input-wrap">
+            <span class="icon">✉</span>
+            <input type="email" id="email-input" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <span class="icon">🔑</span>
+            <input type="password" id="pw-input" placeholder="••••••••" required autocomplete="current-password" />
+            <button type="button" class="toggle-pw" id="toggle-pw" onclick="togglePw()">👁</button>
+          </div>
+        </div>
+
+        <div class="forgot"><a href="#">Forgot password?</a></div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span class="btn-text">Login &amp; Set Up Profile →</span>
+          <div class="btn-spinner"></div>
+        </button>
+
+        <p class="auth-note">
+          Don't have an account? <a href="#">Request access</a><br>
+          Authentication backend will be connected here.
+        </p>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    function togglePw() {
+      const inp = document.getElementById('pw-input');
+      const btn = document.getElementById('toggle-pw');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+    }
+
+    function showMsg(text, type) {
+      const box = document.getElementById('msg-box');
+      box.textContent = text;
+      box.className = `msg-box ${type}`;
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const btn   = document.getElementById('submit-btn');
+      const email = document.getElementById('email-input').value.trim();
+      const pw    = document.getElementById('pw-input').value;
+
+      btn.classList.add('loading');
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+
+        const validSuperAdmin = email === 'esraigroup@gmail.com' && pw === 'super123';
+        const validGeneral    = email && pw.length >= 6;
+
+        if (validSuperAdmin || validGeneral) {
+          // Persist session
+          sessionStorage.setItem('abledinos_email', email);
+          sessionStorage.setItem('abledinos_role', validSuperAdmin ? 'Super Admin' : 'Member');
+          sessionStorage.setItem('abledinos_loggedin', '1');
+
+          // Pre-fill profile email in localStorage too
+          const existing = JSON.parse(localStorage.getItem('abledinos_profile') || '{}');
+          if (!existing.email) {
+            existing.email = email;
+            existing.role  = validSuperAdmin ? 'Super Admin' : 'Member';
+            existing.since = existing.since || new Date().toISOString();
+            localStorage.setItem('abledinos_profile', JSON.stringify(existing));
+          }
+
+          showMsg('✓ Login successful — setting up your profile...', 'success');
+          setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
+          return;
+        }
+
+        showMsg('✗ Invalid credentials. Please try again.', 'error');
+      }, 1400);
+    }
+  </script>
+</body>
+</html>
