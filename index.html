@@ -31,6 +31,8 @@ nav{position:fixed;top:0;left:0;width:100%;height:var(--nav-h);z-index:900;displ
 nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-shadow:0 2px 20px rgba(13,13,13,0.08)}
 .nav-logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.6rem;color:var(--ink);text-decoration:none;letter-spacing:-0.02em}
 .nav-logo span{color:var(--gold)}
+.nav-logo-img{height:40px;width:auto;max-width:160px;cursor:pointer;}
+@media(max-width:768px){.nav-logo-img{height:32px;}}
 .nav-links{display:flex;gap:32px;align-items:center}
 .nav-links a{font-size:.9rem;font-weight:500;color:var(--ink);text-decoration:none;opacity:.75;transition:opacity .2s}
 .nav-links a:hover{opacity:1}
@@ -130,7 +132,38 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .video-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(245,240,232,.4);font-size:.8rem}
 .video-placeholder span{font-size:2rem}
 
-/* ---- ADMIN OVERLAY ---- */
+/* ---- CITY DETAIL PAGE ---- */
+#city-detail{display:none;padding-top:var(--nav-h)}
+.city-detail-hero{height:420px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--terra),var(--gold));display:flex;align-items:flex-end}
+.city-detail-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s ease}
+.city-detail-hero:hover .city-detail-hero-bg{transform:scale(1.03)}
+.city-detail-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.85) 0%,rgba(13,13,13,.2) 60%,transparent 100%)}
+.city-detail-hero-content{position:relative;z-index:2;padding:48px;width:100%}
+.city-detail-icon{font-size:2.8rem;display:block;margin-bottom:10px}
+.city-detail-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;color:var(--cream);line-height:1;letter-spacing:-.02em}
+.city-detail-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px}
+.city-detail-meta span{font-size:.8rem;color:rgba(245,240,232,.65);display:flex;align-items:center;gap:5px}
+.city-detail-body{max-width:860px;margin:0 auto;padding:56px 40px 80px}
+.city-block { margin: 48px 0; padding: 32px; background: var(--card-bg); border-radius: var(--radius); }
+.city-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.city-map { height: 400px; border-radius: 12px; overflow: hidden; }
+.city-block-label{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.city-block-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.city-block h3{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:12px}
+.city-block p{font-size:.95rem;color:rgba(13,13,13,.65);line-height:1.75}
+.city-block-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.city-block-tag{background:var(--cream);color:var(--ink);font-size:.78rem;font-weight:600;padding:5px 14px;border-radius:50px;border:1px solid var(--border)}
+.city-map-embed{width:100%;height:340px;border-radius:var(--radius);overflow:hidden;border:none;display:block}
+.city-detail-video{border-radius:var(--radius);overflow:hidden;background:var(--ink);aspect-ratio:16/9;margin-top:8px}
+.city-detail-video iframe{width:100%;height:100%;border:none}
+.city-detail-back{display:inline-flex;align-items:center;gap:8px;color:var(--gold);font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;margin:28px 40px 0;padding:0}
+.city-detail-back:hover{text-decoration:underline}
+@media(max-width:768px){
+  .city-detail-hero{height:320px}
+  .city-detail-hero-content{padding:28px 20px}
+  .city-detail-body{padding:36px 20px 60px}
+  .city-detail-back{margin-left:20px}
+}
 #admin-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(13,13,13,.6);backdrop-filter:blur(8px)}
 .admin-panel{position:fixed;top:0;right:0;width:min(520px,100vw);height:100%;background:var(--warm-white);overflow-y:auto;box-shadow:-8px 0 48px rgba(13,13,13,.2);display:flex;flex-direction:column}
 .admin-header{background:var(--ink);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -193,16 +226,50 @@ footer span{font-size:.8rem}
 /* ---- MISC ---- */
 .hidden{display:none!important}
 .tag-featured{background:var(--terra);color:white;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:50px;display:inline-block;margin-bottom:10px}
+
+/* ---- AD CARDS ---- */
+.ad-card {
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--gold), var(--terra));
+  color: white;
+  padding: 32px;
+  text-align: center;
+  transition: transform .3s, box-shadow .3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.ad-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+}
+.ad-card img {
+  width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 16px;
+}
+.ad-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 8px; }
+.ad-card .ad-cta {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: all .2s;
+  margin-top: 8px;
+}
+.ad-card .ad-cta:hover { background: white; color: var(--gold); }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav id="main-nav">
-  <a class="nav-logo" href="#" onclick="showHome()">Able<span>Dinos</span></a>
+  <img src="fotor_1775309543157.jpg" alt="AbleDinos Logo" class="nav-logo-img" onclick="showHome()">
   <div class="nav-links">
-    <a href="#countries" onclick="showHome()">Destinations</a>
-    <a href="#tips" onclick="showHome()">Travel Tips</a>
+    <a href="javascript:void(0)" onclick="showHome();setTimeout(()=>document.getElementById('countries').scrollIntoView({behavior:'smooth'}),80)">Destinations</a>
+    <a href="javascript:void(0)" onclick="showHome();setTimeout(()=>document.getElementById('tips').scrollIntoView({behavior:'smooth'}),80)">Travel Tips</a>
     <button class="nav-admin-btn" onclick="openLogin()">Admin</button>
   </div>
 </nav>
@@ -219,8 +286,8 @@ footer span{font-size:.8rem}
     <h1 class="hero-title">Travel <em>smarter</em>,<br>explore <em>deeper</em></h1>
     <p class="hero-sub">Curated destinations, insider tips, and immersive travel guides for the modern explorer. Every journey, extraordinary.</p>
     <div class="hero-btns">
-      <a class="btn-primary" href="#countries">Explore Destinations</a>
-      <a class="btn-ghost" href="#tips">Travel Tips</a>
+      <a class="btn-primary" href="javascript:void(0)" onclick="document.getElementById('countries').scrollIntoView({behavior:'smooth'})">Explore Destinations</a>
+      <a class="btn-ghost" href="javascript:void(0)" onclick="document.getElementById('tips').scrollIntoView({behavior:'smooth'})">Travel Tips</a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat"><strong>60+</strong><span>Countries</span></div>
@@ -267,7 +334,50 @@ footer span{font-size:.8rem}
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- CITY DETAIL PAGE -->
+<div id="city-detail">
+  <button class="city-detail-back" onclick="showCountry()">← Back to Cities</button>
+  <div class="city-detail-hero" id="city-detail-hero">
+    <div class="city-detail-hero-bg" id="city-detail-hero-bg"></div>
+    <div class="city-detail-hero-overlay"></div>
+    <div class="city-detail-hero-content">
+      <span class="city-detail-icon" id="city-detail-icon"></span>
+      <h1 class="city-detail-title" id="city-detail-title"></h1>
+      <div class="city-detail-meta" id="city-detail-meta"></div>
+    </div>
+  </div>
+  <div class="city-detail-body">
+    <div class="city-block" id="cd-desc-block">
+      <div class="city-block-label">Overview</div>
+      <p id="cd-desc"></p>
+      <div class="city-block-tags" id="cd-highlights"></div>
+    </div>
+    <div class="city-block" id="cd-attractions-block">
+      <div class="city-block-label">🏛 Attractions</div>
+      <p id="cd-attractions"></p>
+    </div>
+    <div class="city-block" id="cd-restaurants-block">
+      <div class="city-block-label">🍽 Food &amp; Drink</div>
+      <p id="cd-restaurants"></p>
+    </div>
+    <div class="city-block" id="cd-around-block">
+      <div class="city-block-label">🚇 Getting Around</div>
+      <p id="cd-around"></p>
+    </div>
+    <div class="city-block" id="cd-culture-block">
+      <div class="city-block-label">🎭 Culture &amp; Vibe</div>
+      <p id="cd-culture"></p>
+    </div>
+    <div class="city-block" id="cd-video-block">
+      <div class="city-block-label">🎬 Video Guide</div>
+      <div class="city-detail-video" id="cd-video"></div>
+    </div>
+    <div class="city-block" id="cd-map-block">
+      <div class="city-block-label">📍 Map</div>
+      <iframe id="cd-map" class="city-map-embed" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
 <footer id="main-footer">
   <strong>Able<span style="color:var(--gold)">Dinos</span></strong>
   <span>© 2025 AbleDinos. Smart travel for brilliant explorers. All rights reserved.</span>
@@ -300,7 +410,10 @@ footer span{font-size:.8rem}
       <button class="admin-tab active" onclick="switchTab('countries-tab',this)">Countries</button>
       <button class="admin-tab" onclick="switchTab('cities-tab',this)">Cities</button>
       <button class="admin-tab" onclick="switchTab('tips-tab',this)">Tips</button>
+      <button class="admin-tab" onclick="switchTab('citypages-tab',this)">City Pages</button>
       <button class="admin-tab" onclick="switchTab('settings-tab',this)">Settings</button>
+      <button class="admin-tab" onclick="switchTab('palette-tab', this)">Palette</button>
+      <button class="admin-tab" onclick="switchTab('ads-tab', this)">Ads</button>
     </div>
     <div class="admin-body">
 
@@ -353,6 +466,22 @@ footer span{font-size:.8rem}
         <div class="form-group"><label>Best For</label><input type="text" id="city-bestfor" placeholder="e.g. Romance, Culture, Food"></div>
         <div class="form-group"><label>YouTube Video ID or URL</label><input type="text" id="city-video" placeholder="e.g. dQw4w9WgXcQ or full URL"></div>
         <div class="form-group"><label>Background Gradient Colors</label><input type="text" id="city-gradient" placeholder="e.g. #c85a3c,#c9a84c"></div>
+        <hr class="admin-divider">
+        <p style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(13,13,13,.5);margin-bottom:14px">📄 Rich Page Content</p>
+        <div class="form-group">
+          <label>Hero Cover Photo</label>
+          <input type="file" id="city-hero-img" accept="image/*" onchange="previewHeroImg(this)">
+          <div id="city-hero-preview" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;height:100px;background:center/cover no-repeat"></div>
+          <small style="color:rgba(13,13,13,.4);font-size:.75rem;margin-top:4px;display:block">Replaces the gradient tile. Stored as base64.</small>
+        </div>
+        <div class="form-group">
+          <label>Map Coordinates <span style="font-weight:400;text-transform:none;font-size:.78rem">(lat,lng)</span></label>
+          <input type="text" id="city-lat-lng" placeholder="48.8566,2.3522">
+        </div>
+        <div class="form-group"><label>Attractions <span style="font-weight:400;text-transform:none;font-size:.78rem">(comma-separated or prose)</span></label><textarea id="city-attractions" placeholder="e.g. Eiffel Tower, Louvre Museum, Notre-Dame Cathedral, Montmartre"></textarea></div>
+        <div class="form-group"><label>Restaurants &amp; Food</label><textarea id="city-restaurants" placeholder="e.g. Michelin-starred bistros, casual brasseries, street markets, world-class pastry shops"></textarea></div>
+        <div class="form-group"><label>Getting Around</label><textarea id="city-getting-around" placeholder="e.g. Metro, RER trains, Vélib' bike share — buy a Navigo weekly pass for unlimited travel"></textarea></div>
+        <div class="form-group"><label>Culture &amp; Vibe</label><textarea id="city-culture" placeholder="e.g. French fashion, Impressionism, café culture, haute cuisine — a city best savoured slowly"></textarea></div>
         <button class="admin-btn admin-btn-primary" onclick="saveCity()">Save Destination</button>
         <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="clearCityForm()">Clear Form</button>
       </div>
@@ -371,6 +500,27 @@ footer span{font-size:.8rem}
         <div class="form-group"><label>Tip Content</label><textarea id="tip-content" placeholder="Explain this travel tip..."></textarea></div>
         <button class="admin-btn admin-btn-primary" onclick="saveTip()">Save Tip</button>
         <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="clearTipForm()">Clear Form</button>
+      </div>
+
+      <!-- CITY PAGES TAB -->
+      <div id="citypages-tab" class="admin-section">
+        <h3 style="font-family:'Playfair Display',serif;margin-bottom:8px">City Page Content</h3>
+        <p style="font-size:.83rem;color:rgba(13,13,13,.45);margin-bottom:20px">Rich content (hero photo, map, attractions, food, transport, culture) is now managed directly in the <strong>Cities</strong> tab when adding or editing a destination.</p>
+        <div class="form-row" style="margin-bottom:20px">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Filter by Country</label>
+            <select id="citypage-country-filter" onchange="renderCityPages()">
+              <option value="">All Countries</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Filter by City</label>
+            <select id="citypage-city-filter" onchange="renderCityPages()">
+              <option value="">All Cities</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-list" id="admin-citypages-list"></div>
       </div>
 
       <!-- SETTINGS TAB -->
@@ -397,6 +547,103 @@ footer span{font-size:.8rem}
         <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="doLogout()">Sign Out</button>
       </div>
 
+      <!-- PALETTE TAB -->
+      <div id="palette-tab" class="admin-section">
+        <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">Color Palette</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Primary (Ink)</label>
+            <input type="color" id="p-ink" value="#0d0d0d">
+          </div>
+          <div class="form-group">
+            <label>Background (Cream)</label>
+            <input type="color" id="p-cream" value="#f5f0e8">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Accent (Gold)</label>
+            <input type="color" id="p-gold" value="#c9a84c">
+          </div>
+          <div class="form-group">
+            <label>Secondary (Terra)</label>
+            <input type="color" id="p-terra" value="#c85a3c">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nature (Sage)</label>
+            <input type="color" id="p-sage" value="#4a7c6a">
+          </div>
+          <div class="form-group">
+            <label>Ocean (Sky)</label>
+            <input type="color" id="p-sky" value="#2d5f8a">
+          </div>
+        </div>
+
+        <div class="palette-preview" id="palette-preview" style="height: 120px; border-radius: var(--radius); margin: 24px 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; transition: background .4s;">
+          Live Preview
+        </div>
+
+        <button class="admin-btn admin-btn-primary" onclick="savePalette()">Save Palette</button>
+        <button class="admin-btn" style="background: var(--cream); color: var(--ink); margin-top: 8px;" onclick="loadDefaultPalette()">Reset to Default</button>
+      </div>
+
+      <!-- ADS TAB -->
+      <div id="ads-tab" class="admin-section">
+        <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">Advertisement Tiles</h3>
+
+        <div class="admin-list" id="admin-ads-list"></div>
+        <hr class="admin-divider">
+
+        <h4 style="margin-bottom: 16px; font-size: .9rem; font-weight: 700;" id="ad-form-title">Add New Ad Tile</h4>
+        <input type="hidden" id="edit-ad-id">
+
+        <div class="form-group">
+          <label>Ad Title</label>
+          <input type="text" id="ad-title" placeholder="e.g. Book Hotels 30% Off">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location</label>
+            <select id="ad-location">
+              <option value="tips-after-2">Tips (after 2nd)</option>
+              <option value="tips-after-4">Tips (after 4th)</option>
+              <option value="countries-after-3">Countries (after 3rd)</option>
+              <option value="cities-after-2">Cities (after 2nd)</option>
+              <option value="hero-bottom">Hero Bottom</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Background Color</label>
+            <input type="color" id="ad-bg" value="#c9a84c">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Image/Icon</label>
+          <input type="file" id="ad-image" accept="image/*">
+          <small style="font-size:.75rem;color:rgba(13,13,13,.4);margin-top:4px;display:block">Optional — 300×210px recommended</small>
+        </div>
+
+        <div class="form-group">
+          <label>CTA Button Text</label>
+          <input type="text" id="ad-cta" placeholder="Book Now">
+        </div>
+
+        <div class="form-group">
+          <label>External Link</label>
+          <input type="url" id="ad-link" placeholder="https://booking.com/special">
+        </div>
+
+        <button class="admin-btn admin-btn-primary" onclick="saveAd()">Save Ad Tile</button>
+        <button class="admin-btn" style="background: var(--cream); color: var(--ink); margin-top: 8px;" onclick="clearAdForm()">Clear Form</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -406,45 +653,45 @@ footer span{font-size:.8rem}
 <script>
 // ===================== DEFAULT DATA =====================
 const DEFAULT_COUNTRIES = [
-  {id:'fr',name:'France',flag:'🇫🇷',desc:'The land of romance, art, cuisine and timeless elegance. France enchants with its chic boulevards, lavender fields, and world-class wine.',season:'Apr – Oct',currency:'EUR €',lang:'French',gradient:'#2d5f8a,#c9a84c',featured:1},
-  {id:'es',name:'Spain',flag:'🇪🇸',desc:'Flamenco rhythms, sun-drenched beaches, Gothic cathedrals, and tapas bars buzzing till dawn — Spain is passion made into a country.',season:'Mar – Jun, Sep – Nov',currency:'EUR €',lang:'Spanish',gradient:'#c85a3c,#c9a84c',featured:1},
-  {id:'us',name:'United States',flag:'🇺🇸',desc:'From the neon wilderness of Manhattan to the red canyons of the Southwest, the USA is a continent of experiences.',season:'Year-round',currency:'USD $',lang:'English',gradient:'#2d5f8a,#c85a3c',featured:1},
-  {id:'cn',name:'China',flag:'🇨🇳',desc:'Ancient dynasties, misty mountains, the Great Wall, and a modern skyline that dazzles — China is a civilisation unto itself.',season:'Apr – May, Sep – Oct',currency:'CNY ¥',lang:'Mandarin',gradient:'#c85a3c,#4a7c6a',featured:0},
-  {id:'it',name:'Italy',flag:'🇮🇹',desc:'Cobblestone piazzas, Renaissance masterpieces, and the world\'s finest pasta — Italy delivers la dolce vita at every turn.',season:'Apr – Jun, Sep – Oct',currency:'EUR €',lang:'Italian',gradient:'#4a7c6a,#c9a84c',featured:1},
-  {id:'tr',name:'Turkey',flag:'🇹🇷',desc:'Straddling East and West, Turkey blends Byzantine domes, bazaars spiced with saffron, and coastlines of turquoise perfection.',season:'Apr – Jun, Sep – Nov',currency:'TRY ₺',lang:'Turkish',gradient:'#c85a3c,#2d5f8a',featured:0},
-  {id:'mx',name:'Mexico',flag:'🇲🇽',desc:'Aztec pyramids, Caribbean beaches, mezcal-scented markets, and a culture as vivid and layered as a Oaxacan mural.',season:'Nov – Apr',currency:'MXN $',lang:'Spanish',gradient:'#4a7c6a,#c85a3c',featured:0},
-  {id:'th',name:'Thailand',flag:'🇹🇭',desc:'Golden temples, elephant sanctuaries, emerald islands, and street food that redefines flavour — Thailand is the Land of Smiles for a reason.',season:'Nov – Apr',currency:'THB ฿',lang:'Thai',gradient:'#c9a84c,#4a7c6a',featured:1},
-  {id:'de',name:'Germany',flag:'🇩🇪',desc:'Fairy-tale castles, dense forests, world-class museums, and a beer culture that demands to be toasted — Germany delights and surprises.',season:'May – Sep',currency:'EUR €',lang:'German',gradient:'#0d0d0d,#c9a84c',featured:0},
-  {id:'jp',name:'Japan',flag:'🇯🇵',desc:'Cherry blossoms, bullet trains, neon-lit izakayas, and a reverence for craft and beauty that permeates every detail of daily life.',season:'Mar – May, Oct – Nov',currency:'JPY ¥',lang:'Japanese',gradient:'#c85a3c,#2d5f8a',featured:1},
-  {id:'uk',name:'United Kingdom',flag:'🇬🇧',desc:'Stately palaces, rolling moors, pubs with centuries of gossip, and a cultural output that punches far above its geographic weight.',season:'May – Sep',currency:'GBP £',lang:'English',gradient:'#2d5f8a,#0d0d0d',featured:0},
-  {id:'gr',name:'Greece',flag:'🇬🇷',desc:'White-washed churches over sapphire seas, the birthplace of democracy, and tavernas where time slows to a mezes-fuelled crawl.',season:'May – Oct',currency:'EUR €',lang:'Greek',gradient:'#2d5f8a,#c9a84c',featured:0},
+  {id:'fr',name:'France',flag:'🇫🇷',desc:'The land of romance, art, cuisine and timeless elegance. France enchants with its chic boulevards, lavender fields, and world-class wine.',season:'Apr – Oct',currency:'EUR €',lang:'French',gradient:'#2d5f8a,#c9a84c',featured:1,heroImage:'https://picsum.photos/seed/france/800/420'},
+  {id:'es',name:'Spain',flag:'🇪🇸',desc:'Flamenco rhythms, sun-drenched beaches, Gothic cathedrals, and tapas bars buzzing till dawn — Spain is passion made into a country.',season:'Mar – Jun, Sep – Nov',currency:'EUR €',lang:'Spanish',gradient:'#c85a3c,#c9a84c',featured:1,heroImage:'https://picsum.photos/seed/spain/800/420'},
+  {id:'us',name:'United States',flag:'🇺🇸',desc:'From the neon wilderness of Manhattan to the red canyons of the Southwest, the USA is a continent of experiences.',season:'Year-round',currency:'USD $',lang:'English',gradient:'#2d5f8a,#c85a3c',featured:1,heroImage:'https://picsum.photos/seed/usa/800/420'},
+  {id:'cn',name:'China',flag:'🇨🇳',desc:'Ancient dynasties, misty mountains, the Great Wall, and a modern skyline that dazzles — China is a civilisation unto itself.',season:'Apr – May, Sep – Oct',currency:'CNY ¥',lang:'Mandarin',gradient:'#c85a3c,#4a7c6a',featured:0,heroImage:'https://picsum.photos/seed/china/800/420'},
+  {id:'it',name:'Italy',flag:'🇮🇹',desc:'Cobblestone piazzas, Renaissance masterpieces, and the world\'s finest pasta — Italy delivers la dolce vita at every turn.',season:'Apr – Jun, Sep – Oct',currency:'EUR €',lang:'Italian',gradient:'#4a7c6a,#c9a84c',featured:1,heroImage:'https://picsum.photos/seed/italy/800/420'},
+  {id:'tr',name:'Turkey',flag:'🇹🇷',desc:'Straddling East and West, Turkey blends Byzantine domes, bazaars spiced with saffron, and coastlines of turquoise perfection.',season:'Apr – Jun, Sep – Nov',currency:'TRY ₺',lang:'Turkish',gradient:'#c85a3c,#2d5f8a',featured:0,heroImage:'https://picsum.photos/seed/turkey/800/420'},
+  {id:'mx',name:'Mexico',flag:'🇲🇽',desc:'Aztec pyramids, Caribbean beaches, mezcal-scented markets, and a culture as vivid and layered as a Oaxacan mural.',season:'Nov – Apr',currency:'MXN $',lang:'Spanish',gradient:'#4a7c6a,#c85a3c',featured:0,heroImage:'https://picsum.photos/seed/mexico/800/420'},
+  {id:'th',name:'Thailand',flag:'🇹🇭',desc:'Golden temples, elephant sanctuaries, emerald islands, and street food that redefines flavour — Thailand is the Land of Smiles for a reason.',season:'Nov – Apr',currency:'THB ฿',lang:'Thai',gradient:'#c9a84c,#4a7c6a',featured:1,heroImage:'https://picsum.photos/seed/thailand/800/420'},
+  {id:'de',name:'Germany',flag:'🇩🇪',desc:'Fairy-tale castles, dense forests, world-class museums, and a beer culture that demands to be toasted — Germany delights and surprises.',season:'May – Sep',currency:'EUR €',lang:'German',gradient:'#0d0d0d,#c9a84c',featured:0,heroImage:'https://picsum.photos/seed/germany/800/420'},
+  {id:'jp',name:'Japan',flag:'🇯🇵',desc:'Cherry blossoms, bullet trains, neon-lit izakayas, and a reverence for craft and beauty that permeates every detail of daily life.',season:'Mar – May, Oct – Nov',currency:'JPY ¥',lang:'Japanese',gradient:'#c85a3c,#2d5f8a',featured:1,heroImage:'https://picsum.photos/seed/japan/800/420'},
+  {id:'uk',name:'United Kingdom',flag:'🇬🇧',desc:'Stately palaces, rolling moors, pubs with centuries of gossip, and a cultural output that punches far above its geographic weight.',season:'May – Sep',currency:'GBP £',lang:'English',gradient:'#2d5f8a,#0d0d0d',featured:0,heroImage:'https://picsum.photos/seed/london/800/420'},
+  {id:'gr',name:'Greece',flag:'🇬🇷',desc:'White-washed churches over sapphire seas, the birthplace of democracy, and tavernas where time slows to a mezes-fuelled crawl.',season:'May – Oct',currency:'EUR €',lang:'Greek',gradient:'#2d5f8a,#c9a84c',featured:0,heroImage:'https://picsum.photos/seed/greece/800/420'},
 ];
 const DEFAULT_CITIES = [
-  {id:'fr_paris',countryId:'fr',name:'Paris',icon:'🗼',desc:'The City of Light captivates with the Eiffel Tower, world-class art at the Louvre, haute cuisine, and an undeniable romantic atmosphere along the Seine.',highlights:'Eiffel Tower,Louvre Museum,Notre-Dame,Montmartre,Seine Cruise',bestFor:'Romance, Art, Fashion',video:'ZPtJMM4AKBU',gradient:'#2d5f8a,#c9a84c'},
-  {id:'fr_nice',countryId:'fr',name:'Nice',icon:'🌊',desc:'The jewel of the French Riviera, with a sun-drenched promenade, vibrant old town, and easy access to Monaco and Cannes.',highlights:'Promenade des Anglais,Old Town,Castle Hill,Matisse Museum',bestFor:'Beach, Art, Luxury',video:'',gradient:'#4a7c6a,#2d5f8a'},
-  {id:'fr_lyon',countryId:'fr',name:'Lyon',icon:'🍽️',desc:'France\'s gastronomic capital, where Renaissance architecture meets award-winning bouchons and a thriving cultural scene.',highlights:'Old Lyon,Croix-Rousse,Fête des Lumières,Traboules',bestFor:'Food, History, Culture',video:'',gradient:'#c85a3c,#c9a84c'},
-  {id:'es_madrid',countryId:'es',name:'Madrid',icon:'🎨',desc:'Spain\'s vibrant capital pulses with art, tapas, and an electric nightlife. The Prado Museum alone is worth the trip.',highlights:'Prado Museum,Retiro Park,Plaza Mayor,Royal Palace',bestFor:'Art, Nightlife, Food',video:'CRwrX0n6K7k',gradient:'#c85a3c,#c9a84c'},
-  {id:'es_barcelona',countryId:'es',name:'Barcelona',icon:'🏛️',desc:'Gaudí\'s surrealist masterpieces rise from a sun-blessed Mediterranean city bursting with beach culture, tapas, and Catalan pride.',highlights:'Sagrada Família,Park Güell,La Rambla,Gothic Quarter',bestFor:'Architecture, Beach, Culture',video:'',gradient:'#c9a84c,#2d5f8a'},
-  {id:'es_seville',countryId:'es',name:'Seville',icon:'💃',desc:'The soul of Andalusia — flamenco echoes through orange-blossom streets, and the Alcázar palace makes every other palace jealous.',highlights:'Alcázar,Cathedral,Flamenco Shows,Barrio Santa Cruz',bestFor:'Culture, History, Romance',video:'',gradient:'#c85a3c,#4a7c6a'},
-  {id:'us_nyc',countryId:'us',name:'New York City',icon:'🗽',desc:'The city that never sleeps delivers Broadway, towering skylines, world cuisine in every borough, and an electric energy unlike anywhere on earth.',highlights:'Central Park,Times Square,Brooklyn Bridge,MoMA,The Met',bestFor:'Culture, Food, Urban Energy',video:'D9HJHHD2v5I',gradient:'#2d5f8a,#0d0d0d'},
-  {id:'us_la',countryId:'us',name:'Los Angeles',icon:'🎬',desc:'Hollywood glamour meets Pacific sunsets in a sprawling city of beaches, film studios, world-class museums, and farm-to-table dining.',highlights:'Hollywood Sign,Getty Center,Santa Monica,Griffith Observatory',bestFor:'Entertainment, Beach, Food',video:'',gradient:'#c85a3c,#c9a84c'},
-  {id:'us_sf',countryId:'us',name:'San Francisco',icon:'🌉',desc:'The Golden Gate Bridge frames a city of Victorian houses, sourdough bread, Alcatraz, and a tech-fuelled creative renaissance.',highlights:'Golden Gate Bridge,Alcatraz,Fisherman\'s Wharf,Chinatown',bestFor:'Culture, Scenery, Food',video:'',gradient:'#c9a84c,#2d5f8a'},
-  {id:'it_rome',countryId:'it',name:'Rome',icon:'🏛️',desc:'The Eternal City layers 2,500 years of history — from the Colosseum to Baroque fountains to neighbourhood osterias serving cacio e pepe since forever.',highlights:'Colosseum,Vatican,Trevi Fountain,Trastevere,Pantheon',bestFor:'History, Food, Art',video:'q1RFBs0EMRU',gradient:'#c85a3c,#c9a84c'},
-  {id:'it_venice',countryId:'it',name:'Venice',icon:'🚢',desc:'Built on water, dreamed in marble — Venice floats impossibly, with gondola canals, masked carnivals, and a beauty that feels borrowed from another era.',highlights:'Grand Canal,St Mark\'s Basilica,Rialto Bridge,Murano Island',bestFor:'Romance, Art, Uniqueness',video:'',gradient:'#2d5f8a,#c9a84c'},
-  {id:'it_florence',countryId:'it',name:'Florence',icon:'🎭',desc:'The cradle of the Renaissance, where Botticelli, Michelangelo, and the Medici shaped Western art — and where every pizzeria is a masterpiece.',highlights:'Uffizi Gallery,Duomo,Ponte Vecchio,Piazzale Michelangelo',bestFor:'Art, History, Food',video:'',gradient:'#4a7c6a,#c9a84c'},
-  {id:'jp_tokyo',countryId:'jp',name:'Tokyo',icon:'🗾',desc:'A hyper-efficient, endlessly fascinating megalopolis where ancient temples share the skyline with robot restaurants, capsule hotels, and the world\'s best sushi.',highlights:'Shibuya Crossing,Senso-ji,Shinjuku,Tsukiji Market,Mt Fuji Day Trip',bestFor:'Food, Tech, Culture',video:'pkzZ3z1EI4Q',gradient:'#c85a3c,#2d5f8a'},
-  {id:'jp_kyoto',countryId:'jp',name:'Kyoto',icon:'⛩️',desc:'Japan\'s ancient capital preserves a thousand years of geisha culture, bamboo groves, zen gardens, and some 1,600 Buddhist temples.',highlights:'Fushimi Inari,Arashiyama,Gion District,Nijo Castle,Kinkaku-ji',bestFor:'History, Culture, Nature',video:'',gradient:'#4a7c6a,#c9a84c'},
-  {id:'th_bangkok',countryId:'th',name:'Bangkok',icon:'🛕',desc:'Chaotic, intoxicating, and utterly unmissable — Bangkok\'s golden temples, floating markets, and street food scene are Southeast Asia at its finest.',highlights:'Grand Palace,Wat Pho,Chatuchak Market,Chao Phraya River',bestFor:'Culture, Food, Adventure',video:'mzgOSdJqiT0',gradient:'#c9a84c,#c85a3c'},
-  {id:'th_chiang_mai',countryId:'th',name:'Chiang Mai',icon:'🐘',desc:'The cultural capital of northern Thailand, surrounded by mountains and home to elephant sanctuaries, night bazaars, and centuries-old temples.',highlights:'Doi Inthanon,Sunday Walking Street,Elephant Sanctuary,Doi Suthep',bestFor:'Nature, Culture, Wellness',video:'',gradient:'#4a7c6a,#c9a84c'},
-  {id:'cn_beijing',countryId:'cn',name:'Beijing',icon:'🏯',desc:'The Great Wall, the Forbidden City, and Peking Duck — China\'s capital wears its imperial past proudly while racing toward a gleaming future.',highlights:'Great Wall,Forbidden City,Temple of Heaven,Summer Palace',bestFor:'History, Culture, Food',video:'ggOZFVkj9fo',gradient:'#c85a3c,#0d0d0d'},
-  {id:'cn_shanghai',countryId:'cn',name:'Shanghai',icon:'🌆',desc:'China\'s most cosmopolitan city dazzles with Art Deco Bund architecture, neon-lit Pudong skyscrapers, and a dining scene of global ambition.',highlights:'The Bund,Yu Garden,Pudong Skyline,Xintiandi,French Concession',bestFor:'Urban Life, Food, Shopping',video:'',gradient:'#2d5f8a,#c9a84c'},
-  {id:'tr_istanbul',countryId:'tr',name:'Istanbul',icon:'🕌',desc:'Where Europe meets Asia across the Bosphorus, Istanbul dazzles with Byzantine mosaics, Ottoman mosques, and bazaars fragrant with spice.',highlights:'Hagia Sophia,Grand Bazaar,Topkapi Palace,Bosphorus Cruise',bestFor:'History, Culture, Food',video:'3piGrVTQUwI',gradient:'#c85a3c,#2d5f8a'},
-  {id:'tr_cappadocia',countryId:'tr',name:'Cappadocia',icon:'🎈',desc:'Surreal fairy chimneys, underground cities, and the world\'s most photogenic hot-air balloon flights over a landscape from another planet.',highlights:'Hot Air Balloon Ride,Göreme Open Air Museum,Underground Cities,Cave Hotels',bestFor:'Adventure, Photography, Romance',video:'',gradient:'#c9a84c,#c85a3c'},
-  {id:'gr_athens',countryId:'gr',name:'Athens',icon:'🏛️',desc:'The Acropolis watches over a living city where ancient agoras neighbour rooftop cocktail bars and the world\'s finest Greek salad awaits around every corner.',highlights:'Acropolis,Parthenon,Monastiraki,National Museum,Plaka',bestFor:'History, Culture, Food',video:'tHYKrqy-Loo',gradient:'#2d5f8a,#c9a84c'},
-  {id:'gr_santorini',countryId:'gr',name:'Santorini',icon:'🌅',desc:'Arguably Earth\'s most photographed island — whitewashed domes, caldera views at sunset, and wine from volcanic soil that tastes like mythology.',highlights:'Oia Sunset,Fira,Red Beach,Akrotiri Archaeological Site,Wine Tasting',bestFor:'Romance, Photography, Relaxation',video:'',gradient:'#2d5f8a,#c85a3c'},
-  {id:'mx_cdmx',countryId:'mx',name:'Mexico City',icon:'🌮',desc:'One of the world\'s great megacities: Aztec ruins beneath colonial cathedrals, world-class museums, and a food scene that\'s reshaping global dining.',highlights:'Teotihuacan,Frida Kahlo Museum,Zocalo,Xochimilco,Chapultepec',bestFor:'Culture, Food, Art',video:'6t0Cf81HCWE',gradient:'#4a7c6a,#c85a3c'},
-  {id:'de_berlin',countryId:'de',name:'Berlin',icon:'🎵',desc:'History scarred and healed, reinvented as Europe\'s creative capital — Berlin\'s galleries, techno clubs, and street art pulse with radical energy.',highlights:'Brandenburg Gate,Berlin Wall,Museum Island,East Side Gallery,Tiergarten',bestFor:'Culture, Art, Nightlife',video:'',gradient:'#0d0d0d,#c9a84c'},
-  {id:'uk_london',countryId:'uk',name:'London',icon:'🎡',desc:'The Thames flows through one of history\'s greatest cities — palaces, double-deckers, the Tate Modern, and an impossibly diverse food scene.',highlights:'Tower of London,British Museum,Borough Market,Notting Hill,Greenwich',bestFor:'Culture, History, Food',video:'',gradient:'#2d5f8a,#0d0d0d'},
+  {id:'fr_paris',countryId:'fr',name:'Paris',icon:'🗼',desc:'The City of Light captivates with the Eiffel Tower, world-class art at the Louvre, haute cuisine, and an undeniable romantic atmosphere along the Seine.',highlights:'Eiffel Tower,Louvre Museum,Notre-Dame,Montmartre,Seine Cruise',bestFor:'Romance, Art, Fashion',video:'ZPtJMM4AKBU',gradient:'#2d5f8a,#c9a84c',heroImage:'https://picsum.photos/seed/paris/700/380'},
+  {id:'fr_nice',countryId:'fr',name:'Nice',icon:'🌊',desc:'The jewel of the French Riviera, with a sun-drenched promenade, vibrant old town, and easy access to Monaco and Cannes.',highlights:'Promenade des Anglais,Old Town,Castle Hill,Matisse Museum',bestFor:'Beach, Art, Luxury',video:'',gradient:'#4a7c6a,#2d5f8a',heroImage:'https://picsum.photos/seed/nice/700/380'},
+  {id:'fr_lyon',countryId:'fr',name:'Lyon',icon:'🍽️',desc:'France\'s gastronomic capital, where Renaissance architecture meets award-winning bouchons and a thriving cultural scene.',highlights:'Old Lyon,Croix-Rousse,Fête des Lumières,Traboules',bestFor:'Food, History, Culture',video:'',gradient:'#c85a3c,#c9a84c',heroImage:'https://picsum.photos/seed/lyon/700/380'},
+  {id:'es_madrid',countryId:'es',name:'Madrid',icon:'🎨',desc:'Spain\'s vibrant capital pulses with art, tapas, and an electric nightlife. The Prado Museum alone is worth the trip.',highlights:'Prado Museum,Retiro Park,Plaza Mayor,Royal Palace',bestFor:'Art, Nightlife, Food',video:'CRwrX0n6K7k',gradient:'#c85a3c,#c9a84c',heroImage:'https://picsum.photos/seed/madrid/700/380'},
+  {id:'es_barcelona',countryId:'es',name:'Barcelona',icon:'🏛️',desc:'Gaudí\'s surrealist masterpieces rise from a sun-blessed Mediterranean city bursting with beach culture, tapas, and Catalan pride.',highlights:'Sagrada Família,Park Güell,La Rambla,Gothic Quarter',bestFor:'Architecture, Beach, Culture',video:'',gradient:'#c9a84c,#2d5f8a',heroImage:'https://picsum.photos/seed/barcelona/700/380'},
+  {id:'es_seville',countryId:'es',name:'Seville',icon:'💃',desc:'The soul of Andalusia — flamenco echoes through orange-blossom streets, and the Alcázar palace makes every other palace jealous.',highlights:'Alcázar,Cathedral,Flamenco Shows,Barrio Santa Cruz',bestFor:'Culture, History, Romance',video:'',gradient:'#c85a3c,#4a7c6a',heroImage:'https://picsum.photos/seed/seville/700/380'},
+  {id:'us_nyc',countryId:'us',name:'New York City',icon:'🗽',desc:'The city that never sleeps delivers Broadway, towering skylines, world cuisine in every borough, and an electric energy unlike anywhere on earth.',highlights:'Central Park,Times Square,Brooklyn Bridge,MoMA,The Met',bestFor:'Culture, Food, Urban Energy',video:'D9HJHHD2v5I',gradient:'#2d5f8a,#0d0d0d',heroImage:'https://picsum.photos/seed/newyork/700/380'},
+  {id:'us_la',countryId:'us',name:'Los Angeles',icon:'🎬',desc:'Hollywood glamour meets Pacific sunsets in a sprawling city of beaches, film studios, world-class museums, and farm-to-table dining.',highlights:'Hollywood Sign,Getty Center,Santa Monica,Griffith Observatory',bestFor:'Entertainment, Beach, Food',video:'',gradient:'#c85a3c,#c9a84c',heroImage:'https://picsum.photos/seed/losangeles/700/380'},
+  {id:'us_sf',countryId:'us',name:'San Francisco',icon:'🌉',desc:'The Golden Gate Bridge frames a city of Victorian houses, sourdough bread, Alcatraz, and a tech-fuelled creative renaissance.',highlights:'Golden Gate Bridge,Alcatraz,Fisherman\'s Wharf,Chinatown',bestFor:'Culture, Scenery, Food',video:'',gradient:'#c9a84c,#2d5f8a',heroImage:'https://picsum.photos/seed/sanfrancisco/700/380'},
+  {id:'it_rome',countryId:'it',name:'Rome',icon:'🏛️',desc:'The Eternal City layers 2,500 years of history — from the Colosseum to Baroque fountains to neighbourhood osterias serving cacio e pepe since forever.',highlights:'Colosseum,Vatican,Trevi Fountain,Trastevere,Pantheon',bestFor:'History, Food, Art',video:'q1RFBs0EMRU',gradient:'#c85a3c,#c9a84c',heroImage:'https://picsum.photos/seed/rome/700/380'},
+  {id:'it_venice',countryId:'it',name:'Venice',icon:'🚢',desc:'Built on water, dreamed in marble — Venice floats impossibly, with gondola canals, masked carnivals, and a beauty that feels borrowed from another era.',highlights:'Grand Canal,St Mark\'s Basilica,Rialto Bridge,Murano Island',bestFor:'Romance, Art, Uniqueness',video:'',gradient:'#2d5f8a,#c9a84c',heroImage:'https://picsum.photos/seed/venice/700/380'},
+  {id:'it_florence',countryId:'it',name:'Florence',icon:'🎭',desc:'The cradle of the Renaissance, where Botticelli, Michelangelo, and the Medici shaped Western art — and where every pizzeria is a masterpiece.',highlights:'Uffizi Gallery,Duomo,Ponte Vecchio,Piazzale Michelangelo',bestFor:'Art, History, Food',video:'',gradient:'#4a7c6a,#c9a84c',heroImage:'https://picsum.photos/seed/florence/700/380'},
+  {id:'jp_tokyo',countryId:'jp',name:'Tokyo',icon:'🗾',desc:'A hyper-efficient, endlessly fascinating megalopolis where ancient temples share the skyline with robot restaurants, capsule hotels, and the world\'s best sushi.',highlights:'Shibuya Crossing,Senso-ji,Shinjuku,Tsukiji Market,Mt Fuji Day Trip',bestFor:'Food, Tech, Culture',video:'pkzZ3z1EI4Q',gradient:'#c85a3c,#2d5f8a',heroImage:'https://picsum.photos/seed/tokyo/700/380'},
+  {id:'jp_kyoto',countryId:'jp',name:'Kyoto',icon:'⛩️',desc:'Japan\'s ancient capital preserves a thousand years of geisha culture, bamboo groves, zen gardens, and some 1,600 Buddhist temples.',highlights:'Fushimi Inari,Arashiyama,Gion District,Nijo Castle,Kinkaku-ji',bestFor:'History, Culture, Nature',video:'',gradient:'#4a7c6a,#c9a84c',heroImage:'https://picsum.photos/seed/kyoto/700/380'},
+  {id:'th_bangkok',countryId:'th',name:'Bangkok',icon:'🛕',desc:'Chaotic, intoxicating, and utterly unmissable — Bangkok\'s golden temples, floating markets, and street food scene are Southeast Asia at its finest.',highlights:'Grand Palace,Wat Pho,Chatuchak Market,Chao Phraya River',bestFor:'Culture, Food, Adventure',video:'mzgOSdJqiT0',gradient:'#c9a84c,#c85a3c',heroImage:'https://picsum.photos/seed/bangkok/700/380'},
+  {id:'th_chiang_mai',countryId:'th',name:'Chiang Mai',icon:'🐘',desc:'The cultural capital of northern Thailand, surrounded by mountains and home to elephant sanctuaries, night bazaars, and centuries-old temples.',highlights:'Doi Inthanon,Sunday Walking Street,Elephant Sanctuary,Doi Suthep',bestFor:'Nature, Culture, Wellness',video:'',gradient:'#4a7c6a,#c9a84c',heroImage:'https://picsum.photos/seed/chiangmai/700/380'},
+  {id:'cn_beijing',countryId:'cn',name:'Beijing',icon:'🏯',desc:'The Great Wall, the Forbidden City, and Peking Duck — China\'s capital wears its imperial past proudly while racing toward a gleaming future.',highlights:'Great Wall,Forbidden City,Temple of Heaven,Summer Palace',bestFor:'History, Culture, Food',video:'ggOZFVkj9fo',gradient:'#c85a3c,#0d0d0d',heroImage:'https://picsum.photos/seed/beijing/700/380'},
+  {id:'cn_shanghai',countryId:'cn',name:'Shanghai',icon:'🌆',desc:'China\'s most cosmopolitan city dazzles with Art Deco Bund architecture, neon-lit Pudong skyscrapers, and a dining scene of global ambition.',highlights:'The Bund,Yu Garden,Pudong Skyline,Xintiandi,French Concession',bestFor:'Urban Life, Food, Shopping',video:'',gradient:'#2d5f8a,#c9a84c',heroImage:'https://picsum.photos/seed/shanghai/700/380'},
+  {id:'tr_istanbul',countryId:'tr',name:'Istanbul',icon:'🕌',desc:'Where Europe meets Asia across the Bosphorus, Istanbul dazzles with Byzantine mosaics, Ottoman mosques, and bazaars fragrant with spice.',highlights:'Hagia Sophia,Grand Bazaar,Topkapi Palace,Bosphorus Cruise',bestFor:'History, Culture, Food',video:'3piGrVTQUwI',gradient:'#c85a3c,#2d5f8a',heroImage:'https://picsum.photos/seed/istanbul/700/380'},
+  {id:'tr_cappadocia',countryId:'tr',name:'Cappadocia',icon:'🎈',desc:'Surreal fairy chimneys, underground cities, and the world\'s most photogenic hot-air balloon flights over a landscape from another planet.',highlights:'Hot Air Balloon Ride,Göreme Open Air Museum,Underground Cities,Cave Hotels',bestFor:'Adventure, Photography, Romance',video:'',gradient:'#c9a84c,#c85a3c',heroImage:'https://picsum.photos/seed/cappadocia/700/380'},
+  {id:'gr_athens',countryId:'gr',name:'Athens',icon:'🏛️',desc:'The Acropolis watches over a living city where ancient agoras neighbour rooftop cocktail bars and the world\'s finest Greek salad awaits around every corner.',highlights:'Acropolis,Parthenon,Monastiraki,National Museum,Plaka',bestFor:'History, Culture, Food',video:'tHYKrqy-Loo',gradient:'#2d5f8a,#c9a84c',heroImage:'https://picsum.photos/seed/athens/700/380'},
+  {id:'gr_santorini',countryId:'gr',name:'Santorini',icon:'🌅',desc:'Arguably Earth\'s most photographed island — whitewashed domes, caldera views at sunset, and wine from volcanic soil that tastes like mythology.',highlights:'Oia Sunset,Fira,Red Beach,Akrotiri Archaeological Site,Wine Tasting',bestFor:'Romance, Photography, Relaxation',video:'',gradient:'#2d5f8a,#c85a3c',heroImage:'https://picsum.photos/seed/santorini/700/380'},
+  {id:'mx_cdmx',countryId:'mx',name:'Mexico City',icon:'🌮',desc:'One of the world\'s great megacities: Aztec ruins beneath colonial cathedrals, world-class museums, and a food scene that\'s reshaping global dining.',highlights:'Teotihuacan,Frida Kahlo Museum,Zocalo,Xochimilco,Chapultepec',bestFor:'Culture, Food, Art',video:'6t0Cf81HCWE',gradient:'#4a7c6a,#c85a3c',heroImage:'https://picsum.photos/seed/mexicocity/700/380'},
+  {id:'de_berlin',countryId:'de',name:'Berlin',icon:'🎵',desc:'History scarred and healed, reinvented as Europe\'s creative capital — Berlin\'s galleries, techno clubs, and street art pulse with radical energy.',highlights:'Brandenburg Gate,Berlin Wall,Museum Island,East Side Gallery,Tiergarten',bestFor:'Culture, Art, Nightlife',video:'',gradient:'#0d0d0d,#c9a84c',heroImage:'https://picsum.photos/seed/berlin/700/380'},
+  {id:'uk_london',countryId:'uk',name:'London',icon:'🎡',desc:'The Thames flows through one of history\'s greatest cities — palaces, double-deckers, the Tate Modern, and an impossibly diverse food scene.',highlights:'Tower of London,British Museum,Borough Market,Notting Hill,Greenwich',bestFor:'Culture, History, Food',video:'',gradient:'#2d5f8a,#0d0d0d',heroImage:'https://picsum.photos/seed/londonCity/700/380'},
 ];
 const DEFAULT_TIPS = [
   {id:'t1',icon:'✈️',title:'Book Flights Early',content:'For international travel, book 3–6 months ahead. Use tools like Google Flights to track price changes and set fare alerts for your route.'},
@@ -463,19 +710,23 @@ const DEFAULT_SETTINGS = {
 };
 
 // ===================== STATE =====================
-let countries,cities,tips,settings,loggedIn=false;
+let countries,cities,tips,settings,cityPages,ads,currentCountryId=null,loggedIn=false;
 
 function loadData(){
   countries=JSON.parse(localStorage.getItem('ab_countries')||'null')||JSON.parse(JSON.stringify(DEFAULT_COUNTRIES));
   cities=JSON.parse(localStorage.getItem('ab_cities')||'null')||JSON.parse(JSON.stringify(DEFAULT_CITIES));
   tips=JSON.parse(localStorage.getItem('ab_tips')||'null')||JSON.parse(JSON.stringify(DEFAULT_TIPS));
   settings=JSON.parse(localStorage.getItem('ab_settings')||'null')||JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  cityPages=JSON.parse(localStorage.getItem('ab_citypages')||'{}');
+  loadAds();
 }
 function saveAll(){
   localStorage.setItem('ab_countries',JSON.stringify(countries));
   localStorage.setItem('ab_cities',JSON.stringify(cities));
   localStorage.setItem('ab_tips',JSON.stringify(tips));
   localStorage.setItem('ab_settings',JSON.stringify(settings));
+  localStorage.setItem('ab_citypages',JSON.stringify(cityPages));
+  saveAds();
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 
@@ -484,6 +735,23 @@ function renderHome(){
   applySettings();
   renderCountries();
   renderTips();
+}
+function adCardHtml(ad){
+  return`<div class="tip-card ad-card" style="background:${ad.bg};" onclick="window.open('${ad.link}','_blank')">
+    ${ad.image?`<img src="${ad.image}" alt="${ad.title}">`:''}
+    <h3>${ad.title}</h3>
+    <a href="${ad.link}" class="ad-cta" target="_blank" onclick="event.stopPropagation()">${ad.cta}</a>
+  </div>`;
+}
+function insertAdsAt(items, locationKey){
+  // Parse location string e.g. 'tips-after-2' → insert after index 2
+  const match = locationKey.match(/after-(\d+)$/);
+  const insertAfter = match ? parseInt(match[1]) : items.length;
+  const adsHere = ads.filter(a => a.location === locationKey).map(adCardHtml).join('');
+  if(!adsHere) return items;
+  const before = items.slice(0, insertAfter);
+  const after = items.slice(insertAfter);
+  return [...before, adsHere, ...after];
 }
 function applySettings(){
   const h=document.querySelector('.hero-title');
@@ -500,12 +768,13 @@ function applySettings(){
 function renderCountries(){
   const g=document.getElementById('countries-grid');
   if(!g)return;
-  g.innerHTML=countries.map(c=>`
-    <div class="country-card" onclick="openCountry('${c.id}')">
+  let items=countries.map(c=>{
+    const imgHtml=c.heroImage
+      ?`<div style="width:100%;height:210px;background:url('${c.heroImage}') center/cover no-repeat;position:relative"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.3),transparent)"></div></div>`
+      :`<div class="country-img-placeholder" style="background:linear-gradient(135deg,${c.gradient||'#2d5f8a,#c9a84c'})"><span style="font-size:4rem;position:relative;z-index:1">${c.flag}</span></div>`;
+    return`<div class="country-card" onclick="openCountry('${c.id}')">
       ${c.featured=='1'?'<div class="country-badge">✦ Featured</div>':''}
-      <div class="country-img-placeholder" style="background:linear-gradient(135deg,${c.gradient||'#2d5f8a,#c9a84c'})">
-        <span style="font-size:4rem;position:relative;z-index:1">${c.flag}</span>
-      </div>
+      ${imgHtml}
       <div class="country-body">
         <div class="country-flag">${c.flag}</div>
         <h3 class="country-name">${c.name}</h3>
@@ -519,53 +788,137 @@ function renderCountries(){
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </div>
-    </div>`).join('');
+    </div>`;
+  });
+  items = insertAdsAt(items, 'countries-after-3');
+  g.innerHTML = items.join('');
 }
 function renderTips(){
   const g=document.getElementById('tips-grid');
   if(!g)return;
-  g.innerHTML=tips.map(t=>`
+  let items=tips.map(t=>`
     <div class="tip-card">
       <div class="tip-icon">${t.icon}</div>
       <h3>${t.title}</h3>
       <p>${t.content}</p>
-    </div>`).join('');
+    </div>`);
+  items = insertAdsAt(items, 'tips-after-2');
+  items = insertAdsAt(items, 'tips-after-4');
+  g.innerHTML = items.join('');
 }
 
 // ===================== COUNTRY PAGE =====================
 function openCountry(id){
   const c=countries.find(x=>x.id===id);
   if(!c)return;
+  currentCountryId=id;
   document.getElementById('cp-flag').textContent=c.flag;
   document.getElementById('cp-name').textContent=c.name;
   document.getElementById('cp-tagline').textContent=c.desc;
   const ch=document.getElementById('country-hero-section');
-  ch.style.background=`linear-gradient(135deg,${c.gradient||'#0d0d0d,#2d5f8a'})`;
+  if(c.heroImage){
+    ch.style.background=`linear-gradient(to top,rgba(13,13,13,.65) 0%,rgba(13,13,13,.2) 60%,transparent 100%), url('${c.heroImage}') center/cover no-repeat`;
+  } else {
+    ch.style.background=`linear-gradient(135deg,${c.gradient||'#0d0d0d,#2d5f8a'})`;
+  }
   document.getElementById('cp-cities-title').textContent=`Top Cities & Destinations in ${c.name}`;
   document.getElementById('cp-cities-sub').textContent=`Discover the most captivating places across ${c.name}.`;
   const citiesForCountry=cities.filter(x=>x.countryId===id);
   const cg=document.getElementById('cities-grid');
-  cg.innerHTML=citiesForCountry.length?citiesForCountry.map(city=>{
-    const videoId=extractVideoId(city.video||'');
-    const videoHtml=videoId?`<div class="video-embed"><iframe src="https://www.youtube.com/embed/${videoId}?rel=0" allowfullscreen loading="lazy"></iframe></div>`:`<div class="video-embed video-placeholder"><span>🎬</span><span>No video added yet</span></div>`;
-    const highlights=(city.highlights||'').split(',').filter(Boolean).map(h=>`<span class="highlight-tag">${h.trim()}</span>`).join('');
-    return`<div class="city-card">
-      <div class="city-img" style="background:linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})">
-        <span style="font-size:3rem;position:relative;z-index:1">${city.icon||'🏙️'}</span>
-      </div>
-      <div class="city-body">
-        <h3 class="city-name">${city.name}</h3>
-        <p class="city-desc">${city.desc}</p>
-        ${highlights?`<div class="city-highlights">${highlights}</div>`:''}
-        ${city.bestFor?`<p style="font-size:.78rem;color:rgba(13,13,13,.45);margin-bottom:12px">✦ Best for: <strong>${city.bestFor}</strong></p>`:''}
-        ${videoHtml}
-      </div>
-    </div>`;
-  }).join(''):`<p style="color:rgba(13,13,13,.4);grid-column:1/-1">No destinations added yet for this country. Add some in the Admin Panel.</p>`;
+  if(citiesForCountry.length){
+    let cityItems=citiesForCountry.map(city=>{
+      const highlights=(city.highlights||'').split(',').filter(Boolean).map(h=>`<span class="highlight-tag">${h.trim()}</span>`).join('');
+      const heroImgHtml=city.heroImage
+        ?`<div style="width:100%;height:190px;background:url('${city.heroImage}') center/cover no-repeat;position:relative">
+             <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.35),transparent)"></div>
+           </div>`
+        :`<div class="city-img" style="background:linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})">
+             <span style="font-size:3rem;position:relative;z-index:1">${city.icon||'🏙️'}</span>
+           </div>`;
+      return`<div class="city-card" style="cursor:pointer" onclick="openCity('${city.id}')">
+        ${heroImgHtml}
+        <div class="city-body">
+          <h3 class="city-name">${city.name}</h3>
+          <p class="city-desc">${city.desc}</p>
+          ${highlights?`<div class="city-highlights">${highlights}</div>`:''}
+          ${city.bestFor?`<p style="font-size:.78rem;color:rgba(13,13,13,.45);margin-bottom:12px">✦ Best for: <strong>${city.bestFor}</strong></p>`:''}
+          <button class="cta-btn" style="margin-top:4px">
+            Explore ${city.name}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>`;
+    });
+    cityItems = insertAdsAt(cityItems, 'cities-after-2');
+    cg.innerHTML = cityItems.join('');
+  } else {
+    cg.innerHTML=`<p style="color:rgba(13,13,13,.4);grid-column:1/-1">No destinations added yet for this country. Add some in the Admin Panel.</p>`;
+  }
   document.getElementById('hero').style.display='none';
   document.getElementById('tips').style.display='none';
   document.getElementById('countries').style.display='none';
   document.getElementById('main-footer').style.display='none';
+  document.getElementById('city-detail').style.display='none';
+  document.getElementById('country-page').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===================== CITY DETAIL PAGE =====================
+function openCity(cityId){
+  const city=cities.find(x=>x.id===cityId);
+  if(!city)return;
+  // Hero
+  const heroBg=document.getElementById('city-detail-hero-bg');
+  const heroEl=document.getElementById('city-detail-hero');
+  if(city.heroImage){
+    heroBg.style.backgroundImage=`url('${city.heroImage}')`;
+    heroBg.style.display='block';
+  } else {
+    heroBg.style.display='none';
+    heroEl.style.background=`linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})`;
+  }
+  document.getElementById('city-detail-icon').textContent=city.icon||'🏙️';
+  document.getElementById('city-detail-title').textContent=city.name;
+  // Meta pills
+  const metaParts=[];
+  if(city.bestFor)metaParts.push(`✦ ${city.bestFor}`);
+  const country=countries.find(x=>x.id===city.countryId);
+  if(country)metaParts.push(`${country.flag} ${country.name}`);
+  document.getElementById('city-detail-meta').innerHTML=metaParts.map(m=>`<span>${m}</span>`).join('');
+  // Desc + highlights
+  document.getElementById('cd-desc').textContent=city.desc||'';
+  document.getElementById('cd-highlights').innerHTML=(city.highlights||'').split(',').filter(Boolean)
+    .map(h=>`<span class="city-block-tag">${h.trim()}</span>`).join('');
+  // Rich sections — show/hide blocks
+  const setBlock=(blockId,textId,val)=>{
+    document.getElementById(blockId).style.display=val?'block':'none';
+    if(textId)document.getElementById(textId).textContent=val||'';
+  };
+  setBlock('cd-attractions-block','cd-attractions',city.attractions);
+  setBlock('cd-restaurants-block','cd-restaurants',city.restaurants);
+  setBlock('cd-around-block','cd-around',city.gettingAround);
+  setBlock('cd-culture-block','cd-culture',city.culture);
+  // Video
+  const videoId=extractVideoId(city.video||'');
+  if(videoId){
+    document.getElementById('cd-video-block').style.display='block';
+    document.getElementById('cd-video').innerHTML=`<iframe src="https://www.youtube.com/embed/${videoId}?rel=0" allowfullscreen loading="lazy" style="width:100%;height:100%;border:none"></iframe>`;
+  } else {
+    document.getElementById('cd-video-block').style.display='none';
+  }
+  // Map
+  if(city.latLng){
+    document.getElementById('cd-map-block').style.display='block';
+    document.getElementById('cd-map').src=`https://maps.google.com/maps?q=${encodeURIComponent(city.latLng)}&z=13&output=embed`;
+  } else {
+    document.getElementById('cd-map-block').style.display='none';
+  }
+  document.getElementById('country-page').style.display='none';
+  document.getElementById('city-detail').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showCountry(){
+  document.getElementById('city-detail').style.display='none';
   document.getElementById('country-page').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -575,6 +928,8 @@ function showHome(){
   document.getElementById('countries').style.display='';
   document.getElementById('main-footer').style.display='';
   document.getElementById('country-page').style.display='none';
+  document.getElementById('city-detail').style.display='none';
+  currentCountryId=null;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function extractVideoId(v){
@@ -615,6 +970,9 @@ function openAdmin(){
   renderAdminCities();
   renderAdminTips();
   loadSettingsForm();
+  initCityPageTab();
+  loadPaletteForm();
+  renderAdminAds();
 }
 function closeAdmin(){document.getElementById('admin-overlay').style.display='none'}
 function switchTab(id,btn){
@@ -703,6 +1061,18 @@ function renderAdminCities(){
     </div>`;
   }).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No destinations yet.</p>';
 }
+function previewHeroImg(input){
+  const preview=document.getElementById('city-hero-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      preview.style.backgroundImage=`url('${e.target.result}')`;
+      preview.style.display='block';
+      preview._base64=e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
 function editCity(id){
   const c=cities.find(x=>x.id===id);
   if(!c)return;
@@ -715,11 +1085,29 @@ function editCity(id){
   document.getElementById('city-bestfor').value=c.bestFor||'';
   document.getElementById('city-video').value=c.video||'';
   document.getElementById('city-gradient').value=c.gradient||'';
+  document.getElementById('city-lat-lng').value=c.latLng||'';
+  document.getElementById('city-attractions').value=c.attractions||'';
+  document.getElementById('city-restaurants').value=c.restaurants||'';
+  document.getElementById('city-getting-around').value=c.gettingAround||'';
+  document.getElementById('city-culture').value=c.culture||'';
+  // Show existing hero image in preview if saved
+  const preview=document.getElementById('city-hero-preview');
+  if(c.heroImage){
+    preview.style.backgroundImage=`url('${c.heroImage}')`;
+    preview.style.display='block';
+    preview._base64=c.heroImage;
+  } else {
+    preview.style.display='none';
+    preview._base64=null;
+  }
+  document.getElementById('city-hero-img').value='';
   document.getElementById('city-form-title').textContent='Edit Destination';
   document.querySelector('[onclick="switchTab(\'cities-tab\',this)"]').click();
 }
 function saveCity(){
   const id=document.getElementById('edit-city-id').value;
+  const preview=document.getElementById('city-hero-preview');
+  const latLngRaw=document.getElementById('city-lat-lng').value.trim();
   const obj={
     id:id||uid(),
     countryId:document.getElementById('city-country-select').value,
@@ -729,7 +1117,13 @@ function saveCity(){
     highlights:document.getElementById('city-highlights').value.trim(),
     bestFor:document.getElementById('city-bestfor').value.trim(),
     video:document.getElementById('city-video').value.trim(),
-    gradient:document.getElementById('city-gradient').value.trim()||'#c85a3c,#c9a84c'
+    gradient:document.getElementById('city-gradient').value.trim()||'#c85a3c,#c9a84c',
+    heroImage:preview._base64||(id?cities.find(x=>x.id===id)?.heroImage||'':''),
+    latLng:latLngRaw,
+    attractions:document.getElementById('city-attractions').value.trim(),
+    restaurants:document.getElementById('city-restaurants').value.trim(),
+    gettingAround:document.getElementById('city-getting-around').value.trim(),
+    culture:document.getElementById('city-culture').value.trim()
   };
   if(!obj.name){alert('City name is required');return}
   if(id){const i=cities.findIndex(x=>x.id===id);if(i>=0)cities[i]=obj}
@@ -744,7 +1138,13 @@ function deleteCity(id){
 }
 function clearCityForm(){
   document.getElementById('edit-city-id').value='';
-  ['city-name','city-icon','city-desc','city-highlights','city-bestfor','city-video','city-gradient'].forEach(id=>document.getElementById(id).value='');
+  ['city-name','city-icon','city-desc','city-highlights','city-bestfor','city-video','city-gradient',
+   'city-lat-lng','city-attractions','city-restaurants','city-getting-around','city-culture']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('city-hero-img').value='';
+  const preview=document.getElementById('city-hero-preview');
+  preview.style.display='none';
+  preview._base64=null;
   document.getElementById('city-form-title').textContent='Add New Destination';
 }
 
@@ -824,10 +1224,269 @@ function resetData(){
   localStorage.removeItem('ab_countries');
   localStorage.removeItem('ab_cities');
   localStorage.removeItem('ab_tips');
+  localStorage.removeItem('ab_citypages');
   localStorage.removeItem('ab_settings');
   loadData();renderHome();populateAdminCountrySelects();
   renderAdminCountries();renderAdminCities();renderAdminTips();loadSettingsForm();
   showToast('Data reset to defaults ✓');
+}
+
+// --- Palette Admin ---
+const DEFAULT_PALETTE = {ink:'#0d0d0d',cream:'#f5f0e8',gold:'#c9a84c',terra:'#c85a3c',sage:'#4a7c6a',sky:'#2d5f8a'};
+function loadPaletteForm(){
+  const p=JSON.parse(localStorage.getItem('ab_palette')||'null')||DEFAULT_PALETTE;
+  ['ink','cream','gold','terra','sage','sky'].forEach(k=>{
+    const el=document.getElementById('p-'+k);
+    if(el)el.value=p[k];
+  });
+  updatePalettePreview();
+  ['ink','cream','gold','terra','sage','sky'].forEach(k=>{
+    const el=document.getElementById('p-'+k);
+    if(el)el.addEventListener('input',updatePalettePreview);
+  });
+}
+function updatePalettePreview(){
+  const ink=document.getElementById('p-ink').value;
+  const gold=document.getElementById('p-gold').value;
+  const sage=document.getElementById('p-sage').value;
+  const prev=document.getElementById('palette-preview');
+  if(prev)prev.style.background=`linear-gradient(135deg, ${ink}, ${gold}, ${sage})`;
+}
+function applyPalette(p){
+  const root=document.documentElement.style;
+  root.setProperty('--ink',p.ink);
+  root.setProperty('--cream',p.cream);
+  root.setProperty('--gold',p.gold);
+  root.setProperty('--gold-light',lightenHex(p.gold,30));
+  root.setProperty('--terra',p.terra);
+  root.setProperty('--sage',p.sage);
+  root.setProperty('--sky',p.sky);
+  root.setProperty('--warm-white',lightenHex(p.cream,10));
+}
+function lightenHex(hex,amt){
+  let n=parseInt(hex.slice(1),16);
+  let r=Math.min(255,(n>>16)+amt),g=Math.min(255,((n>>8)&0xff)+amt),b=Math.min(255,(n&0xff)+amt);
+  return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function savePalette(){
+  const p={};
+  ['ink','cream','gold','terra','sage','sky'].forEach(k=>p[k]=document.getElementById('p-'+k).value);
+  localStorage.setItem('ab_palette',JSON.stringify(p));
+  applyPalette(p);
+  showToast('Palette saved ✓');
+}
+function loadDefaultPalette(){
+  localStorage.removeItem('ab_palette');
+  applyPalette(DEFAULT_PALETTE);
+  ['ink','cream','gold','terra','sage','sky'].forEach(k=>{
+    const el=document.getElementById('p-'+k);
+    if(el)el.value=DEFAULT_PALETTE[k];
+  });
+  updatePalettePreview();
+  showToast('Palette reset to default ✓');
+}
+
+// --- City Pages Admin ---
+function initCityPageTab(){
+  const countryOpts='<option value="">All Countries</option>'+countries.map(c=>`<option value="${c.id}">${c.flag} ${c.name}</option>`).join('');
+  document.getElementById('citypage-country-filter').innerHTML=countryOpts;
+  renderCityPages();
+}
+function renderCityPages(){
+  const cf=document.getElementById('citypage-country-filter').value;
+  const cityF=document.getElementById('citypage-city-filter').value;
+  const filteredCities=cf?cities.filter(c=>c.countryId===cf):cities;
+  document.getElementById('citypage-city-filter').innerHTML=
+    '<option value="">All Cities</option>'+
+    filteredCities.map(c=>`<option value="${c.id}"${c.id===cityF?' selected':''}>${c.name}</option>`).join('');
+  const listCities=cityF?filteredCities.filter(c=>c.id===cityF):filteredCities;
+  const statusDot=(has,label)=>has
+    ?`<span style="font-size:.68rem;background:var(--sage);color:#fff;padding:2px 7px;border-radius:50px;margin-left:4px">${label}</span>`
+    :`<span style="font-size:.68rem;background:var(--border);color:rgba(13,13,13,.4);padding:2px 7px;border-radius:50px;margin-left:4px">${label}</span>`;
+  document.getElementById('admin-citypages-list').innerHTML=listCities.map(c=>{
+    const country=countries.find(x=>x.id===c.countryId);
+    return`<div class="admin-list-item" style="flex-wrap:wrap;gap:8px">
+      <div style="flex:1;min-width:0">
+        <span class="admin-list-item-name">${c.icon||'🏙️'} ${c.name} <span style="font-size:.72rem;font-weight:400;color:rgba(13,13,13,.4)">${country?country.name:''}</span></span>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:2px">
+          ${statusDot(!!c.heroImage,'📷 Photo')}
+          ${statusDot(!!c.latLng,'📍 Map')}
+          ${statusDot(!!c.attractions,'🏛 Attractions')}
+          ${statusDot(!!c.restaurants,'🍽 Food')}
+          ${statusDot(!!c.gettingAround,'🚇 Transport')}
+          ${statusDot(!!c.culture,'🎭 Culture')}
+        </div>
+      </div>
+      <button class="admin-icon-btn edit-btn" onclick="editCity('${c.id}');document.querySelector('[onclick=\\'switchTab(\\'cities-tab\\',this)\\']').click()">Edit</button>
+    </div>`;
+  }).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No cities match the filter.</p>';
+}
+// --- Ads Admin ---
+// --- Ads Data ---
+const DEFAULT_ADS = [
+  {id:'ad1',title:'Hotels 30% Off',location:'tips-after-2',bg:'#ff6b6b',image:'',cta:'Book Now',link:'https://booking.com/deal'},
+  {id:'ad2',title:'Flights from $29',location:'countries-after-3',bg:'#4ecdc4',image:'',cta:'Find Deals',link:'https://kayak.com/special'}
+];
+function loadAds(){
+  ads=JSON.parse(localStorage.getItem('ab_ads')||JSON.stringify(DEFAULT_ADS));
+}
+function saveAds(){
+  localStorage.setItem('ab_ads',JSON.stringify(ads));
+}
+
+const AD_LOCATION_LABELS = {
+  'tips-after-2':'Tips (after 2nd)',
+  'tips-after-4':'Tips (after 4th)',
+  'countries-after-3':'Countries (after 3rd)',
+  'cities-after-2':'Cities (after 2nd)',
+  'hero-bottom':'Hero Bottom'
+};
+function renderAdminAds(){
+  const list=document.getElementById('admin-ads-list');
+  if(!list)return;
+  list.innerHTML=ads.length?ads.map(a=>`
+    <div class="admin-list-item">
+      <div style="flex:1;min-width:0">
+        <span class="admin-list-item-name">${a.title||'Untitled Ad'}</span>
+        <span style="display:block;font-size:.72rem;color:rgba(13,13,13,.4);margin-top:2px">
+          📍 ${AD_LOCATION_LABELS[a.location]||a.location}
+          ${a.cta?' · '+a.cta:''}
+        </span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <span style="display:inline-block;width:18px;height:18px;border-radius:4px;background:${a.bg||'#c9a84c'};border:1px solid rgba(0,0,0,.1)"></span>
+        <button class="admin-icon-btn edit-btn" onclick="editAd('${a.id}')">Edit</button>
+        <button class="admin-icon-btn del-btn" onclick="deleteAd('${a.id}')">Del</button>
+      </div>
+    </div>`).join('')
+    :'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No ads yet.</p>';
+}
+function saveAd(){
+  const id=document.getElementById('edit-ad-id').value||uid();
+  const fileInput=document.getElementById('ad-image');
+  const file=fileInput&&fileInput.files&&fileInput.files[0];
+  function persist(imageData){
+    const ad={
+      id,
+      title:document.getElementById('ad-title').value.trim(),
+      location:document.getElementById('ad-location').value,
+      bg:document.getElementById('ad-bg').value,
+      cta:document.getElementById('ad-cta').value.trim(),
+      link:document.getElementById('ad-link').value.trim(),
+      image:imageData
+    };
+    if(!ad.title||!ad.cta||!ad.link){alert('Title, CTA, and Link required');return}
+    const i=ads.findIndex(a=>a.id===id);
+    if(i>-1)ads[i]=ad;else ads.push(ad);
+    saveAds();renderAdminAds();renderHome();clearAdForm();showToast('Ad tile saved!');
+  }
+  if(file){
+    const reader=new FileReader();
+    reader.onload=e=>persist(e.target.result);
+    reader.readAsDataURL(file);
+  } else {
+    const existing=(ads.find(a=>a.id===id)||{}).image||'';
+    persist(existing);
+  }
+}
+function editAd(id){
+  const ad=ads.find(a=>a.id===id);
+  if(!ad)return;
+  document.getElementById('edit-ad-id').value=id;
+  document.getElementById('ad-title').value=ad.title||'';
+  document.getElementById('ad-location').value=ad.location||'tips-after-2';
+  document.getElementById('ad-bg').value=ad.bg||'#ff6b6b';
+  document.getElementById('ad-cta').value=ad.cta||'';
+  document.getElementById('ad-link').value=ad.link||'';
+  document.getElementById('ad-form-title').textContent='Edit Ad Tile';
+  document.querySelector('[onclick="switchTab(\'ads-tab\', this)"]').click();
+}
+function deleteAd(id){
+  if(!confirm('Delete this ad?'))return;
+  ads=ads.filter(a=>a.id!==id);
+  saveAds();renderAdminAds();renderHome();showToast('Ad deleted');
+}
+function clearAdForm(){
+  document.getElementById('edit-ad-id').value='';
+  ['ad-title','ad-cta','ad-link'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ad-location').value='tips-after-2';
+  document.getElementById('ad-bg').value='#ff6b6b';
+  const fi=document.getElementById('ad-image');if(fi)fi.value='';
+  document.getElementById('ad-form-title').textContent='Add New Ad Tile';
+}
+function buildAdTileHTML(a){
+  const bg=a.bg||'#c9a84c';
+  const isDark=isDarkColor(bg);
+  const textColor=isDark?'#fff':'#0d0d0d';
+  const imgHtml=a.image
+    ?`<div style="width:100%;height:140px;background:url('${a.image}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`
+    :'';
+  return`<div class="ad-tile" style="background:${bg};border-radius:var(--radius);padding:${a.image?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='';this.style.boxShadow='var(--shadow)'">
+    ${imgHtml}
+    <div style="padding:${a.image?'18px':'0'} 24px 24px;color:${textColor}">
+      <p style="font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;opacity:.65;margin-bottom:6px;font-family:'Space Mono',monospace">Sponsored</p>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;margin-bottom:12px;line-height:1.25">${a.title}</h3>
+      ${a.cta&&a.link?`<a href="${a.link}" target="_blank" rel="noopener" style="display:inline-block;background:${isDark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'};color:${textColor};padding:8px 20px;border-radius:50px;font-size:.82rem;font-weight:700;text-decoration:none;transition:background .2s" onmouseover="this.style.background='${isDark?'rgba(255,255,255,.3)':'rgba(0,0,0,.22)'}'" onmouseout="this.style.background='${isDark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'}'">${a.cta} →</a>`:''}
+    </div>
+  </div>`;
+}
+function isDarkColor(hex){
+  const n=parseInt((hex||'#000').replace('#',''),16);
+  const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return(0.299*r+0.587*g+0.114*b)<140;
+}
+function injectAds(){
+  // Remove existing ad tiles
+  document.querySelectorAll('.ad-tile-wrapper').forEach(el=>el.remove());
+  if(!ads.length)return;
+  const byLoc={};
+  ads.forEach(a=>{(byLoc[a.location]=byLoc[a.location]||[]).push(a)});
+  // Tips grid injections
+  ['tips-after-2','tips-after-4'].forEach(loc=>{
+    if(!byLoc[loc])return;
+    const grid=document.getElementById('tips-grid');
+    if(!grid)return;
+    const idx=loc==='tips-after-2'?2:4;
+    const cards=[...grid.children];
+    const wrapper=document.createElement('div');
+    wrapper.className='ad-tile-wrapper';
+    wrapper.innerHTML=byLoc[loc].map(buildAdTileHTML).join('');
+    if(cards[idx])grid.insertBefore(wrapper,cards[idx]);
+    else grid.appendChild(wrapper);
+  });
+  // Countries grid
+  if(byLoc['countries-after-3']){
+    const grid=document.getElementById('countries-grid');
+    if(grid){
+      const cards=[...grid.children];
+      const wrapper=document.createElement('div');
+      wrapper.className='ad-tile-wrapper';
+      wrapper.innerHTML=byLoc['countries-after-3'].map(buildAdTileHTML).join('');
+      if(cards[3])grid.insertBefore(wrapper,cards[3]);
+      else grid.appendChild(wrapper);
+    }
+  }
+  // Cities grid
+  if(byLoc['cities-after-2']){
+    const grid=document.getElementById('cities-grid');
+    if(grid){
+      const cards=[...grid.children];
+      const wrapper=document.createElement('div');
+      wrapper.className='ad-tile-wrapper';
+      wrapper.innerHTML=byLoc['cities-after-2'].map(buildAdTileHTML).join('');
+      if(cards[2])grid.insertBefore(wrapper,cards[2]);
+      else grid.appendChild(wrapper);
+    }
+  }
+  // Hero bottom
+  if(byLoc['hero-bottom']){
+    const hero=document.getElementById('hero');
+    if(hero){
+      let hw=hero.querySelector('.hero-ad-wrapper');
+      if(!hw){hw=document.createElement('div');hw.className='hero-ad-wrapper ad-tile-wrapper';hw.style.cssText='position:absolute;bottom:80px;right:40px;width:280px;z-index:3';hero.appendChild(hw);}
+      hw.innerHTML=byLoc['hero-bottom'].map(buildAdTileHTML).join('');
+    }
+  }
 }
 
 // ===================== TOAST =====================
@@ -838,8 +1497,19 @@ function showToast(msg){
 }
 
 // ===================== INIT =====================
+// Version bump — clears stale country/city data so heroImages are loaded fresh
+(function(){
+  const DATA_VERSION = '3';
+  if(localStorage.getItem('ab_data_version') !== DATA_VERSION){
+    localStorage.removeItem('ab_countries');
+    localStorage.removeItem('ab_cities');
+    localStorage.setItem('ab_data_version', DATA_VERSION);
+  }
+})();
 loadData();
 renderHome();
+// Apply saved palette on load
+(function(){const p=JSON.parse(localStorage.getItem('ab_palette')||'null');if(p)applyPalette(p);})();
 </script>
 </body>
 </html>
