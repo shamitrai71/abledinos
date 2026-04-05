@@ -133,7 +133,6 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .video-placeholder span{font-size:2rem}
 
 /* ---- CITY DETAIL PAGE ---- */
-#city-detail{display:none;padding-top:var(--nav-h)}
 .city-detail-hero{height:420px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--terra),var(--gold));display:flex;align-items:flex-end}
 .city-detail-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s ease}
 .city-detail-hero:hover .city-detail-hero-bg{transform:scale(1.03)}
@@ -164,19 +163,89 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   .city-detail-body{padding:36px 20px 60px}
   .city-detail-back{margin-left:20px}
 }
-#admin-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(13,13,13,.6);backdrop-filter:blur(8px)}
-.admin-panel{position:fixed;top:0;right:0;width:min(520px,100vw);height:100%;background:var(--warm-white);overflow-y:auto;box-shadow:-8px 0 48px rgba(13,13,13,.2);display:flex;flex-direction:column}
-.admin-header{background:var(--ink);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.admin-header h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cream)}
-.admin-header p{font-size:.78rem;color:rgba(245,240,232,.45);margin-top:2px}
-.admin-close{background:none;border:none;color:var(--cream);font-size:1.5rem;cursor:pointer;opacity:.6;transition:opacity .2s}
-.admin-close:hover{opacity:1}
-.admin-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.admin-tab{flex:1;padding:14px;font-size:.82rem;font-weight:600;text-align:center;cursor:pointer;border:none;background:none;color:rgba(13,13,13,.45);transition:color .2s,border-color .2s;border-bottom:2px solid transparent}
-.admin-tab.active{color:var(--ink);border-bottom-color:var(--gold)}
-.admin-body{padding:24px;flex:1}
+/* ---- CITY CATEGORY PAGE ---- */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.cat-tile{border-radius:var(--radius);overflow:hidden;background:var(--card-bg);box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s;cursor:pointer}
+.cat-tile:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.cat-tile-img{width:100%;height:180px;background:center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative}
+.cat-tile-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.35),transparent)}
+.cat-tile-body{padding:20px}
+.cat-tile-name{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:6px}
+.cat-tile-desc{font-size:.83rem;color:rgba(13,13,13,.55);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cat-tile-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.cat-tile-meta span{font-size:.76rem;color:rgba(13,13,13,.45)}
+.cat-tile-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.cat-tile-tag{background:var(--cream);color:var(--ink);font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:50px;border:1px solid var(--border)}
+
+/* ---- CITY CATEGORY HUB (replaces old city-detail text blocks) ---- */
+#city-cats{display:none}
+.city-cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;padding:48px 40px 80px}
+.city-cat-card{border-radius:var(--radius);overflow:hidden;background:var(--card-bg);box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s;cursor:pointer;position:relative}
+.city-cat-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-hover)}
+.city-cat-card-bg{width:100%;height:200px;background:center/cover no-repeat}
+.city-cat-card-overlay{position:absolute;top:0;left:0;right:0;height:200px;background:linear-gradient(to top,rgba(13,13,13,.55),transparent)}
+.city-cat-card-icon{position:absolute;top:16px;left:16px;font-size:2rem;z-index:2}
+.city-cat-card-body{padding:22px}
+.city-cat-card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:6px}
+.city-cat-card-count{font-size:.8rem;color:rgba(13,13,13,.45);margin-bottom:16px}
+
+/* ---- CATEGORY LISTING PAGE ---- */
+#cat-listing{display:none}
+.cat-listing-hero{height:320px;display:flex;align-items:flex-end;padding:40px;position:relative;overflow:hidden}
+.cat-listing-hero-bg{position:absolute;inset:0;background:center/cover no-repeat}
+.cat-listing-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.75),rgba(13,13,13,.2))}
+.cat-listing-hero-content{position:relative;z-index:2}
+.cat-listing-icon{font-size:2.5rem;display:block;margin-bottom:8px}
+.cat-listing-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:900;color:var(--cream);line-height:1}
+.cat-listing-sub{font-size:.95rem;color:rgba(245,240,232,.6);margin-top:8px}
+.cat-listing-body{padding:48px 40px 80px;max-width:1400px;margin:0 auto}
+@media(max-width:768px){
+  .city-cats-grid{padding:32px 20px 60px}
+  .cat-listing-body{padding:32px 20px 60px}
+  .cat-listing-hero{height:260px;padding:28px 20px}
+}
+
+
+/* ---- ADMIN FULL PAGE ---- */
+.ap-nav{position:sticky;top:0;z-index:200;background:var(--ink);display:flex;align-items:center;padding:0 24px;height:60px;box-shadow:0 2px 16px rgba(13,13,13,.25);gap:0}
+.ap-nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-right:20px}
+.ap-nav-logo{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:var(--cream)}
+.ap-nav-badge{background:var(--gold);color:var(--ink);font-size:.62rem;font-weight:800;padding:2px 8px;border-radius:50px;letter-spacing:.06em;text-transform:uppercase}
+.ap-nav-links{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+.ap-nav-links::-webkit-scrollbar{display:none}
+.ap-nav-tab{padding:7px 12px;font-size:.78rem;font-weight:600;color:rgba(245,240,232,.5);background:none;border:none;border-radius:7px;cursor:pointer;white-space:nowrap;transition:color .2s,background .2s}
+.ap-nav-tab:hover{color:var(--cream);background:rgba(255,255,255,.08)}
+.ap-nav-tab.active{color:var(--gold);background:rgba(201,168,76,.12)}
+.ap-nav-actions{display:flex;gap:8px;flex-shrink:0;margin-left:12px}
+.ap-exit-btn{background:rgba(255,255,255,.1);color:var(--cream);border:1px solid rgba(255,255,255,.15);padding:6px 12px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
+.ap-exit-btn:hover{background:rgba(255,255,255,.2)}
+.ap-logout-btn{background:rgba(200,90,60,.25);color:#ff9a8a;border:1px solid rgba(200,90,60,.3);padding:6px 12px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
+.ap-logout-btn:hover{background:rgba(200,90,60,.4)}
+.ap-content{padding:36px;max-width:1400px;margin:0 auto}
+.ap-section{display:none}
+.ap-section.active{display:block}
+.ap-section-header{margin-bottom:28px}
+.ap-section-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--ink);margin-bottom:6px}
+.ap-section-sub{font-size:.88rem;color:rgba(13,13,13,.5);max-width:580px}
+.ap-section-label{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block}
+.ap-two-col{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start}
+@media(max-width:900px){.ap-two-col{grid-template-columns:1fr}}
+.ap-list-col{background:var(--card-bg);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.ap-list-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--cream)}
+.ap-list-header span{font-size:.8rem;font-weight:700;color:var(--ink)}
+.ap-add-btn{background:var(--ink);color:var(--cream);border:none;padding:6px 12px;border-radius:7px;font-size:.76rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.ap-add-btn:hover{background:var(--gold);color:var(--ink)}
+.ap-form-col{}
+.ap-form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.ap-form-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:18px}
+.img-preview-box{margin-top:8px;border-radius:10px;overflow:hidden;height:120px;background:center/cover no-repeat;border:1px solid var(--border)}
+.form-hint{color:rgba(13,13,13,.4);font-size:.74rem;margin-top:4px;display:block}
+.form-hint-inline{font-weight:400;font-size:.76rem;text-transform:none;letter-spacing:0;color:rgba(13,13,13,.45)}
+.ap-img-remove-btn{background:#ffe5e5;color:#c0392b;border:none;padding:6px 12px;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer;margin-bottom:8px;display:inline-block;transition:background .2s}
+.ap-img-remove-btn:hover{background:#ffd0d0}
+.ap-list-col .admin-list{padding:8px;max-height:calc(100vh - 240px);overflow-y:auto}
+.ap-list-col .admin-list-item{margin-bottom:5px}
 .admin-section{display:none}
-.admin-section.active{display:block}
 .form-group{margin-bottom:20px}
 .form-group label{display:block;font-size:.8rem;font-weight:600;color:rgba(13,13,13,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;font-family:'DM Sans',sans-serif;background:var(--card-bg);color:var(--ink);transition:border-color .2s}
@@ -334,48 +403,35 @@ footer span{font-size:.8rem}
   </div>
 </div>
 
-<!-- CITY DETAIL PAGE -->
-<div id="city-detail">
-  <button class="city-detail-back" onclick="showCountry()">← Back to Cities</button>
-  <div class="city-detail-hero" id="city-detail-hero">
-    <div class="city-detail-hero-bg" id="city-detail-hero-bg"></div>
+<!-- CITY CATEGORY HUB -->
+<div id="city-cats">
+  <div class="city-detail-hero" id="city-cats-hero">
+    <div class="city-detail-hero-bg" id="city-cats-hero-bg"></div>
     <div class="city-detail-hero-overlay"></div>
     <div class="city-detail-hero-content">
-      <span class="city-detail-icon" id="city-detail-icon"></span>
-      <h1 class="city-detail-title" id="city-detail-title"></h1>
-      <div class="city-detail-meta" id="city-detail-meta"></div>
+      <span class="city-detail-icon" id="city-cats-icon"></span>
+      <h1 class="city-detail-title" id="city-cats-title"></h1>
+      <div class="city-detail-meta" id="city-cats-meta"></div>
     </div>
   </div>
-  <div class="city-detail-body">
-    <div class="city-block" id="cd-desc-block">
-      <div class="city-block-label">Overview</div>
-      <p id="cd-desc"></p>
-      <div class="city-block-tags" id="cd-highlights"></div>
+  <button class="city-detail-back" onclick="showCountry()" style="margin:24px 40px 0">← Back to Cities</button>
+  <div class="city-cats-grid" id="city-cats-grid"></div>
+</div>
+
+<!-- CATEGORY LISTING PAGE -->
+<div id="cat-listing">
+  <div class="cat-listing-hero" id="cat-listing-hero">
+    <div class="cat-listing-hero-bg" id="cat-listing-hero-bg"></div>
+    <div class="cat-listing-hero-overlay"></div>
+    <div class="cat-listing-hero-content">
+      <span class="cat-listing-icon" id="cat-listing-icon"></span>
+      <h1 class="cat-listing-title" id="cat-listing-title"></h1>
+      <p class="cat-listing-sub" id="cat-listing-sub"></p>
     </div>
-    <div class="city-block" id="cd-attractions-block">
-      <div class="city-block-label">🏛 Attractions</div>
-      <p id="cd-attractions"></p>
-    </div>
-    <div class="city-block" id="cd-restaurants-block">
-      <div class="city-block-label">🍽 Food &amp; Drink</div>
-      <p id="cd-restaurants"></p>
-    </div>
-    <div class="city-block" id="cd-around-block">
-      <div class="city-block-label">🚇 Getting Around</div>
-      <p id="cd-around"></p>
-    </div>
-    <div class="city-block" id="cd-culture-block">
-      <div class="city-block-label">🎭 Culture &amp; Vibe</div>
-      <p id="cd-culture"></p>
-    </div>
-    <div class="city-block" id="cd-video-block">
-      <div class="city-block-label">🎬 Video Guide</div>
-      <div class="city-detail-video" id="cd-video"></div>
-    </div>
-    <div class="city-block" id="cd-map-block">
-      <div class="city-block-label">📍 Map</div>
-      <iframe id="cd-map" class="city-map-embed" loading="lazy"></iframe>
-    </div>
+  </div>
+  <button class="city-detail-back" onclick="showCityCats()" style="margin:24px 40px 0">← Back to City</button>
+  <div class="cat-listing-body">
+    <div class="cat-grid" id="cat-listing-grid"></div>
   </div>
 </div>
 <footer id="main-footer">
@@ -396,257 +452,451 @@ footer span{font-size:.8rem}
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="admin-overlay">
-  <div class="admin-panel">
-    <div class="admin-header">
-      <div>
-        <h2>Admin Panel</h2>
-        <p id="admin-user-label">Logged in as super admin</p>
-      </div>
-      <button class="admin-close" onclick="closeAdmin()">✕</button>
+<!-- ADMIN FULL PAGE -->
+<div id="admin-page" style="display:none;min-height:100vh;background:var(--warm-white)">
+
+  <!-- ADMIN NAV -->
+  <div class="ap-nav">
+    <div class="ap-nav-brand">
+      <span class="ap-nav-logo">Able<span style="color:var(--gold)">Dinos</span></span>
+      <span class="ap-nav-badge">Admin</span>
     </div>
-    <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchTab('countries-tab',this)">Countries</button>
-      <button class="admin-tab" onclick="switchTab('cities-tab',this)">Cities</button>
-      <button class="admin-tab" onclick="switchTab('tips-tab',this)">Tips</button>
-      <button class="admin-tab" onclick="switchTab('citypages-tab',this)">City Pages</button>
-      <button class="admin-tab" onclick="switchTab('settings-tab',this)">Settings</button>
-      <button class="admin-tab" onclick="switchTab('palette-tab', this)">Palette</button>
-      <button class="admin-tab" onclick="switchTab('ads-tab', this)">Ads</button>
+    <div class="ap-nav-links" id="ap-nav-links">
+      <button class="ap-nav-tab active" onclick="switchAdminTab('at-country-tiles',this)">🗺 Country Tiles</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-city-tiles',this)">🏙 City Tiles</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-country-pages',this)">📄 Country Pages</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-city-pages',this)">📋 City Pages</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-city-items',this)">📦 City Items</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-tips',this)">💡 Tips</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-settings',this)">⚙️ Settings</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-palette',this)">🎨 Palette</button>
+      <button class="ap-nav-tab" onclick="switchAdminTab('at-ads',this)">📢 Ads</button>
     </div>
-    <div class="admin-body">
+    <div class="ap-nav-actions">
+      <button class="ap-exit-btn" onclick="closeAdmin()">← Back to Site</button>
+      <button class="ap-logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
 
-      <!-- COUNTRIES TAB -->
-      <div id="countries-tab" class="admin-section active">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px">Manage Countries</h3>
-        <div class="admin-list" id="admin-countries-list"></div>
-        <hr class="admin-divider">
-        <h4 style="margin-bottom:16px;font-size:.9rem;font-weight:700" id="country-form-title">Add New Country</h4>
-        <input type="hidden" id="edit-country-id">
-        <div class="form-row">
-          <div class="form-group"><label>Country Name</label><input type="text" id="c-name" placeholder="e.g. France"></div>
-          <div class="form-group"><label>Flag Emoji</label><input type="text" id="c-flag" placeholder="🇫🇷"></div>
-        </div>
-        <div class="form-group"><label>Short Description</label><textarea id="c-desc" placeholder="Describe this country briefly..."></textarea></div>
-        <div class="form-row">
-          <div class="form-group"><label>Best Season</label><input type="text" id="c-season" placeholder="e.g. Apr – Oct"></div>
-          <div class="form-group"><label>Currency</label><input type="text" id="c-currency" placeholder="e.g. EUR €"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Language</label><input type="text" id="c-lang" placeholder="e.g. French"></div>
-          <div class="form-group"><label>Background Gradient</label><input type="text" id="c-gradient" placeholder="e.g. #2d5f8a,#c9a84c"></div>
-        </div>
-        <div class="form-group"><label>Featured?</label><select id="c-featured"><option value="0">No</option><option value="1">Yes (show badge)</option></select></div>
-        <button class="admin-btn admin-btn-primary" onclick="saveCountry()">Save Country</button>
-        <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="clearCountryForm()">Clear Form</button>
+  <!-- ADMIN CONTENT -->
+  <div class="ap-content">
+
+    <!-- ===== COUNTRY TILES TAB ===== -->
+    <div id="at-country-tiles" class="ap-section active">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">Country Tiles</h2>
+        <p class="ap-section-sub">Manage country cards shown on the homepage — info, image, and featured status.</p>
       </div>
-
-      <!-- CITIES TAB -->
-      <div id="cities-tab" class="admin-section">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px">Manage Cities / Destinations</h3>
-        <div class="form-group"><label>Select Country</label>
-          <select id="city-country-filter" onchange="renderAdminCities()">
-            <option value="">-- All Countries --</option>
-          </select>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header">
+            <span>All Countries</span>
+            <button class="ap-add-btn" onclick="clearCountryTileForm()">+ New Country</button>
+          </div>
+          <div class="admin-list" id="admin-countries-list"></div>
         </div>
-        <div class="admin-list" id="admin-cities-list"></div>
-        <hr class="admin-divider">
-        <h4 style="margin-bottom:16px;font-size:.9rem;font-weight:700" id="city-form-title">Add New Destination</h4>
-        <input type="hidden" id="edit-city-id">
-        <div class="form-group"><label>Country</label>
-          <select id="city-country-select"></select>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="country-tile-form-title">Add New Country</h4>
+            <input type="hidden" id="edit-country-id">
+            <div class="form-row">
+              <div class="form-group"><label>Country Name</label><input type="text" id="c-name" placeholder="e.g. France"></div>
+              <div class="form-group"><label>Flag Emoji</label><input type="text" id="c-flag" placeholder="🇫🇷"></div>
+            </div>
+            <div class="form-group"><label>Short Description</label><textarea id="c-desc" placeholder="Describe this country briefly..."></textarea></div>
+            <div class="form-row">
+              <div class="form-group"><label>Best Season</label><input type="text" id="c-season" placeholder="e.g. Apr – Oct"></div>
+              <div class="form-group"><label>Currency</label><input type="text" id="c-currency" placeholder="e.g. EUR €"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Language</label><input type="text" id="c-lang" placeholder="e.g. French"></div>
+              <div class="form-group"><label>Fallback Gradient</label><input type="text" id="c-gradient" placeholder="e.g. #2d5f8a,#c9a84c"></div>
+            </div>
+            <div class="form-group"><label>Featured?</label><select id="c-featured"><option value="0">No</option><option value="1">Yes (show badge)</option></select></div>
+            <hr class="admin-divider">
+            <p class="ap-section-label">🖼 Tile Image</p>
+            <div class="form-group">
+              <label>Upload Image</label>
+              <input type="file" id="c-tile-img" accept="image/*" onchange="previewCountryTileImg(this)">
+              <div id="c-tile-preview" class="img-preview-box" style="display:none"></div>
+              <small class="form-hint">Tile card image — <strong>800 × 420 px</strong> recommended (2:1). Stored as base64.</small>
+            </div>
+            <div class="form-group">
+              <label>Or Image URL</label>
+              <input type="text" id="c-tile-url" placeholder="https://..." oninput="syncCountryTileUrl(this)">
+            </div>
+            <button class="ap-img-remove-btn" id="c-tile-remove" onclick="removeCountryTileImg()" style="display:none">✕ Remove Image</button>
+            <hr class="admin-divider">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="admin-btn admin-btn-primary" onclick="saveCountryTile()">Save Country</button>
+              <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearCountryTileForm()">Clear</button>
+              <button class="admin-btn admin-btn-danger" id="c-delete-btn" onclick="deleteCountryFromForm()" style="display:none">Delete</button>
+            </div>
+          </div>
         </div>
-        <div class="form-row">
-          <div class="form-group"><label>City / Destination Name</label><input type="text" id="city-name" placeholder="e.g. Paris"></div>
-          <div class="form-group"><label>Icon Emoji</label><input type="text" id="city-icon" placeholder="🗼"></div>
-        </div>
-        <div class="form-group"><label>Description</label><textarea id="city-desc" placeholder="Rich description of this destination..."></textarea></div>
-        <div class="form-group"><label>Highlights (comma-separated)</label><input type="text" id="city-highlights" placeholder="Eiffel Tower, Louvre, Seine River"></div>
-        <div class="form-group"><label>Best For</label><input type="text" id="city-bestfor" placeholder="e.g. Romance, Culture, Food"></div>
-        <div class="form-group"><label>YouTube Video ID or URL</label><input type="text" id="city-video" placeholder="e.g. dQw4w9WgXcQ or full URL"></div>
-        <div class="form-group"><label>Background Gradient Colors</label><input type="text" id="city-gradient" placeholder="e.g. #c85a3c,#c9a84c"></div>
-        <hr class="admin-divider">
-        <p style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(13,13,13,.5);margin-bottom:14px">📄 Rich Page Content</p>
-        <div class="form-group">
-          <label>Hero Cover Photo</label>
-          <input type="file" id="city-hero-img" accept="image/*" onchange="previewHeroImg(this)">
-          <div id="city-hero-preview" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;height:100px;background:center/cover no-repeat"></div>
-          <small style="color:rgba(13,13,13,.4);font-size:.75rem;margin-top:4px;display:block">Replaces the gradient tile. Stored as base64.</small>
-        </div>
-        <div class="form-group">
-          <label>Map Coordinates <span style="font-weight:400;text-transform:none;font-size:.78rem">(lat,lng)</span></label>
-          <input type="text" id="city-lat-lng" placeholder="48.8566,2.3522">
-        </div>
-        <div class="form-group"><label>Attractions <span style="font-weight:400;text-transform:none;font-size:.78rem">(comma-separated or prose)</span></label><textarea id="city-attractions" placeholder="e.g. Eiffel Tower, Louvre Museum, Notre-Dame Cathedral, Montmartre"></textarea></div>
-        <div class="form-group"><label>Restaurants &amp; Food</label><textarea id="city-restaurants" placeholder="e.g. Michelin-starred bistros, casual brasseries, street markets, world-class pastry shops"></textarea></div>
-        <div class="form-group"><label>Getting Around</label><textarea id="city-getting-around" placeholder="e.g. Metro, RER trains, Vélib' bike share — buy a Navigo weekly pass for unlimited travel"></textarea></div>
-        <div class="form-group"><label>Culture &amp; Vibe</label><textarea id="city-culture" placeholder="e.g. French fashion, Impressionism, café culture, haute cuisine — a city best savoured slowly"></textarea></div>
-        <button class="admin-btn admin-btn-primary" onclick="saveCity()">Save Destination</button>
-        <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="clearCityForm()">Clear Form</button>
       </div>
+    </div>
 
-      <!-- TIPS TAB -->
-      <div id="tips-tab" class="admin-section">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px">Manage Travel Tips</h3>
-        <div class="admin-list" id="admin-tips-list"></div>
-        <hr class="admin-divider">
-        <h4 style="margin-bottom:16px;font-size:.9rem;font-weight:700" id="tip-form-title">Add New Tip</h4>
-        <input type="hidden" id="edit-tip-id">
-        <div class="form-row">
-          <div class="form-group"><label>Tip Title</label><input type="text" id="tip-title" placeholder="e.g. Book in Advance"></div>
-          <div class="form-group"><label>Icon Emoji</label><input type="text" id="tip-icon" placeholder="✈️"></div>
-        </div>
-        <div class="form-group"><label>Tip Content</label><textarea id="tip-content" placeholder="Explain this travel tip..."></textarea></div>
-        <button class="admin-btn admin-btn-primary" onclick="saveTip()">Save Tip</button>
-        <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="clearTipForm()">Clear Form</button>
+    <!-- ===== CITY TILES TAB ===== -->
+    <div id="at-city-tiles" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">City Tiles</h2>
+        <p class="ap-section-sub">Manage city/destination cards — info, highlights, and tile image.</p>
       </div>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header">
+            <select id="city-country-filter" onchange="renderAdminCities()" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;background:white">
+              <option value="">All Countries</option>
+            </select>
+            <button class="ap-add-btn" onclick="clearCityTileForm()">+ New City</button>
+          </div>
+          <div class="admin-list" id="admin-cities-list"></div>
+        </div>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="city-tile-form-title">Add New Destination</h4>
+            <input type="hidden" id="edit-city-id">
+            <div class="form-group"><label>Country</label><select id="city-country-select"></select></div>
+            <div class="form-row">
+              <div class="form-group"><label>City Name</label><input type="text" id="city-name" placeholder="e.g. Paris"></div>
+              <div class="form-group"><label>Icon Emoji</label><input type="text" id="city-icon" placeholder="🗼"></div>
+            </div>
+            <div class="form-group"><label>Description</label><textarea id="city-desc" placeholder="Short description shown on the tile..."></textarea></div>
+            <div class="form-group"><label>Highlights <span class="form-hint-inline">(comma-separated)</span></label><input type="text" id="city-highlights" placeholder="Eiffel Tower, Louvre, Seine River"></div>
+            <div class="form-group"><label>Best For</label><input type="text" id="city-bestfor" placeholder="e.g. Romance, Culture, Food"></div>
+            <div class="form-group"><label>Fallback Gradient</label><input type="text" id="city-gradient" placeholder="e.g. #c85a3c,#c9a84c"></div>
+            <hr class="admin-divider">
+            <p class="ap-section-label">🖼 Tile Image</p>
+            <div class="form-group">
+              <label>Upload Image</label>
+              <input type="file" id="city-tile-img" accept="image/*" onchange="previewCityTileImg(this)">
+              <div id="city-tile-preview" class="img-preview-box" style="display:none"></div>
+              <small class="form-hint">Tile card image — <strong>700 × 380 px</strong> recommended (2:1). Stored as base64.</small>
+            </div>
+            <div class="form-group">
+              <label>Or Image URL</label>
+              <input type="text" id="city-tile-url" placeholder="https://..." oninput="syncCityTileUrl(this)">
+            </div>
+            <button class="ap-img-remove-btn" id="city-tile-remove" onclick="removeCityTileImg()" style="display:none">✕ Remove Image</button>
+            <hr class="admin-divider">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="admin-btn admin-btn-primary" onclick="saveCityTile()">Save City</button>
+              <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearCityTileForm()">Clear</button>
+              <button class="admin-btn admin-btn-danger" id="city-delete-btn" onclick="deleteCityFromForm()" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <!-- CITY PAGES TAB -->
-      <div id="citypages-tab" class="admin-section">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:8px">City Page Content</h3>
-        <p style="font-size:.83rem;color:rgba(13,13,13,.45);margin-bottom:20px">Rich content (hero photo, map, attractions, food, transport, culture) is now managed directly in the <strong>Cities</strong> tab when adding or editing a destination.</p>
-        <div class="form-row" style="margin-bottom:20px">
-          <div class="form-group" style="margin-bottom:0">
-            <label>Filter by Country</label>
-            <select id="citypage-country-filter" onchange="renderCityPages()">
+    <!-- ===== COUNTRY PAGES TAB ===== -->
+    <div id="at-country-pages" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">Country Pages</h2>
+        <p class="ap-section-sub">Edit the hero section shown when a visitor opens a country — background image and tagline.</p>
+      </div>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header"><span>Select a Country</span></div>
+          <div class="admin-list" id="admin-countrypages-list"></div>
+        </div>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="cpage-form-title">Select a country to edit its page</h4>
+            <input type="hidden" id="edit-cpage-id">
+            <p id="cpage-placeholder" style="font-size:.88rem;color:rgba(13,13,13,.4);margin-top:8px">Click a country on the left to edit its page.</p>
+            <div id="cpage-form-body" style="display:none">
+              <div class="form-group"><label>Page Tagline / Subtitle</label><textarea id="cp-tagline-edit" placeholder="A short evocative line shown under the country name..."></textarea></div>
+              <hr class="admin-divider">
+              <p class="ap-section-label">🖼 Hero Background Image</p>
+              <div class="form-group">
+                <label>Upload Image</label>
+                <input type="file" id="cp-hero-img" accept="image/*" onchange="previewCpHeroImg(this)">
+                <div id="cp-hero-preview" class="img-preview-box" style="display:none"></div>
+                <small class="form-hint">Hero banner — <strong>1400 × 560 px</strong> recommended (wide landscape). Stored as base64.</small>
+              </div>
+              <div class="form-group">
+                <label>Or Image URL</label>
+                <input type="text" id="cp-hero-url" placeholder="https://..." oninput="syncCpHeroUrl(this)">
+              </div>
+              <button class="ap-img-remove-btn" id="cp-hero-remove" onclick="removeCpHeroImg()" style="display:none">✕ Remove Image</button>
+              <hr class="admin-divider">
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="admin-btn admin-btn-primary" onclick="saveCountryPage()">Save Country Page</button>
+                <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearCpForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CITY PAGES TAB ===== -->
+    <div id="at-city-pages" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">City Pages</h2>
+        <p class="ap-section-sub">Edit the rich detail page for each city — hero photo, attractions, food, transport, culture, video, and map.</p>
+      </div>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header">
+            <select id="citypage-country-filter" onchange="renderCityPagesList()" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;background:white">
               <option value="">All Countries</option>
             </select>
           </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label>Filter by City</label>
-            <select id="citypage-city-filter" onchange="renderCityPages()">
+          <div class="admin-list" id="admin-citypages-list"></div>
+        </div>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="citypage-form-title">Select a city to edit its page</h4>
+            <input type="hidden" id="edit-citypage-id">
+            <p id="citypage-placeholder" style="font-size:.88rem;color:rgba(13,13,13,.4);margin-top:8px">Click a city on the left to edit its page.</p>
+            <div id="citypage-form-body" style="display:none">
+              <p class="ap-section-label">🖼 Hero Cover Photo</p>
+              <div class="form-group">
+                <label>Upload Image</label>
+                <input type="file" id="citypage-hero-img" accept="image/*" onchange="previewCityPageHero(this)">
+                <div id="citypage-hero-preview" class="img-preview-box" style="display:none"></div>
+                <small class="form-hint">Hero banner — <strong>1400 × 560 px</strong> recommended (wide landscape). Stored as base64.</small>
+              </div>
+              <div class="form-group">
+                <label>Or Image URL</label>
+                <input type="text" id="citypage-hero-url" placeholder="https://..." oninput="syncCityPageHeroUrl(this)">
+              </div>
+              <button class="ap-img-remove-btn" id="citypage-hero-remove" onclick="removeCityPageHero()" style="display:none">✕ Remove Image</button>
+              <hr class="admin-divider">
+              <div class="form-group"><label>Map Coordinates <span class="form-hint-inline">(lat,lng)</span></label><input type="text" id="citypage-lat-lng" placeholder="48.8566,2.3522"></div>
+              <div class="form-group"><label>YouTube Video ID or URL</label><input type="text" id="citypage-video" placeholder="e.g. dQw4w9WgXcQ"></div>
+              <hr class="admin-divider">
+              <div class="form-group"><label>Attractions <span class="form-hint-inline">(comma-separated or prose)</span></label><textarea id="citypage-attractions" placeholder="Eiffel Tower, Louvre Museum..."></textarea></div>
+              <div class="form-group"><label>Restaurants &amp; Food</label><textarea id="citypage-restaurants" placeholder="Michelin-starred bistros, street markets..."></textarea></div>
+              <div class="form-group"><label>Getting Around</label><textarea id="citypage-getting-around" placeholder="Metro, RER trains, bike share..."></textarea></div>
+              <div class="form-group"><label>Culture &amp; Vibe</label><textarea id="citypage-culture" placeholder="Fashion, cafe culture, nightlife..."></textarea></div>
+              <hr class="admin-divider">
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="admin-btn admin-btn-primary" onclick="saveCityPage()">Save City Page</button>
+                <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearCityPageForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CITY ITEMS TAB ===== -->
+    <div id="at-city-items" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">City Items</h2>
+        <p class="ap-section-sub">Add individual Restaurants, Attractions, Activities, Getting Around spots and Shopping destinations for each city.</p>
+      </div>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header" style="flex-wrap:wrap;gap:6px">
+            <select id="ci-city-filter" onchange="renderAdminCityItems()" style="flex:1;min-width:120px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:inherit;background:white">
               <option value="">All Cities</option>
             </select>
-          </div>
-        </div>
-        <div class="admin-list" id="admin-citypages-list"></div>
-      </div>
-
-      <!-- SETTINGS TAB -->
-      <div id="settings-tab" class="admin-section">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px">Site Settings</h3>
-        <div class="form-group"><label>Hero Title Line 1</label><input type="text" id="s-hero1" placeholder="Travel smarter,"></div>
-        <div class="form-group"><label>Hero Title Line 2</label><input type="text" id="s-hero2" placeholder="explore deeper"></div>
-        <div class="form-group"><label>Hero Subtitle</label><textarea id="s-herosub"></textarea></div>
-        <div class="form-row">
-          <div class="form-group"><label>Stat 1 Number</label><input type="text" id="s-stat1n" placeholder="60+"></div>
-          <div class="form-group"><label>Stat 1 Label</label><input type="text" id="s-stat1l" placeholder="Countries"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Stat 2 Number</label><input type="text" id="s-stat2n" placeholder="500+"></div>
-          <div class="form-group"><label>Stat 2 Label</label><input type="text" id="s-stat2l" placeholder="Destinations"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Stat 3 Number</label><input type="text" id="s-stat3n" placeholder="100k+"></div>
-          <div class="form-group"><label>Stat 3 Label</label><input type="text" id="s-stat3l" placeholder="Travelers"></div>
-        </div>
-        <button class="admin-btn admin-btn-primary" onclick="saveSettings()">Save Settings</button>
-        <hr class="admin-divider">
-        <button class="admin-btn admin-btn-danger" onclick="resetData()">⚠ Reset All Data to Defaults</button>
-        <button class="admin-btn" style="background:var(--cream);color:var(--ink);margin-top:8px" onclick="doLogout()">Sign Out</button>
-      </div>
-
-      <!-- PALETTE TAB -->
-      <div id="palette-tab" class="admin-section">
-        <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">Color Palette</h3>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Primary (Ink)</label>
-            <input type="color" id="p-ink" value="#0d0d0d">
-          </div>
-          <div class="form-group">
-            <label>Background (Cream)</label>
-            <input type="color" id="p-cream" value="#f5f0e8">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Accent (Gold)</label>
-            <input type="color" id="p-gold" value="#c9a84c">
-          </div>
-          <div class="form-group">
-            <label>Secondary (Terra)</label>
-            <input type="color" id="p-terra" value="#c85a3c">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nature (Sage)</label>
-            <input type="color" id="p-sage" value="#4a7c6a">
-          </div>
-          <div class="form-group">
-            <label>Ocean (Sky)</label>
-            <input type="color" id="p-sky" value="#2d5f8a">
-          </div>
-        </div>
-
-        <div class="palette-preview" id="palette-preview" style="height: 120px; border-radius: var(--radius); margin: 24px 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; transition: background .4s;">
-          Live Preview
-        </div>
-
-        <button class="admin-btn admin-btn-primary" onclick="savePalette()">Save Palette</button>
-        <button class="admin-btn" style="background: var(--cream); color: var(--ink); margin-top: 8px;" onclick="loadDefaultPalette()">Reset to Default</button>
-      </div>
-
-      <!-- ADS TAB -->
-      <div id="ads-tab" class="admin-section">
-        <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">Advertisement Tiles</h3>
-
-        <div class="admin-list" id="admin-ads-list"></div>
-        <hr class="admin-divider">
-
-        <h4 style="margin-bottom: 16px; font-size: .9rem; font-weight: 700;" id="ad-form-title">Add New Ad Tile</h4>
-        <input type="hidden" id="edit-ad-id">
-
-        <div class="form-group">
-          <label>Ad Title</label>
-          <input type="text" id="ad-title" placeholder="e.g. Book Hotels 30% Off">
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Location</label>
-            <select id="ad-location">
-              <option value="tips-after-2">Tips (after 2nd)</option>
-              <option value="tips-after-4">Tips (after 4th)</option>
-              <option value="countries-after-3">Countries (after 3rd)</option>
-              <option value="cities-after-2">Cities (after 2nd)</option>
-              <option value="hero-bottom">Hero Bottom</option>
+            <select id="ci-cat-filter" onchange="renderAdminCityItems()" style="flex:1;min-width:120px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:inherit;background:white">
+              <option value="">All Categories</option>
+              <option value="restaurants">🍽 Restaurants</option>
+              <option value="attractions">🏛 Attractions</option>
+              <option value="activities">🎯 Activities</option>
+              <option value="getting-around">🚇 Getting Around</option>
+              <option value="shopping">🛍 Shopping</option>
             </select>
+            <button class="ap-add-btn" onclick="clearCityItemForm()">+ New Item</button>
           </div>
-          <div class="form-group">
-            <label>Background Color</label>
-            <input type="color" id="ad-bg" value="#c9a84c">
+          <div class="admin-list" id="admin-cityitems-list"></div>
+        </div>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="ci-form-title">Add New Item</h4>
+            <input type="hidden" id="edit-ci-id">
+            <div class="form-row">
+              <div class="form-group"><label>City</label>
+                <select id="ci-city-select"></select>
+              </div>
+              <div class="form-group"><label>Category</label>
+                <select id="ci-category">
+                  <option value="restaurants">🍽 Restaurants</option>
+                  <option value="attractions">🏛 Attractions</option>
+                  <option value="activities">🎯 Activities</option>
+                  <option value="getting-around">🚇 Getting Around</option>
+                  <option value="shopping">🛍 Shopping</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Name</label><input type="text" id="ci-name" placeholder="e.g. Le Jules Verne"></div>
+              <div class="form-group"><label>Icon Emoji</label><input type="text" id="ci-icon" placeholder="🍽"></div>
+            </div>
+            <div class="form-group"><label>Description</label><textarea id="ci-desc" placeholder="Short description shown on the tile..."></textarea></div>
+            <div class="form-group"><label>Tags <span class="form-hint-inline">(comma-separated)</span></label><input type="text" id="ci-tags" placeholder="Fine Dining, French, Views"></div>
+            <div class="form-row">
+              <div class="form-group"><label>Price / Cost</label><input type="text" id="ci-price" placeholder="e.g. €€€ or Free"></div>
+              <div class="form-group"><label>Rating</label><input type="text" id="ci-rating" placeholder="e.g. 4.8 ★"></div>
+            </div>
+            <div class="form-group"><label>Address / Location</label><input type="text" id="ci-address" placeholder="e.g. Champ de Mars, Paris"></div>
+            <hr class="admin-divider">
+            <p class="ap-section-label">🖼 Tile Image</p>
+            <div class="form-group">
+              <label>Upload Image</label>
+              <input type="file" id="ci-img" accept="image/*" onchange="previewCiImg(this)">
+              <div id="ci-img-preview" class="img-preview-box" style="display:none"></div>
+              <small class="form-hint">Tile image — <strong>700 × 380 px</strong> recommended (2:1). Stored as base64.</small>
+            </div>
+            <div class="form-group">
+              <label>Or Image URL</label>
+              <input type="text" id="ci-img-url" placeholder="https://..." oninput="syncCiImgUrl(this)">
+            </div>
+            <button class="ap-img-remove-btn" id="ci-img-remove" onclick="removeCiImg()" style="display:none">✕ Remove Image</button>
+            <hr class="admin-divider">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="admin-btn admin-btn-primary" onclick="saveCityItem()">Save Item</button>
+              <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearCityItemForm()">Clear</button>
+              <button class="admin-btn admin-btn-danger" id="ci-delete-btn" onclick="deleteCityItemFromForm()" style="display:none">Delete</button>
+            </div>
           </div>
         </div>
-
-        <div class="form-group">
-          <label>Image/Icon</label>
-          <input type="file" id="ad-image" accept="image/*">
-          <small style="font-size:.75rem;color:rgba(13,13,13,.4);margin-top:4px;display:block">Optional — 300×210px recommended</small>
-        </div>
-
-        <div class="form-group">
-          <label>CTA Button Text</label>
-          <input type="text" id="ad-cta" placeholder="Book Now">
-        </div>
-
-        <div class="form-group">
-          <label>External Link</label>
-          <input type="url" id="ad-link" placeholder="https://booking.com/special">
-        </div>
-
-        <button class="admin-btn admin-btn-primary" onclick="saveAd()">Save Ad Tile</button>
-        <button class="admin-btn" style="background: var(--cream); color: var(--ink); margin-top: 8px;" onclick="clearAdForm()">Clear Form</button>
       </div>
-
     </div>
-  </div>
-</div>
+
+    <!-- ===== TIPS TAB ===== -->
+    <div id="at-tips" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">Travel Tips</h2>
+        <p class="ap-section-sub">Manage the smart travel tips shown on the homepage.</p>
+      </div>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header">
+            <span>All Tips</span>
+            <button class="ap-add-btn" onclick="clearTipForm()">+ New Tip</button>
+          </div>
+          <div class="admin-list" id="admin-tips-list"></div>
+        </div>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="tip-form-title">Add New Tip</h4>
+            <input type="hidden" id="edit-tip-id">
+            <div class="form-row">
+              <div class="form-group"><label>Tip Title</label><input type="text" id="tip-title" placeholder="e.g. Book in Advance"></div>
+              <div class="form-group"><label>Icon Emoji</label><input type="text" id="tip-icon" placeholder="✈️"></div>
+            </div>
+            <div class="form-group"><label>Tip Content</label><textarea id="tip-content" placeholder="Explain this travel tip..."></textarea></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="admin-btn admin-btn-primary" onclick="saveTip()">Save Tip</button>
+              <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearTipForm()">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS TAB ===== -->
+    <div id="at-settings" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">Site Settings</h2>
+        <p class="ap-section-sub">Configure hero text, stats, and global site options.</p>
+      </div>
+      <div style="max-width:640px">
+        <div class="ap-form-card">
+          <div class="form-group"><label>Hero Title Line 1</label><input type="text" id="s-hero1" placeholder="Travel smarter,"></div>
+          <div class="form-group"><label>Hero Title Line 2</label><input type="text" id="s-hero2" placeholder="explore deeper"></div>
+          <div class="form-group"><label>Hero Subtitle</label><textarea id="s-herosub"></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Stat 1 Number</label><input type="text" id="s-stat1n" placeholder="60+"></div>
+            <div class="form-group"><label>Stat 1 Label</label><input type="text" id="s-stat1l" placeholder="Countries"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Stat 2 Number</label><input type="text" id="s-stat2n" placeholder="500+"></div>
+            <div class="form-group"><label>Stat 2 Label</label><input type="text" id="s-stat2l" placeholder="Destinations"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Stat 3 Number</label><input type="text" id="s-stat3n" placeholder="100k+"></div>
+            <div class="form-group"><label>Stat 3 Label</label><input type="text" id="s-stat3l" placeholder="Travelers"></div>
+          </div>
+          <button class="admin-btn admin-btn-primary" onclick="saveSettings()">Save Settings</button>
+          <hr class="admin-divider">
+          <button class="admin-btn admin-btn-danger" onclick="resetData()">⚠ Reset All Data to Defaults</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PALETTE TAB ===== -->
+    <div id="at-palette" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">Color Palette</h2>
+        <p class="ap-section-sub">Customize the site-wide color scheme.</p>
+      </div>
+      <div style="max-width:540px">
+        <div class="ap-form-card">
+          <div class="form-row">
+            <div class="form-group"><label>Primary (Ink)</label><input type="color" id="p-ink" value="#0d0d0d"></div>
+            <div class="form-group"><label>Background (Cream)</label><input type="color" id="p-cream" value="#f5f0e8"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Accent (Gold)</label><input type="color" id="p-gold" value="#c9a84c"></div>
+            <div class="form-group"><label>Secondary (Terra)</label><input type="color" id="p-terra" value="#c85a3c"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Nature (Sage)</label><input type="color" id="p-sage" value="#4a7c6a"></div>
+            <div class="form-group"><label>Ocean (Sky)</label><input type="color" id="p-sky" value="#2d5f8a"></div>
+          </div>
+          <div id="palette-preview" style="height:100px;border-radius:var(--radius);margin:20px 0;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:.9rem;transition:background .4s">Live Preview</div>
+          <div style="display:flex;gap:10px">
+            <button class="admin-btn admin-btn-primary" onclick="savePalette()">Save Palette</button>
+            <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="loadDefaultPalette()">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADS TAB ===== -->
+    <div id="at-ads" class="ap-section">
+      <div class="ap-section-header">
+        <h2 class="ap-section-title">Advertisement Tiles</h2>
+        <p class="ap-section-sub">Place sponsored tiles throughout the site.</p>
+      </div>
+      <div class="ap-two-col">
+        <div class="ap-list-col">
+          <div class="ap-list-header">
+            <span>All Ads</span>
+            <button class="ap-add-btn" onclick="clearAdForm()">+ New Ad</button>
+          </div>
+          <div class="admin-list" id="admin-ads-list"></div>
+        </div>
+        <div class="ap-form-col">
+          <div class="ap-form-card">
+            <h4 class="ap-form-title" id="ad-form-title">Add New Ad Tile</h4>
+            <input type="hidden" id="edit-ad-id">
+            <div class="form-group"><label>Ad Title</label><input type="text" id="ad-title" placeholder="e.g. Book Hotels 30% Off"></div>
+            <div class="form-row">
+              <div class="form-group"><label>Location</label>
+                <select id="ad-location">
+                  <option value="tips-after-2">Tips (after 2nd)</option>
+                  <option value="tips-after-4">Tips (after 4th)</option>
+                  <option value="countries-after-3">Countries (after 3rd)</option>
+                  <option value="cities-after-2">Cities (after 2nd)</option>
+                  <option value="hero-bottom">Hero Bottom</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Background Color</label><input type="color" id="ad-bg" value="#c9a84c"></div>
+            </div>
+            <div class="form-group"><label>Image <span class="form-hint-inline">optional</span></label><input type="file" id="ad-image" accept="image/*"><small class="form-hint">Ad image — <strong>300 × 210 px</strong> recommended (3:2).</small></div>
+            <div class="form-group"><label>CTA Button Text</label><input type="text" id="ad-cta" placeholder="Book Now"></div>
+            <div class="form-group"><label>External Link</label><input type="url" id="ad-link" placeholder="https://booking.com/special"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="admin-btn admin-btn-primary" onclick="saveAd()">Save Ad</button>
+              <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="clearAdForm()">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ap-content -->
+</div><!-- /admin-page -->
 
 <div class="success-toast" id="toast"></div>
 
@@ -710,7 +960,7 @@ const DEFAULT_SETTINGS = {
 };
 
 // ===================== STATE =====================
-let countries,cities,tips,settings,cityPages,ads,currentCountryId=null,loggedIn=false;
+let countries,cities,tips,settings,cityPages,ads,cityItems,currentCountryId=null,currentCityId=null,currentCatKey=null,loggedIn=false;
 
 function loadData(){
   countries=JSON.parse(localStorage.getItem('ab_countries')||'null')||JSON.parse(JSON.stringify(DEFAULT_COUNTRIES));
@@ -718,6 +968,7 @@ function loadData(){
   tips=JSON.parse(localStorage.getItem('ab_tips')||'null')||JSON.parse(JSON.stringify(DEFAULT_TIPS));
   settings=JSON.parse(localStorage.getItem('ab_settings')||'null')||JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
   cityPages=JSON.parse(localStorage.getItem('ab_citypages')||'{}');
+  cityItems=JSON.parse(localStorage.getItem('ab_cityitems')||'[]');
   loadAds();
 }
 function saveAll(){
@@ -726,6 +977,7 @@ function saveAll(){
   localStorage.setItem('ab_tips',JSON.stringify(tips));
   localStorage.setItem('ab_settings',JSON.stringify(settings));
   localStorage.setItem('ab_citypages',JSON.stringify(cityPages));
+  localStorage.setItem('ab_cityitems',JSON.stringify(cityItems));
   saveAds();
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
@@ -814,13 +1066,15 @@ function openCountry(id){
   currentCountryId=id;
   document.getElementById('cp-flag').textContent=c.flag;
   document.getElementById('cp-name').textContent=c.name;
-  document.getElementById('cp-tagline').textContent=c.desc;
   const ch=document.getElementById('country-hero-section');
-  if(c.heroImage){
-    ch.style.background=`linear-gradient(to top,rgba(13,13,13,.65) 0%,rgba(13,13,13,.2) 60%,transparent 100%), url('${c.heroImage}') center/cover no-repeat`;
+  const cpImg=c.pageHeroImage||c.heroImage||'';
+  if(cpImg){
+    ch.style.background=`linear-gradient(to top,rgba(13,13,13,.65) 0%,rgba(13,13,13,.2) 60%,transparent 100%), url('${cpImg}') center/cover no-repeat`;
   } else {
     ch.style.background=`linear-gradient(135deg,${c.gradient||'#0d0d0d,#2d5f8a'})`;
   }
+  // Use pageTagline if set
+  document.getElementById('cp-tagline').textContent=c.pageTagline||c.desc||'';
   document.getElementById('cp-cities-title').textContent=`Top Cities & Destinations in ${c.name}`;
   document.getElementById('cp-cities-sub').textContent=`Discover the most captivating places across ${c.name}.`;
   const citiesForCountry=cities.filter(x=>x.countryId===id);
@@ -858,67 +1112,118 @@ function openCountry(id){
   document.getElementById('tips').style.display='none';
   document.getElementById('countries').style.display='none';
   document.getElementById('main-footer').style.display='none';
-  document.getElementById('city-detail').style.display='none';
   document.getElementById('country-page').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ===================== CITY DETAIL PAGE =====================
+// ===================== CITY CATS HUB =====================
+const CAT_META = {
+  'restaurants':    {icon:'🍽', label:'Restaurants',    bg:'linear-gradient(135deg,#c85a3c,#c9a84c)', desc:'Dining & drinks'},
+  'attractions':    {icon:'🏛', label:'Attractions',    bg:'linear-gradient(135deg,#2d5f8a,#4a7c6a)', desc:'Sights & landmarks'},
+  'activities':     {icon:'🎯', label:'Activities',     bg:'linear-gradient(135deg,#4a7c6a,#2d5f8a)', desc:'Things to do'},
+  'getting-around': {icon:'🚇', label:'Getting Around', bg:'linear-gradient(135deg,#0d0d0d,#2d5f8a)', desc:'Transport & navigation'},
+  'shopping':       {icon:'🛍', label:'Shopping',       bg:'linear-gradient(135deg,#c9a84c,#c85a3c)', desc:'Markets & stores'},
+};
+
 function openCity(cityId){
   const city=cities.find(x=>x.id===cityId);
   if(!city)return;
+  currentCityId=cityId;
   // Hero
-  const heroBg=document.getElementById('city-detail-hero-bg');
-  const heroEl=document.getElementById('city-detail-hero');
-  if(city.heroImage){
-    heroBg.style.backgroundImage=`url('${city.heroImage}')`;
+  const heroBg=document.getElementById('city-cats-hero-bg');
+  const heroEl=document.getElementById('city-cats-hero');
+  const img=city.pageHeroImage||city.heroImage||'';
+  if(img){
+    heroBg.style.backgroundImage=`url('${img}')`;
     heroBg.style.display='block';
+    heroEl.style.background='';
   } else {
     heroBg.style.display='none';
     heroEl.style.background=`linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})`;
   }
-  document.getElementById('city-detail-icon').textContent=city.icon||'🏙️';
-  document.getElementById('city-detail-title').textContent=city.name;
-  // Meta pills
+  document.getElementById('city-cats-icon').textContent=city.icon||'🏙️';
+  document.getElementById('city-cats-title').textContent=city.name;
+  const country=countries.find(x=>x.id===city.countryId);
   const metaParts=[];
   if(city.bestFor)metaParts.push(`✦ ${city.bestFor}`);
-  const country=countries.find(x=>x.id===city.countryId);
   if(country)metaParts.push(`${country.flag} ${country.name}`);
-  document.getElementById('city-detail-meta').innerHTML=metaParts.map(m=>`<span>${m}</span>`).join('');
-  // Desc + highlights
-  document.getElementById('cd-desc').textContent=city.desc||'';
-  document.getElementById('cd-highlights').innerHTML=(city.highlights||'').split(',').filter(Boolean)
-    .map(h=>`<span class="city-block-tag">${h.trim()}</span>`).join('');
-  // Rich sections — show/hide blocks
-  const setBlock=(blockId,textId,val)=>{
-    document.getElementById(blockId).style.display=val?'block':'none';
-    if(textId)document.getElementById(textId).textContent=val||'';
-  };
-  setBlock('cd-attractions-block','cd-attractions',city.attractions);
-  setBlock('cd-restaurants-block','cd-restaurants',city.restaurants);
-  setBlock('cd-around-block','cd-around',city.gettingAround);
-  setBlock('cd-culture-block','cd-culture',city.culture);
-  // Video
-  const videoId=extractVideoId(city.video||'');
-  if(videoId){
-    document.getElementById('cd-video-block').style.display='block';
-    document.getElementById('cd-video').innerHTML=`<iframe src="https://www.youtube.com/embed/${videoId}?rel=0" allowfullscreen loading="lazy" style="width:100%;height:100%;border:none"></iframe>`;
-  } else {
-    document.getElementById('cd-video-block').style.display='none';
-  }
-  // Map
-  if(city.latLng){
-    document.getElementById('cd-map-block').style.display='block';
-    document.getElementById('cd-map').src=`https://maps.google.com/maps?q=${encodeURIComponent(city.latLng)}&z=13&output=embed`;
-  } else {
-    document.getElementById('cd-map-block').style.display='none';
-  }
+  document.getElementById('city-cats-meta').innerHTML=metaParts.map(m=>`<span>${m}</span>`).join('');
+  // Render category cards
+  const grid=document.getElementById('city-cats-grid');
+  grid.innerHTML=Object.entries(CAT_META).map(([key,cat])=>{
+    const count=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===key).length;
+    return`<div class="city-cat-card" onclick="openCatListing('${cityId}','${key}')">
+      <div class="city-cat-card-bg" style="background:${cat.bg}"></div>
+      <div class="city-cat-card-overlay"></div>
+      <div class="city-cat-card-icon">${cat.icon}</div>
+      <div class="city-cat-card-body">
+        <div class="city-cat-card-name">${cat.label}</div>
+        <div class="city-cat-card-count">${count} item${count!==1?'s':''}</div>
+        <button class="cta-btn">
+          Explore ${cat.label}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
   document.getElementById('country-page').style.display='none';
-  document.getElementById('city-detail').style.display='block';
+  document.getElementById('cat-listing').style.display='none';
+  document.getElementById('city-cats').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function openCatListing(cityId, catKey){
+  const city=cities.find(x=>x.id===cityId);
+  if(!city)return;
+  currentCityId=cityId;
+  currentCatKey=catKey;
+  const cat=CAT_META[catKey];
+  // Hero
+  const heroBg=document.getElementById('cat-listing-hero-bg');
+  heroBg.style.background=cat.bg;
+  document.getElementById('cat-listing-icon').textContent=cat.icon;
+  document.getElementById('cat-listing-title').textContent=`${cat.label} in ${city.name}`;
+  document.getElementById('cat-listing-sub').textContent=cat.desc;
+  // Items grid
+  const items=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===catKey);
+  const grid=document.getElementById('cat-listing-grid');
+  if(items.length){
+    grid.innerHTML=items.map(item=>{
+      const tags=(item.tags||'').split(',').filter(Boolean).map(t=>`<span class="cat-tile-tag">${t.trim()}</span>`).join('');
+      const imgStyle=item.image?`background-image:url('${item.image}');background-color:#eee`:`background:${cat.bg}`;
+      return`<div class="cat-tile">
+        <div class="cat-tile-img" style="${imgStyle}">
+          ${!item.image?`<span style="position:relative;z-index:1">${item.icon||cat.icon}</span>`:''}
+          <div class="cat-tile-img-overlay"></div>
+        </div>
+        <div class="cat-tile-body">
+          <div class="cat-tile-name">${item.name}</div>
+          <p class="cat-tile-desc">${item.desc||''}</p>
+          ${tags?`<div class="cat-tile-tags">${tags}</div>`:''}
+          <div class="cat-tile-meta">
+            ${item.price?`<span>💰 ${item.price}</span>`:''}
+            ${item.rating?`<span>⭐ ${item.rating}</span>`:''}
+            ${item.address?`<span>📍 ${item.address}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    grid.innerHTML=`<p style="color:rgba(13,13,13,.4);grid-column:1/-1;font-size:.95rem">No ${cat.label.toLowerCase()} added yet for ${city.name}. Add some in the Admin Panel under City Items.</p>`;
+  }
+  document.getElementById('city-cats').style.display='none';
+  document.getElementById('cat-listing').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showCityCats(){
+  document.getElementById('cat-listing').style.display='none';
+  document.getElementById('city-cats').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function showCountry(){
-  document.getElementById('city-detail').style.display='none';
+  document.getElementById('city-cats').style.display='none';
+  document.getElementById('cat-listing').style.display='none';
   document.getElementById('country-page').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -928,8 +1233,9 @@ function showHome(){
   document.getElementById('countries').style.display='';
   document.getElementById('main-footer').style.display='';
   document.getElementById('country-page').style.display='none';
-  document.getElementById('city-detail').style.display='none';
-  currentCountryId=null;
+  document.getElementById('city-cats').style.display='none';
+  document.getElementById('cat-listing').style.display='none';
+  currentCountryId=null; currentCityId=null; currentCatKey=null;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function extractVideoId(v){
@@ -962,38 +1268,71 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 function doLogout(){loggedIn=false;closeAdmin();showToast('Signed out successfully')}
 
 // ===================== ADMIN =====================
+
 function openAdmin(){
   if(!loggedIn){openLogin();return}
-  document.getElementById('admin-overlay').style.display='block';
-  populateAdminCountrySelects();
-  renderAdminCountries();
-  renderAdminCities();
-  renderAdminTips();
-  loadSettingsForm();
-  initCityPageTab();
-  loadPaletteForm();
-  renderAdminAds();
+  // Hide site, show admin page
+  document.getElementById('hero').style.display='none';
+  document.getElementById('tips').style.display='none';
+  document.getElementById('countries').style.display='none';
+  document.getElementById('main-footer').style.display='none';
+  document.getElementById('country-page').style.display='none';
+  document.getElementById('city-cats').style.display='none';
+  document.getElementById('cat-listing').style.display='none';
+  document.getElementById('admin-page').style.display='block';
+  window.scrollTo({top:0});
+  initAdminData();
 }
-function closeAdmin(){document.getElementById('admin-overlay').style.display='none'}
-function switchTab(id,btn){
-  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+
+function closeAdmin(){
+  document.getElementById('admin-page').style.display='none';
+  // Restore home
+  document.getElementById('hero').style.display='';
+  document.getElementById('tips').style.display='';
+  document.getElementById('countries').style.display='';
+  document.getElementById('main-footer').style.display='';
+  currentCountryId=null;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function switchAdminTab(id,btn){
+  document.querySelectorAll('.ap-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ap-nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
 
-// --- Countries Admin ---
+function initAdminData(){
+  const safe=(fn)=>{try{fn();}catch(e){console.warn('Admin init error:',e);}};
+  safe(populateAdminCountrySelects);
+  safe(populateCiCitySelect);
+  safe(renderAdminCountries);
+  safe(renderAdminCities);
+  safe(renderAdminCityItems);
+  safe(renderAdminTips);
+  safe(loadSettingsForm);
+  safe(renderCountryPagesList);
+  safe(renderCityPagesList);
+  safe(loadPaletteForm);
+  safe(renderAdminAds);
+}
+
+// ===================== COUNTRY TILES ADMIN =====================
+
 function renderAdminCountries(){
-  document.getElementById('admin-countries-list').innerHTML=countries.map(c=>`
+  const el=document.getElementById('admin-countries-list');
+  if(!el)return;
+  el.innerHTML=countries.map(c=>`
     <div class="admin-list-item">
       <span class="admin-list-item-name">${c.flag} ${c.name}</span>
       <div class="admin-list-item-actions">
-        <button class="admin-icon-btn edit-btn" onclick="editCountry('${c.id}')">Edit</button>
+        <button class="admin-icon-btn edit-btn" onclick="editCountryTile('${c.id}')">Edit</button>
         <button class="admin-icon-btn del-btn" onclick="deleteCountry('${c.id}')">Del</button>
       </div>
-    </div>`).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No countries yet.</p>';
+    </div>`).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No countries yet.</p>';
 }
-function editCountry(id){
+
+function editCountryTile(id){
   const c=countries.find(x=>x.id===id);
   if(!c)return;
   document.getElementById('edit-country-id').value=id;
@@ -1005,11 +1344,70 @@ function editCountry(id){
   document.getElementById('c-lang').value=c.lang;
   document.getElementById('c-gradient').value=c.gradient||'';
   document.getElementById('c-featured').value=c.featured||'0';
-  document.getElementById('country-form-title').textContent='Edit Country';
-  document.querySelector('[onclick="switchTab(\'countries-tab\',this)"]').click();
+  document.getElementById('country-tile-form-title').textContent='Edit: '+c.name;
+  document.getElementById('c-delete-btn').style.display='';
+  // Tile image
+  const preview=document.getElementById('c-tile-preview');
+  const removeBtn=document.getElementById('c-tile-remove');
+  const urlInput=document.getElementById('c-tile-url');
+  if(c.heroImage){
+    preview.style.backgroundImage=`url('${c.heroImage}')`;
+    preview.style.display='block';
+    preview._base64=c.heroImage;
+    removeBtn.style.display='';
+    if(c.heroImage.startsWith('http'))urlInput.value=c.heroImage;
+    else urlInput.value='';
+  } else {
+    preview.style.display='none';
+    preview._base64=null;
+    removeBtn.style.display='none';
+    urlInput.value='';
+  }
+  document.getElementById('c-tile-img').value='';
 }
-function saveCountry(){
+
+function previewCountryTileImg(input){
+  const preview=document.getElementById('c-tile-preview');
+  const removeBtn=document.getElementById('c-tile-remove');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      preview.style.backgroundImage=`url('${e.target.result}')`;
+      preview.style.display='block';
+      preview._base64=e.target.result;
+      removeBtn.style.display='';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function syncCountryTileUrl(input){
+  const preview=document.getElementById('c-tile-preview');
+  const removeBtn=document.getElementById('c-tile-remove');
+  const val=input.value.trim();
+  if(val){
+    preview.style.backgroundImage=`url('${val}')`;
+    preview.style.display='block';
+    preview._base64=val;
+    removeBtn.style.display='';
+  } else {
+    removeCountryTileImg();
+  }
+}
+
+function removeCountryTileImg(){
+  const preview=document.getElementById('c-tile-preview');
+  preview.style.display='none';
+  preview._base64=null;
+  document.getElementById('c-tile-remove').style.display='none';
+  document.getElementById('c-tile-img').value='';
+  document.getElementById('c-tile-url').value='';
+}
+
+function saveCountryTile(){
   const id=document.getElementById('edit-country-id').value;
+  const preview=document.getElementById('c-tile-preview');
+  const existingImg=id?countries.find(x=>x.id===id)?.heroImage||'':'';
   const obj={
     id:id||uid(),
     name:document.getElementById('c-name').value.trim(),
@@ -1019,61 +1417,78 @@ function saveCountry(){
     currency:document.getElementById('c-currency').value.trim(),
     lang:document.getElementById('c-lang').value.trim(),
     gradient:document.getElementById('c-gradient').value.trim()||'#2d5f8a,#c9a84c',
-    featured:document.getElementById('c-featured').value
+    featured:document.getElementById('c-featured').value,
+    heroImage:preview._base64||existingImg,
+    // Preserve page-specific fields from existing record
+    pageTagline:id?(countries.find(x=>x.id===id)?.pageTagline||''):'',
+    pageHeroImage:id?(countries.find(x=>x.id===id)?.pageHeroImage||''):'',
   };
-  if(!obj.name){alert('Country name is required');return}
+  if(!obj.name){alert('Country name required');return}
   if(id){const i=countries.findIndex(x=>x.id===id);if(i>=0)countries[i]=obj}
   else countries.push(obj);
   saveAll();renderCountries();renderAdminCountries();populateAdminCountrySelects();
-  clearCountryForm();showToast('Country saved ✓');
+  renderCountryPagesList();
+  clearCountryTileForm();showToast('Country saved ✓');
 }
-function deleteCountry(id){
+
+function deleteCountryFromForm(){
+  const id=document.getElementById('edit-country-id').value;
+  if(!id)return;
   if(!confirm('Delete this country and all its cities?'))return;
+  deleteCountry(id);
+  clearCountryTileForm();
+}
+
+function deleteCountry(id){
   countries=countries.filter(x=>x.id!==id);
   cities=cities.filter(x=>x.countryId!==id);
   saveAll();renderCountries();renderAdminCountries();renderAdminCities();populateAdminCountrySelects();
+  renderCountryPagesList();renderCityPagesList();
   showToast('Country deleted');
 }
-function clearCountryForm(){
+
+function clearCountryTileForm(){
   document.getElementById('edit-country-id').value='';
-  ['c-name','c-flag','c-desc','c-season','c-currency','c-lang','c-gradient'].forEach(id=>document.getElementById(id).value='');
+  ['c-name','c-flag','c-desc','c-season','c-currency','c-lang','c-gradient','c-tile-url'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('c-featured').value='0';
-  document.getElementById('country-form-title').textContent='Add New Country';
+  document.getElementById('c-tile-img').value='';
+  document.getElementById('c-tile-preview').style.display='none';
+  document.getElementById('c-tile-preview')._base64=null;
+  document.getElementById('c-tile-remove').style.display='none';
+  document.getElementById('c-delete-btn').style.display='none';
+  document.getElementById('country-tile-form-title').textContent='Add New Country';
 }
 
-// --- Cities Admin ---
+// ===================== CITY TILES ADMIN =====================
+
 function populateAdminCountrySelects(){
   const opts=countries.map(c=>`<option value="${c.id}">${c.flag} ${c.name}</option>`).join('');
-  document.getElementById('city-country-select').innerHTML=opts;
-  document.getElementById('city-country-filter').innerHTML=`<option value="">-- All Countries --</option>`+opts;
+  const cs=document.getElementById('city-country-select');
+  if(cs)cs.innerHTML=opts;
+  const cf=document.getElementById('city-country-filter');
+  if(cf)cf.innerHTML=`<option value="">All Countries</option>`+opts;
+  const cpf=document.getElementById('citypage-country-filter');
+  if(cpf)cpf.innerHTML=`<option value="">All Countries</option>`+opts;
 }
+
 function renderAdminCities(){
-  const filter=document.getElementById('city-country-filter').value;
+  const _cf=document.getElementById('city-country-filter');
+  const filter=_cf?_cf.value:'';
   const filtered=filter?cities.filter(c=>c.countryId===filter):cities;
-  document.getElementById('admin-cities-list').innerHTML=filtered.map(c=>{
+  const _acl=document.getElementById('admin-cities-list');if(!_acl)return;
+  _acl.innerHTML=filtered.map(c=>{
     const country=countries.find(x=>x.id===c.countryId);
     return`<div class="admin-list-item">
-      <span class="admin-list-item-name">${c.icon||'🏙️'} ${c.name} <span style="color:rgba(13,13,13,.4);font-weight:400;font-size:.78rem">(${country?country.name:'?'})</span></span>
+      <span class="admin-list-item-name">${c.icon||'🏙️'} ${c.name} <span style="color:rgba(13,13,13,.4);font-weight:400;font-size:.76rem">(${country?country.name:'?'})</span></span>
       <div class="admin-list-item-actions">
-        <button class="admin-icon-btn edit-btn" onclick="editCity('${c.id}')">Edit</button>
+        <button class="admin-icon-btn edit-btn" onclick="editCityTile('${c.id}')">Edit</button>
         <button class="admin-icon-btn del-btn" onclick="deleteCity('${c.id}')">Del</button>
       </div>
     </div>`;
-  }).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No destinations yet.</p>';
+  }).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No destinations yet.</p>';
 }
-function previewHeroImg(input){
-  const preview=document.getElementById('city-hero-preview');
-  if(input.files&&input.files[0]){
-    const reader=new FileReader();
-    reader.onload=e=>{
-      preview.style.backgroundImage=`url('${e.target.result}')`;
-      preview.style.display='block';
-      preview._base64=e.target.result;
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-function editCity(id){
+
+function editCityTile(id){
   const c=cities.find(x=>x.id===id);
   if(!c)return;
   document.getElementById('edit-city-id').value=id;
@@ -1083,31 +1498,71 @@ function editCity(id){
   document.getElementById('city-desc').value=c.desc;
   document.getElementById('city-highlights').value=c.highlights||'';
   document.getElementById('city-bestfor').value=c.bestFor||'';
-  document.getElementById('city-video').value=c.video||'';
   document.getElementById('city-gradient').value=c.gradient||'';
-  document.getElementById('city-lat-lng').value=c.latLng||'';
-  document.getElementById('city-attractions').value=c.attractions||'';
-  document.getElementById('city-restaurants').value=c.restaurants||'';
-  document.getElementById('city-getting-around').value=c.gettingAround||'';
-  document.getElementById('city-culture').value=c.culture||'';
-  // Show existing hero image in preview if saved
-  const preview=document.getElementById('city-hero-preview');
+  document.getElementById('city-tile-form-title').textContent='Edit: '+c.name;
+  document.getElementById('city-delete-btn').style.display='';
+  // Tile image
+  const preview=document.getElementById('city-tile-preview');
+  const removeBtn=document.getElementById('city-tile-remove');
+  const urlInput=document.getElementById('city-tile-url');
   if(c.heroImage){
     preview.style.backgroundImage=`url('${c.heroImage}')`;
     preview.style.display='block';
     preview._base64=c.heroImage;
+    removeBtn.style.display='';
+    if(c.heroImage.startsWith('http'))urlInput.value=c.heroImage;
+    else urlInput.value='';
   } else {
     preview.style.display='none';
     preview._base64=null;
+    removeBtn.style.display='none';
+    urlInput.value='';
   }
-  document.getElementById('city-hero-img').value='';
-  document.getElementById('city-form-title').textContent='Edit Destination';
-  document.querySelector('[onclick="switchTab(\'cities-tab\',this)"]').click();
+  document.getElementById('city-tile-img').value='';
 }
-function saveCity(){
+
+function previewCityTileImg(input){
+  const preview=document.getElementById('city-tile-preview');
+  const removeBtn=document.getElementById('city-tile-remove');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      preview.style.backgroundImage=`url('${e.target.result}')`;
+      preview.style.display='block';
+      preview._base64=e.target.result;
+      removeBtn.style.display='';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function syncCityTileUrl(input){
+  const preview=document.getElementById('city-tile-preview');
+  const removeBtn=document.getElementById('city-tile-remove');
+  const val=input.value.trim();
+  if(val){
+    preview.style.backgroundImage=`url('${val}')`;
+    preview.style.display='block';
+    preview._base64=val;
+    removeBtn.style.display='';
+  } else {
+    removeCityTileImg();
+  }
+}
+
+function removeCityTileImg(){
+  const preview=document.getElementById('city-tile-preview');
+  preview.style.display='none';
+  preview._base64=null;
+  document.getElementById('city-tile-remove').style.display='none';
+  document.getElementById('city-tile-img').value='';
+  document.getElementById('city-tile-url').value='';
+}
+
+function saveCityTile(){
   const id=document.getElementById('edit-city-id').value;
-  const preview=document.getElementById('city-hero-preview');
-  const latLngRaw=document.getElementById('city-lat-lng').value.trim();
+  const preview=document.getElementById('city-tile-preview');
+  const existing=id?cities.find(x=>x.id===id):null;
   const obj={
     id:id||uid(),
     countryId:document.getElementById('city-country-select').value,
@@ -1116,48 +1571,280 @@ function saveCity(){
     desc:document.getElementById('city-desc').value.trim(),
     highlights:document.getElementById('city-highlights').value.trim(),
     bestFor:document.getElementById('city-bestfor').value.trim(),
-    video:document.getElementById('city-video').value.trim(),
     gradient:document.getElementById('city-gradient').value.trim()||'#c85a3c,#c9a84c',
-    heroImage:preview._base64||(id?cities.find(x=>x.id===id)?.heroImage||'':''),
-    latLng:latLngRaw,
-    attractions:document.getElementById('city-attractions').value.trim(),
-    restaurants:document.getElementById('city-restaurants').value.trim(),
-    gettingAround:document.getElementById('city-getting-around').value.trim(),
-    culture:document.getElementById('city-culture').value.trim()
+    heroImage:preview._base64||(existing?.heroImage||''),
+    // Preserve page-specific fields
+    video:existing?.video||'',
+    latLng:existing?.latLng||'',
+    attractions:existing?.attractions||'',
+    restaurants:existing?.restaurants||'',
+    gettingAround:existing?.gettingAround||'',
+    culture:existing?.culture||'',
+    pageHeroImage:existing?.pageHeroImage||'',
   };
-  if(!obj.name){alert('City name is required');return}
+  if(!obj.name){alert('City name required');return}
   if(id){const i=cities.findIndex(x=>x.id===id);if(i>=0)cities[i]=obj}
   else cities.push(obj);
-  saveAll();renderAdminCities();showToast('Destination saved ✓');
-  clearCityForm();
-}
-function deleteCity(id){
-  if(!confirm('Delete this destination?'))return;
-  cities=cities.filter(x=>x.id!==id);
-  saveAll();renderAdminCities();showToast('Destination deleted');
-}
-function clearCityForm(){
-  document.getElementById('edit-city-id').value='';
-  ['city-name','city-icon','city-desc','city-highlights','city-bestfor','city-video','city-gradient',
-   'city-lat-lng','city-attractions','city-restaurants','city-getting-around','city-culture']
-    .forEach(id=>document.getElementById(id).value='');
-  document.getElementById('city-hero-img').value='';
-  const preview=document.getElementById('city-hero-preview');
-  preview.style.display='none';
-  preview._base64=null;
-  document.getElementById('city-form-title').textContent='Add New Destination';
+  saveAll();renderAdminCities();renderCityPagesList();showToast('City saved ✓');
+  clearCityTileForm();
 }
 
-// --- Tips Admin ---
+function deleteCityFromForm(){
+  const id=document.getElementById('edit-city-id').value;
+  if(!id)return;
+  if(!confirm('Delete this destination?'))return;
+  deleteCity(id);
+  clearCityTileForm();
+}
+
+function deleteCity(id){
+  cities=cities.filter(x=>x.id!==id);
+  saveAll();renderAdminCities();renderCityPagesList();showToast('Destination deleted');
+}
+
+function clearCityTileForm(){
+  document.getElementById('edit-city-id').value='';
+  ['city-name','city-icon','city-desc','city-highlights','city-bestfor','city-gradient','city-tile-url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('city-tile-img').value='';
+  document.getElementById('city-tile-preview').style.display='none';
+  document.getElementById('city-tile-preview')._base64=null;
+  document.getElementById('city-tile-remove').style.display='none';
+  document.getElementById('city-delete-btn').style.display='none';
+  document.getElementById('city-tile-form-title').textContent='Add New Destination';
+}
+
+// ===================== COUNTRY PAGES ADMIN =====================
+
+function renderCountryPagesList(){
+  const el=document.getElementById('admin-countrypages-list');
+  if(!el)return;
+  const dot=(has)=>has
+    ?`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--sage);margin-left:4px;vertical-align:middle"></span>`
+    :`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border);margin-left:4px;vertical-align:middle"></span>`;
+  el.innerHTML=countries.map(c=>`
+    <div class="admin-list-item" style="cursor:pointer" onclick="editCountryPage('${c.id}')">
+      <span class="admin-list-item-name">${c.flag} ${c.name}
+        ${dot(!!c.pageHeroImage)} ${dot(!!c.pageTagline)}
+      </span>
+      <span class="admin-icon-btn edit-btn" style="cursor:pointer">Edit</span>
+    </div>`).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No countries.</p>';
+}
+
+function editCountryPage(id){
+  const c=countries.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('edit-cpage-id').value=id;
+  document.getElementById('cpage-form-title').textContent='Page: '+c.flag+' '+c.name;
+  document.getElementById('cp-tagline-edit').value=c.pageTagline||c.desc||'';
+  document.getElementById('cpage-placeholder').style.display='none';
+  document.getElementById('cpage-form-body').style.display='block';
+  // Page hero image (separate from tile image)
+  const img=c.pageHeroImage||c.heroImage||'';
+  const preview=document.getElementById('cp-hero-preview');
+  const removeBtn=document.getElementById('cp-hero-remove');
+  const urlInput=document.getElementById('cp-hero-url');
+  if(img){
+    preview.style.backgroundImage=`url('${img}')`;
+    preview.style.display='block';
+    preview._base64=img;
+    removeBtn.style.display='';
+    if(img.startsWith('http'))urlInput.value=img;
+    else urlInput.value='';
+  } else {
+    preview.style.display='none';
+    preview._base64=null;
+    removeBtn.style.display='none';
+    urlInput.value='';
+  }
+  document.getElementById('cp-hero-img').value='';
+}
+
+function previewCpHeroImg(input){
+  const preview=document.getElementById('cp-hero-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      preview.style.backgroundImage=`url('${e.target.result}')`;
+      preview.style.display='block';
+      preview._base64=e.target.result;
+      document.getElementById('cp-hero-remove').style.display='';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function syncCpHeroUrl(input){
+  const preview=document.getElementById('cp-hero-preview');
+  const val=input.value.trim();
+  if(val){
+    preview.style.backgroundImage=`url('${val}')`;
+    preview.style.display='block';
+    preview._base64=val;
+    document.getElementById('cp-hero-remove').style.display='';
+  } else {
+    removeCpHeroImg();
+  }
+}
+
+function removeCpHeroImg(){
+  const preview=document.getElementById('cp-hero-preview');
+  preview.style.display='none';
+  preview._base64=null;
+  document.getElementById('cp-hero-remove').style.display='none';
+  document.getElementById('cp-hero-img').value='';
+  document.getElementById('cp-hero-url').value='';
+}
+
+function saveCountryPage(){
+  const id=document.getElementById('edit-cpage-id').value;
+  if(!id)return;
+  const i=countries.findIndex(x=>x.id===id);
+  if(i<0)return;
+  const preview=document.getElementById('cp-hero-preview');
+  countries[i].pageTagline=document.getElementById('cp-tagline-edit').value.trim();
+  countries[i].pageHeroImage=preview._base64||countries[i].pageHeroImage||'';
+  saveAll();renderCountryPagesList();showToast('Country page saved ✓');
+}
+
+function clearCpForm(){
+  document.getElementById('edit-cpage-id').value='';
+  document.getElementById('cpage-form-body').style.display='none';
+  document.getElementById('cpage-placeholder').style.display='';
+  document.getElementById('cpage-form-title').textContent='Select a country to edit its page';
+  removeCpHeroImg();
+  document.getElementById('cp-tagline-edit').value='';
+}
+
+// ===================== CITY PAGES ADMIN =====================
+
+function renderCityPagesList(){
+  const filter=document.getElementById('citypage-country-filter')?.value||'';
+  const filtered=filter?cities.filter(c=>c.countryId===filter):cities;
+  const el=document.getElementById('admin-citypages-list');
+  if(!el)return;
+  const dot=(has,label)=>has
+    ?`<span style="font-size:.65rem;background:var(--sage);color:#fff;padding:1px 6px;border-radius:50px;margin-right:2px">${label}</span>`
+    :`<span style="font-size:.65rem;background:var(--border);color:rgba(13,13,13,.35);padding:1px 6px;border-radius:50px;margin-right:2px">${label}</span>`;
+  el.innerHTML=filtered.map(c=>{
+    const country=countries.find(x=>x.id===c.countryId);
+    return`<div class="admin-list-item" style="cursor:pointer;flex-wrap:wrap;gap:6px" onclick="editCityPage('${c.id}')">
+      <div style="flex:1;min-width:0">
+        <div class="admin-list-item-name" style="margin-bottom:4px">${c.icon||'🏙️'} ${c.name} <span style="font-size:.72rem;font-weight:400;color:rgba(13,13,13,.4)">${country?country.name:''}</span></div>
+        <div>${dot(!!c.pageHeroImage,'📷')}${dot(!!c.latLng,'📍')}${dot(!!c.attractions,'🏛')}${dot(!!c.restaurants,'🍽')}${dot(!!c.gettingAround,'🚇')}${dot(!!c.culture,'🎭')}</div>
+      </div>
+      <span class="admin-icon-btn edit-btn">Edit</span>
+    </div>`;
+  }).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No cities match.</p>';
+}
+
+function editCityPage(id){
+  const c=cities.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('edit-citypage-id').value=id;
+  document.getElementById('citypage-form-title').textContent='Page: '+(c.icon||'')+(c.name||'');
+  document.getElementById('citypage-lat-lng').value=c.latLng||'';
+  document.getElementById('citypage-video').value=c.video||'';
+  document.getElementById('citypage-attractions').value=c.attractions||'';
+  document.getElementById('citypage-restaurants').value=c.restaurants||'';
+  document.getElementById('citypage-getting-around').value=c.gettingAround||'';
+  document.getElementById('citypage-culture').value=c.culture||'';
+  document.getElementById('citypage-placeholder').style.display='none';
+  document.getElementById('citypage-form-body').style.display='block';
+  // Page hero (separate from tile image)
+  const img=c.pageHeroImage||c.heroImage||'';
+  const preview=document.getElementById('citypage-hero-preview');
+  const removeBtn=document.getElementById('citypage-hero-remove');
+  const urlInput=document.getElementById('citypage-hero-url');
+  if(img){
+    preview.style.backgroundImage=`url('${img}')`;
+    preview.style.display='block';
+    preview._base64=img;
+    removeBtn.style.display='';
+    if(img.startsWith('http'))urlInput.value=img;
+    else urlInput.value='';
+  } else {
+    preview.style.display='none';
+    preview._base64=null;
+    removeBtn.style.display='none';
+    urlInput.value='';
+  }
+  document.getElementById('citypage-hero-img').value='';
+}
+
+function previewCityPageHero(input){
+  const preview=document.getElementById('citypage-hero-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      preview.style.backgroundImage=`url('${e.target.result}')`;
+      preview.style.display='block';
+      preview._base64=e.target.result;
+      document.getElementById('citypage-hero-remove').style.display='';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function syncCityPageHeroUrl(input){
+  const preview=document.getElementById('citypage-hero-preview');
+  const val=input.value.trim();
+  if(val){
+    preview.style.backgroundImage=`url('${val}')`;
+    preview.style.display='block';
+    preview._base64=val;
+    document.getElementById('citypage-hero-remove').style.display='';
+  } else {
+    removeCityPageHero();
+  }
+}
+
+function removeCityPageHero(){
+  const preview=document.getElementById('citypage-hero-preview');
+  preview.style.display='none';
+  preview._base64=null;
+  document.getElementById('citypage-hero-remove').style.display='none';
+  document.getElementById('citypage-hero-img').value='';
+  document.getElementById('citypage-hero-url').value='';
+}
+
+function saveCityPage(){
+  const id=document.getElementById('edit-citypage-id').value;
+  if(!id)return;
+  const i=cities.findIndex(x=>x.id===id);
+  if(i<0)return;
+  const preview=document.getElementById('citypage-hero-preview');
+  cities[i].pageHeroImage=preview._base64||cities[i].pageHeroImage||'';
+  cities[i].latLng=document.getElementById('citypage-lat-lng').value.trim();
+  cities[i].video=document.getElementById('citypage-video').value.trim();
+  cities[i].attractions=document.getElementById('citypage-attractions').value.trim();
+  cities[i].restaurants=document.getElementById('citypage-restaurants').value.trim();
+  cities[i].gettingAround=document.getElementById('citypage-getting-around').value.trim();
+  cities[i].culture=document.getElementById('citypage-culture').value.trim();
+  saveAll();renderCityPagesList();showToast('City page saved ✓');
+}
+
+function clearCityPageForm(){
+  document.getElementById('edit-citypage-id').value='';
+  document.getElementById('citypage-form-body').style.display='none';
+  document.getElementById('citypage-placeholder').style.display='';
+  document.getElementById('citypage-form-title').textContent='Select a city to edit its page';
+  removeCityPageHero();
+  ['citypage-lat-lng','citypage-video','citypage-attractions','citypage-restaurants','citypage-getting-around','citypage-culture']
+    .forEach(id=>document.getElementById(id).value='');
+}
+
+// ===================== TIPS ADMIN =====================
 function renderAdminTips(){
-  document.getElementById('admin-tips-list').innerHTML=tips.map(t=>`
+  const el=document.getElementById('admin-tips-list');
+  if(!el)return;
+  el.innerHTML=tips.map(t=>`
     <div class="admin-list-item">
       <span class="admin-list-item-name">${t.icon} ${t.title}</span>
       <div class="admin-list-item-actions">
         <button class="admin-icon-btn edit-btn" onclick="editTip('${t.id}')">Edit</button>
         <button class="admin-icon-btn del-btn" onclick="deleteTip('${t.id}')">Del</button>
       </div>
-    </div>`).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No tips yet.</p>';
+    </div>`).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No tips yet.</p>';
 }
 function editTip(id){
   const t=tips.find(x=>x.id===id);
@@ -1167,7 +1854,6 @@ function editTip(id){
   document.getElementById('tip-title').value=t.title;
   document.getElementById('tip-content').value=t.content;
   document.getElementById('tip-form-title').textContent='Edit Tip';
-  document.querySelector('[onclick="switchTab(\'tips-tab\',this)"]').click();
 }
 function saveTip(){
   const id=document.getElementById('edit-tip-id').value;
@@ -1193,7 +1879,7 @@ function clearTipForm(){
   document.getElementById('tip-form-title').textContent='Add New Tip';
 }
 
-// --- Settings Admin ---
+// ===================== SETTINGS ADMIN =====================
 function loadSettingsForm(){
   document.getElementById('s-hero1').value=settings.hero1||'';
   document.getElementById('s-hero2').value=settings.hero2||'';
@@ -1220,60 +1906,59 @@ function saveSettings(){
   saveAll();applySettings();showToast('Settings saved ✓');
 }
 function resetData(){
-  if(!confirm('This will reset ALL content to defaults. Are you sure?'))return;
+  if(!confirm('Reset ALL content to defaults?'))return;
   localStorage.removeItem('ab_countries');
   localStorage.removeItem('ab_cities');
   localStorage.removeItem('ab_tips');
   localStorage.removeItem('ab_citypages');
   localStorage.removeItem('ab_settings');
-  loadData();renderHome();populateAdminCountrySelects();
-  renderAdminCountries();renderAdminCities();renderAdminTips();loadSettingsForm();
-  showToast('Data reset to defaults ✓');
+  localStorage.removeItem('ab_ads');
+  localStorage.removeItem('ab_cityitems');
+  loadData();renderHome();
+  populateAdminCountrySelects();
+  renderAdminCountries();renderAdminCities();renderAdminCityItems();renderAdminTips();
+  loadSettingsForm();renderCountryPagesList();renderCityPagesList();
+  renderAdminAds();showToast('Data reset to defaults ✓');
 }
 
-// --- Palette Admin ---
-const DEFAULT_PALETTE = {ink:'#0d0d0d',cream:'#f5f0e8',gold:'#c9a84c',terra:'#c85a3c',sage:'#4a7c6a',sky:'#2d5f8a'};
+// ===================== PALETTE ADMIN =====================
+const DEFAULT_PALETTE={ink:'#0d0d0d',cream:'#f5f0e8',gold:'#c9a84c',terra:'#c85a3c',sage:'#4a7c6a',sky:'#2d5f8a'};
+function lightenHex(hex,amt){
+  let n=parseInt(hex.slice(1),16);
+  let r=Math.min(255,(n>>16)+amt),g=Math.min(255,((n>>8)&0xff)+amt),b=Math.min(255,(n&0xff)+amt);
+  return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function applyPalette(p){
+  const s=document.documentElement.style;
+  s.setProperty('--ink',p.ink);
+  s.setProperty('--cream',p.cream);
+  s.setProperty('--gold',p.gold);
+  s.setProperty('--gold-light',lightenHex(p.gold,30));
+  s.setProperty('--terra',p.terra);
+  s.setProperty('--sage',p.sage);
+  s.setProperty('--sky',p.sky);
+  s.setProperty('--warm-white',lightenHex(p.cream,10));
+}
 function loadPaletteForm(){
   const p=JSON.parse(localStorage.getItem('ab_palette')||'null')||DEFAULT_PALETTE;
   ['ink','cream','gold','terra','sage','sky'].forEach(k=>{
     const el=document.getElementById('p-'+k);
-    if(el)el.value=p[k];
+    if(el){el.value=p[k];el.oninput=updatePalettePreview;}
   });
   updatePalettePreview();
-  ['ink','cream','gold','terra','sage','sky'].forEach(k=>{
-    const el=document.getElementById('p-'+k);
-    if(el)el.addEventListener('input',updatePalettePreview);
-  });
 }
 function updatePalettePreview(){
   const ink=document.getElementById('p-ink').value;
   const gold=document.getElementById('p-gold').value;
   const sage=document.getElementById('p-sage').value;
   const prev=document.getElementById('palette-preview');
-  if(prev)prev.style.background=`linear-gradient(135deg, ${ink}, ${gold}, ${sage})`;
-}
-function applyPalette(p){
-  const root=document.documentElement.style;
-  root.setProperty('--ink',p.ink);
-  root.setProperty('--cream',p.cream);
-  root.setProperty('--gold',p.gold);
-  root.setProperty('--gold-light',lightenHex(p.gold,30));
-  root.setProperty('--terra',p.terra);
-  root.setProperty('--sage',p.sage);
-  root.setProperty('--sky',p.sky);
-  root.setProperty('--warm-white',lightenHex(p.cream,10));
-}
-function lightenHex(hex,amt){
-  let n=parseInt(hex.slice(1),16);
-  let r=Math.min(255,(n>>16)+amt),g=Math.min(255,((n>>8)&0xff)+amt),b=Math.min(255,(n&0xff)+amt);
-  return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(prev)prev.style.background=`linear-gradient(135deg,${ink},${gold},${sage})`;
 }
 function savePalette(){
   const p={};
   ['ink','cream','gold','terra','sage','sky'].forEach(k=>p[k]=document.getElementById('p-'+k).value);
   localStorage.setItem('ab_palette',JSON.stringify(p));
-  applyPalette(p);
-  showToast('Palette saved ✓');
+  applyPalette(p);showToast('Palette saved ✓');
 }
 function loadDefaultPalette(){
   localStorage.removeItem('ab_palette');
@@ -1282,65 +1967,24 @@ function loadDefaultPalette(){
     const el=document.getElementById('p-'+k);
     if(el)el.value=DEFAULT_PALETTE[k];
   });
-  updatePalettePreview();
-  showToast('Palette reset to default ✓');
+  updatePalettePreview();showToast('Palette reset ✓');
 }
 
-// --- City Pages Admin ---
-function initCityPageTab(){
-  const countryOpts='<option value="">All Countries</option>'+countries.map(c=>`<option value="${c.id}">${c.flag} ${c.name}</option>`).join('');
-  document.getElementById('citypage-country-filter').innerHTML=countryOpts;
-  renderCityPages();
-}
-function renderCityPages(){
-  const cf=document.getElementById('citypage-country-filter').value;
-  const cityF=document.getElementById('citypage-city-filter').value;
-  const filteredCities=cf?cities.filter(c=>c.countryId===cf):cities;
-  document.getElementById('citypage-city-filter').innerHTML=
-    '<option value="">All Cities</option>'+
-    filteredCities.map(c=>`<option value="${c.id}"${c.id===cityF?' selected':''}>${c.name}</option>`).join('');
-  const listCities=cityF?filteredCities.filter(c=>c.id===cityF):filteredCities;
-  const statusDot=(has,label)=>has
-    ?`<span style="font-size:.68rem;background:var(--sage);color:#fff;padding:2px 7px;border-radius:50px;margin-left:4px">${label}</span>`
-    :`<span style="font-size:.68rem;background:var(--border);color:rgba(13,13,13,.4);padding:2px 7px;border-radius:50px;margin-left:4px">${label}</span>`;
-  document.getElementById('admin-citypages-list').innerHTML=listCities.map(c=>{
-    const country=countries.find(x=>x.id===c.countryId);
-    return`<div class="admin-list-item" style="flex-wrap:wrap;gap:8px">
-      <div style="flex:1;min-width:0">
-        <span class="admin-list-item-name">${c.icon||'🏙️'} ${c.name} <span style="font-size:.72rem;font-weight:400;color:rgba(13,13,13,.4)">${country?country.name:''}</span></span>
-        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:2px">
-          ${statusDot(!!c.heroImage,'📷 Photo')}
-          ${statusDot(!!c.latLng,'📍 Map')}
-          ${statusDot(!!c.attractions,'🏛 Attractions')}
-          ${statusDot(!!c.restaurants,'🍽 Food')}
-          ${statusDot(!!c.gettingAround,'🚇 Transport')}
-          ${statusDot(!!c.culture,'🎭 Culture')}
-        </div>
-      </div>
-      <button class="admin-icon-btn edit-btn" onclick="editCity('${c.id}');document.querySelector('[onclick=\\'switchTab(\\'cities-tab\\',this)\\']').click()">Edit</button>
-    </div>`;
-  }).join('')||'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No cities match the filter.</p>';
-}
-// --- Ads Admin ---
-// --- Ads Data ---
+// ===================== ADS DATA & ADMIN =====================
 const DEFAULT_ADS = [
-  {id:'ad1',title:'Hotels 30% Off',location:'tips-after-2',bg:'#ff6b6b',image:'',cta:'Book Now',link:'https://booking.com/deal'},
-  {id:'ad2',title:'Flights from $29',location:'countries-after-3',bg:'#4ecdc4',image:'',cta:'Find Deals',link:'https://kayak.com/special'}
+  {id:'ad1',title:'Hotels 30% Off',location:'tips-after-2',bg:'#ff6b6b',image:'',cta:'Book Now',link:'https://booking.com'},
+  {id:'ad2',title:'Flights from $29',location:'countries-after-3',bg:'#4ecdc4',image:'',cta:'Find Deals',link:'https://kayak.com'}
 ];
+const AD_LOCATION_LABELS = {
+  'tips-after-2':'Tips (after 2nd)','tips-after-4':'Tips (after 4th)',
+  'countries-after-3':'Countries (after 3rd)','cities-after-2':'Cities (after 2nd)','hero-bottom':'Hero Bottom'
+};
 function loadAds(){
   ads=JSON.parse(localStorage.getItem('ab_ads')||JSON.stringify(DEFAULT_ADS));
 }
 function saveAds(){
   localStorage.setItem('ab_ads',JSON.stringify(ads));
 }
-
-const AD_LOCATION_LABELS = {
-  'tips-after-2':'Tips (after 2nd)',
-  'tips-after-4':'Tips (after 4th)',
-  'countries-after-3':'Countries (after 3rd)',
-  'cities-after-2':'Cities (after 2nd)',
-  'hero-bottom':'Hero Bottom'
-};
 function renderAdminAds(){
   const list=document.getElementById('admin-ads-list');
   if(!list)return;
@@ -1348,18 +1992,15 @@ function renderAdminAds(){
     <div class="admin-list-item">
       <div style="flex:1;min-width:0">
         <span class="admin-list-item-name">${a.title||'Untitled Ad'}</span>
-        <span style="display:block;font-size:.72rem;color:rgba(13,13,13,.4);margin-top:2px">
-          📍 ${AD_LOCATION_LABELS[a.location]||a.location}
-          ${a.cta?' · '+a.cta:''}
-        </span>
+        <span style="display:block;font-size:.72rem;color:rgba(13,13,13,.4);margin-top:2px">📍 ${AD_LOCATION_LABELS[a.location]||a.location}${a.cta?' · '+a.cta:''}</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-        <span style="display:inline-block;width:18px;height:18px;border-radius:4px;background:${a.bg||'#c9a84c'};border:1px solid rgba(0,0,0,.1)"></span>
+        <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${a.bg||'#c9a84c'};border:1px solid rgba(0,0,0,.1)"></span>
         <button class="admin-icon-btn edit-btn" onclick="editAd('${a.id}')">Edit</button>
         <button class="admin-icon-btn del-btn" onclick="deleteAd('${a.id}')">Del</button>
       </div>
     </div>`).join('')
-    :'<p style="font-size:.85rem;color:rgba(13,13,13,.4)">No ads yet.</p>';
+    :'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No ads yet.</p>';
 }
 function saveAd(){
   const id=document.getElementById('edit-ad-id').value||uid();
@@ -1378,16 +2019,10 @@ function saveAd(){
     if(!ad.title||!ad.cta||!ad.link){alert('Title, CTA, and Link required');return}
     const i=ads.findIndex(a=>a.id===id);
     if(i>-1)ads[i]=ad;else ads.push(ad);
-    saveAds();renderAdminAds();renderHome();clearAdForm();showToast('Ad tile saved!');
+    saveAds();renderAdminAds();renderHome();clearAdForm();showToast('Ad saved');
   }
-  if(file){
-    const reader=new FileReader();
-    reader.onload=e=>persist(e.target.result);
-    reader.readAsDataURL(file);
-  } else {
-    const existing=(ads.find(a=>a.id===id)||{}).image||'';
-    persist(existing);
-  }
+  if(file){const reader=new FileReader();reader.onload=e=>persist(e.target.result);reader.readAsDataURL(file);}
+  else persist((ads.find(a=>a.id===id)||{}).image||'');
 }
 function editAd(id){
   const ad=ads.find(a=>a.id===id);
@@ -1398,8 +2033,7 @@ function editAd(id){
   document.getElementById('ad-bg').value=ad.bg||'#ff6b6b';
   document.getElementById('ad-cta').value=ad.cta||'';
   document.getElementById('ad-link').value=ad.link||'';
-  document.getElementById('ad-form-title').textContent='Edit Ad Tile';
-  document.querySelector('[onclick="switchTab(\'ads-tab\', this)"]').click();
+  document.getElementById('ad-form-title').textContent='Edit Ad';
 }
 function deleteAd(id){
   if(!confirm('Delete this ad?'))return;
@@ -1410,83 +2044,209 @@ function clearAdForm(){
   document.getElementById('edit-ad-id').value='';
   ['ad-title','ad-cta','ad-link'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('ad-location').value='tips-after-2';
-  document.getElementById('ad-bg').value='#ff6b6b';
+  document.getElementById('ad-bg').value='#c9a84c';
   const fi=document.getElementById('ad-image');if(fi)fi.value='';
   document.getElementById('ad-form-title').textContent='Add New Ad Tile';
-}
-function buildAdTileHTML(a){
-  const bg=a.bg||'#c9a84c';
-  const isDark=isDarkColor(bg);
-  const textColor=isDark?'#fff':'#0d0d0d';
-  const imgHtml=a.image
-    ?`<div style="width:100%;height:140px;background:url('${a.image}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`
-    :'';
-  return`<div class="ad-tile" style="background:${bg};border-radius:var(--radius);padding:${a.image?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.transform='';this.style.boxShadow='var(--shadow)'">
-    ${imgHtml}
-    <div style="padding:${a.image?'18px':'0'} 24px 24px;color:${textColor}">
-      <p style="font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;opacity:.65;margin-bottom:6px;font-family:'Space Mono',monospace">Sponsored</p>
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;margin-bottom:12px;line-height:1.25">${a.title}</h3>
-      ${a.cta&&a.link?`<a href="${a.link}" target="_blank" rel="noopener" style="display:inline-block;background:${isDark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'};color:${textColor};padding:8px 20px;border-radius:50px;font-size:.82rem;font-weight:700;text-decoration:none;transition:background .2s" onmouseover="this.style.background='${isDark?'rgba(255,255,255,.3)':'rgba(0,0,0,.22)'}'" onmouseout="this.style.background='${isDark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'}'">${a.cta} →</a>`:''}
-    </div>
-  </div>`;
 }
 function isDarkColor(hex){
   const n=parseInt((hex||'#000').replace('#',''),16);
   const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
   return(0.299*r+0.587*g+0.114*b)<140;
 }
+function buildAdTileHTML(a){
+  const bg = a.bg || '#c9a84c';
+  const dark = isDarkColor(bg);
+  const tc = dark ? '#fff' : '#0d0d0d';
+  const imgHtml = a.image
+    ? `<div style="width:100%;height:140px;background:url('${a.image}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`
+    : '';
+  const ctaHtml = (a.cta && a.link)
+    ? `<a href="${a.link}" target="_blank" rel="noopener" style="display:inline-block;background:${dark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'};color:${tc};padding:8px 20px;border-radius:50px;font-size:.8rem;font-weight:700;text-decoration:none">${a.cta} →</a>`
+    : '';
+  return `<div style="background:${bg};border-radius:var(--radius);padding:${a.image?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow)">
+    ${imgHtml}
+    <div style="padding:${a.image?'18px':'0'} 24px 24px;color:${tc}">
+      <p style="font-size:.63rem;letter-spacing:.25em;text-transform:uppercase;opacity:.6;margin-bottom:6px;font-family:'Space Mono',monospace">Sponsored</p>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:12px;line-height:1.25">${a.title}</h3>
+      ${ctaHtml}
+    </div>
+  </div>`;
+}
 function injectAds(){
-  // Remove existing ad tiles
   document.querySelectorAll('.ad-tile-wrapper').forEach(el=>el.remove());
-  if(!ads.length)return;
+  if(!ads||!ads.length)return;
   const byLoc={};
   ads.forEach(a=>{(byLoc[a.location]=byLoc[a.location]||[]).push(a)});
-  // Tips grid injections
-  ['tips-after-2','tips-after-4'].forEach(loc=>{
+  ['tips-after-2','tips-after-4'].forEach(function(loc){
     if(!byLoc[loc])return;
-    const grid=document.getElementById('tips-grid');
-    if(!grid)return;
+    const grid=document.getElementById('tips-grid');if(!grid)return;
     const idx=loc==='tips-after-2'?2:4;
     const cards=[...grid.children];
-    const wrapper=document.createElement('div');
-    wrapper.className='ad-tile-wrapper';
-    wrapper.innerHTML=byLoc[loc].map(buildAdTileHTML).join('');
-    if(cards[idx])grid.insertBefore(wrapper,cards[idx]);
-    else grid.appendChild(wrapper);
+    const w=document.createElement('div');w.className='ad-tile-wrapper';
+    w.innerHTML=byLoc[loc].map(buildAdTileHTML).join('');
+    if(cards[idx])grid.insertBefore(w,cards[idx]);else grid.appendChild(w);
   });
-  // Countries grid
   if(byLoc['countries-after-3']){
-    const grid=document.getElementById('countries-grid');
-    if(grid){
+    const grid=document.getElementById('countries-grid');if(grid){
       const cards=[...grid.children];
-      const wrapper=document.createElement('div');
-      wrapper.className='ad-tile-wrapper';
-      wrapper.innerHTML=byLoc['countries-after-3'].map(buildAdTileHTML).join('');
-      if(cards[3])grid.insertBefore(wrapper,cards[3]);
-      else grid.appendChild(wrapper);
+      const w=document.createElement('div');w.className='ad-tile-wrapper';
+      w.innerHTML=byLoc['countries-after-3'].map(buildAdTileHTML).join('');
+      if(cards[3])grid.insertBefore(w,cards[3]);else grid.appendChild(w);
     }
   }
-  // Cities grid
   if(byLoc['cities-after-2']){
-    const grid=document.getElementById('cities-grid');
-    if(grid){
+    const grid=document.getElementById('cities-grid');if(grid){
       const cards=[...grid.children];
-      const wrapper=document.createElement('div');
-      wrapper.className='ad-tile-wrapper';
-      wrapper.innerHTML=byLoc['cities-after-2'].map(buildAdTileHTML).join('');
-      if(cards[2])grid.insertBefore(wrapper,cards[2]);
-      else grid.appendChild(wrapper);
+      const w=document.createElement('div');w.className='ad-tile-wrapper';
+      w.innerHTML=byLoc['cities-after-2'].map(buildAdTileHTML).join('');
+      if(cards[2])grid.insertBefore(w,cards[2]);else grid.appendChild(w);
     }
   }
-  // Hero bottom
   if(byLoc['hero-bottom']){
-    const hero=document.getElementById('hero');
-    if(hero){
+    const hero=document.getElementById('hero');if(hero){
       let hw=hero.querySelector('.hero-ad-wrapper');
       if(!hw){hw=document.createElement('div');hw.className='hero-ad-wrapper ad-tile-wrapper';hw.style.cssText='position:absolute;bottom:80px;right:40px;width:280px;z-index:3';hero.appendChild(hw);}
       hw.innerHTML=byLoc['hero-bottom'].map(buildAdTileHTML).join('');
     }
   }
+}
+
+// ===================== CITY ITEMS ADMIN =====================
+function populateCiCitySelect(){
+  const opts=cities.map(c=>`<option value="${c.id}">${c.icon||'🏙️'} ${c.name}</option>`).join('');
+  const cs=document.getElementById('ci-city-select');if(cs)cs.innerHTML=opts;
+  const cf=document.getElementById('ci-city-filter');
+  if(cf)cf.innerHTML='<option value="">All Cities</option>'+cities.map(c=>`<option value="${c.id}">${c.icon||'🏙️'} ${c.name}</option>`).join('');
+}
+
+function renderAdminCityItems(){
+  const cityF=document.getElementById('ci-city-filter');
+  const catF=document.getElementById('ci-cat-filter');
+  const cityFilter=cityF?cityF.value:'';
+  const catFilter=catF?catF.value:'';
+  let filtered=(cityItems||[]);
+  if(cityFilter)filtered=filtered.filter(i=>i.cityId===cityFilter);
+  if(catFilter)filtered=filtered.filter(i=>i.category===catFilter);
+  const CAT_LABELS={'restaurants':'🍽 Restaurant','attractions':'🏛 Attraction','activities':'🎯 Activity','getting-around':'🚇 Getting Around','shopping':'🛍 Shopping'};
+  const el=document.getElementById('admin-cityitems-list');
+  if(!el)return;
+  el.innerHTML=filtered.length?filtered.map(item=>{
+    const city=cities.find(c=>c.id===item.cityId);
+    return`<div class="admin-list-item">
+      <div style="flex:1;min-width:0">
+        <span class="admin-list-item-name">${item.icon||''} ${item.name}</span>
+        <span style="display:block;font-size:.72rem;color:rgba(13,13,13,.4);margin-top:2px">${CAT_LABELS[item.category]||item.category}${city?' · '+city.name:''}</span>
+      </div>
+      <div class="admin-list-item-actions">
+        <button class="admin-icon-btn edit-btn" onclick="editCityItem('${item.id}')">Edit</button>
+        <button class="admin-icon-btn del-btn" onclick="deleteCityItem('${item.id}')">Del</button>
+      </div>
+    </div>`;
+  }).join(''):'<p style="font-size:.85rem;color:rgba(13,13,13,.4);padding:8px">No items match.</p>';
+}
+
+function editCityItem(id){
+  const item=(cityItems||[]).find(x=>x.id===id);
+  if(!item)return;
+  document.getElementById('edit-ci-id').value=id;
+  document.getElementById('ci-city-select').value=item.cityId;
+  document.getElementById('ci-category').value=item.category;
+  document.getElementById('ci-name').value=item.name||'';
+  document.getElementById('ci-icon').value=item.icon||'';
+  document.getElementById('ci-desc').value=item.desc||'';
+  document.getElementById('ci-tags').value=item.tags||'';
+  document.getElementById('ci-price').value=item.price||'';
+  document.getElementById('ci-rating').value=item.rating||'';
+  document.getElementById('ci-address').value=item.address||'';
+  document.getElementById('ci-form-title').textContent='Edit: '+item.name;
+  document.getElementById('ci-delete-btn').style.display='';
+  const preview=document.getElementById('ci-img-preview');
+  const removeBtn=document.getElementById('ci-img-remove');
+  const urlInput=document.getElementById('ci-img-url');
+  if(item.image){
+    preview.style.backgroundImage=`url('${item.image}')`;
+    preview.style.display='block';
+    preview._base64=item.image;
+    removeBtn.style.display='';
+    urlInput.value=item.image.startsWith('http')?item.image:'';
+  } else {
+    preview.style.display='none';preview._base64=null;
+    removeBtn.style.display='none';urlInput.value='';
+  }
+  document.getElementById('ci-img').value='';
+}
+
+function previewCiImg(input){
+  const preview=document.getElementById('ci-img-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      preview.style.backgroundImage=`url('${e.target.result}')`;
+      preview.style.display='block';
+      preview._base64=e.target.result;
+      document.getElementById('ci-img-remove').style.display='';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+function syncCiImgUrl(input){
+  const preview=document.getElementById('ci-img-preview');
+  const val=input.value.trim();
+  if(val){preview.style.backgroundImage=`url('${val}')`;preview.style.display='block';preview._base64=val;document.getElementById('ci-img-remove').style.display='';}
+  else removeCiImg();
+}
+function removeCiImg(){
+  const preview=document.getElementById('ci-img-preview');
+  preview.style.display='none';preview._base64=null;
+  document.getElementById('ci-img-remove').style.display='none';
+  document.getElementById('ci-img').value='';
+  document.getElementById('ci-img-url').value='';
+}
+
+function saveCityItem(){
+  const id=document.getElementById('edit-ci-id').value;
+  const preview=document.getElementById('ci-img-preview');
+  const existing=id?(cityItems||[]).find(x=>x.id===id):null;
+  const obj={
+    id:id||uid(),
+    cityId:document.getElementById('ci-city-select').value,
+    category:document.getElementById('ci-category').value,
+    name:document.getElementById('ci-name').value.trim(),
+    icon:document.getElementById('ci-icon').value.trim(),
+    desc:document.getElementById('ci-desc').value.trim(),
+    tags:document.getElementById('ci-tags').value.trim(),
+    price:document.getElementById('ci-price').value.trim(),
+    rating:document.getElementById('ci-rating').value.trim(),
+    address:document.getElementById('ci-address').value.trim(),
+    image:preview._base64||(existing?.image||''),
+  };
+  if(!obj.name){alert('Name is required');return}
+  if(!cityItems)cityItems=[];
+  if(id){const i=cityItems.findIndex(x=>x.id===id);if(i>=0)cityItems[i]=obj;else cityItems.push(obj);}
+  else cityItems.push(obj);
+  saveAll();renderAdminCityItems();showToast('Item saved ✓');clearCityItemForm();
+}
+
+function deleteCityItemFromForm(){
+  const id=document.getElementById('edit-ci-id').value;
+  if(!id)return;
+  if(!confirm('Delete this item?'))return;
+  deleteCityItem(id);clearCityItemForm();
+}
+function deleteCityItem(id){
+  cityItems=(cityItems||[]).filter(x=>x.id!==id);
+  saveAll();renderAdminCityItems();showToast('Item deleted');
+}
+
+function clearCityItemForm(){
+  document.getElementById('edit-ci-id').value='';
+  ['ci-name','ci-icon','ci-desc','ci-tags','ci-price','ci-rating','ci-address','ci-img-url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ci-img').value='';
+  document.getElementById('ci-img-preview').style.display='none';
+  document.getElementById('ci-img-preview')._base64=null;
+  document.getElementById('ci-img-remove').style.display='none';
+  document.getElementById('ci-delete-btn').style.display='none';
+  document.getElementById('ci-form-title').textContent='Add New Item';
 }
 
 // ===================== TOAST =====================
