@@ -39,8 +39,18 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .nav-admin-btn{background:var(--ink);color:var(--cream);padding:8px 20px;border-radius:50px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:background .2s}
 .nav-admin-btn:hover{background:var(--gold);color:var(--ink)}
 
-/* ---- FLAG TILES ---- */
-.fi{background-size:cover!important;background-position:center!important}
+/* ---- MOBILE NAV ---- */
+.nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;color:var(--ink);flex-direction:column;gap:5px;align-items:center;justify-content:center}
+.nav-hamburger span{display:block;width:22px;height:2px;background:currentColor;border-radius:2px;transition:transform .25s,opacity .25s}
+.nav-mobile-menu{display:none;position:fixed;inset:0;top:var(--nav-h);z-index:800;background:rgba(245,240,232,.97);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a,.nav-mobile-menu button.nm-link{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none;background:none;border:none;cursor:pointer;opacity:.8;transition:opacity .2s}
+.nav-mobile-menu a:hover,.nav-mobile-menu button.nm-link:hover{opacity:1}
+.nav-mobile-menu .nm-admin{background:var(--ink);color:var(--cream);padding:14px 36px;border-radius:50px;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:700;border:none;cursor:pointer;margin-top:12px}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+}
 
 /* ---- HERO ---- */
 #hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#ffffff}
@@ -99,21 +109,66 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .tip-card h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--cream);margin-bottom:10px}
 .tip-card p{font-size:.88rem;color:rgba(245,240,232,.55);line-height:1.6}
 
-/* ---- COUNTRIES ---- */
+/* ---- COUNTRIES (compact, no image) ---- */
 #countries{background:var(--warm-white)}
-.countries-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:28px}
-.country-card{border-radius:var(--radius);overflow:hidden;background:var(--card-bg);box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s;cursor:pointer;position:relative}
-.country-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-hover)}
-.country-img{width:100%;height:210px;object-fit:cover;display:block;background:linear-gradient(135deg,var(--sage),var(--sky))}
-.country-img-placeholder{width:100%;height:210px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden}
-.country-img-placeholder::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(13,13,13,.4))}
-.country-badge{position:absolute;top:16px;left:16px;background:var(--gold);color:var(--ink);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px}
-.country-body{padding:24px}
-.country-flag{font-size:1.4rem;margin-bottom:8px}
-.country-name{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:6px}
-.country-desc{font-size:.85rem;color:rgba(13,13,13,.55);line-height:1.6;margin-bottom:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.country-meta{display:flex;gap:16px;margin-bottom:20px}
-.country-meta span{font-size:.78rem;color:rgba(13,13,13,.45);display:flex;align-items:center;gap:4px}
+.countries-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+@media(max-width:480px){.countries-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+.country-card{border-radius:12px;background:var(--card-bg);box-shadow:0 2px 12px rgba(13,13,13,.07);border:1.5px solid var(--border);transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer;position:relative;padding:16px;display:flex;align-items:center;gap:12px}
+.country-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(13,13,13,.12);border-color:var(--gold)}
+.country-img,.country-img-placeholder{display:none}
+.country-badge{position:absolute;top:8px;right:8px;background:var(--gold);color:var(--ink);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:50px}
+.country-flag-large{font-size:2rem;flex-shrink:0;line-height:1}
+.country-body{padding:0;flex:1;min-width:0}
+.country-flag{display:none}
+.country-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.country-desc{display:none}
+.country-meta{display:flex;gap:8px;margin-bottom:0;flex-wrap:wrap}
+.country-meta span{font-size:.7rem;color:rgba(13,13,13,.4);display:flex;align-items:center;gap:3px}
+.country-card .cta-btn{display:none}
+
+/* ---- FEATURED CAROUSELS ---- */
+.featured-section{padding:56px 0 0;overflow:hidden}
+.featured-section:first-of-type{padding-top:80px}
+.featured-section-inner{padding:0 40px}
+@media(max-width:768px){.featured-section-inner{padding:0 20px}}
+.featured-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;gap:16px}
+.featured-header-left{}
+.featured-see-all{font-size:.82rem;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;padding:0;white-space:nowrap;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.featured-see-all:hover{text-decoration:underline}
+.carousel-wrap{position:relative}
+.carousel-track-outer{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:12px;cursor:grab}
+.carousel-track-outer::-webkit-scrollbar{display:none}
+.carousel-track-outer.dragging{cursor:grabbing;user-select:none}
+.carousel-track{display:flex;gap:16px;padding:4px 40px 4px;width:max-content}
+@media(max-width:768px){.carousel-track{padding:4px 20px 4px}}
+
+/* carousel card — cities */
+.fc-card{border-radius:var(--radius);overflow:hidden;background:var(--card-bg);box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s;cursor:pointer;flex-shrink:0;width:260px}
+@media(max-width:480px){.fc-card{width:200px}}
+.fc-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.fc-img{width:100%;height:160px;background:center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;flex-shrink:0}
+.fc-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.5) 0%,transparent 60%)}
+.fc-badge{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--ink);font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:50px;letter-spacing:.06em;text-transform:uppercase;z-index:2}
+.fc-body{padding:14px 16px}
+.fc-name{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-meta{font-size:.75rem;color:rgba(13,13,13,.45);margin-bottom:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-price{font-size:.78rem;font-weight:700;color:var(--sage);margin-top:4px}
+.fc-rating{position:absolute;bottom:10px;right:10px;background:rgba(13,13,13,.7);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:50px;z-index:2;backdrop-filter:blur(4px)}
+
+/* carousel — restaurants get a slightly taller image */
+.fc-card.restaurant .fc-img{height:170px}
+
+/* carousel nav arrows */
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-60%);z-index:10;width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(13,13,13,.12);transition:background .2s,border-color .2s}
+.carousel-arrow:hover{background:var(--gold);border-color:var(--gold)}
+.carousel-arrow svg{width:16px;height:16px;color:var(--ink)}
+.carousel-arrow.prev{left:6px}
+.carousel-arrow.next{right:6px}
+@media(max-width:640px){.carousel-arrow{display:none}}
+
+/* empty carousel state */
+.fc-empty{padding:40px 40px;color:rgba(13,13,13,.35);font-size:.88rem;font-style:italic}
+@media(max-width:768px){.fc-empty{padding:32px 20px}}
 .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--cream);padding:11px 24px;border-radius:50px;font-size:.85rem;font-weight:600;text-decoration:none;transition:background .2s;border:none;cursor:pointer;width:100%;justify-content:center}
 .cta-btn:hover{background:var(--gold);color:var(--ink)}
 .cta-btn svg{width:16px;height:16px;transition:transform .2s}
@@ -322,7 +377,8 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .nav-search-btn svg{width:20px;height:20px}
 #search-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(250,248,244,.97);backdrop-filter:blur(12px)}
 #search-overlay.open{display:flex;flex-direction:column}
-.search-overlay-head{display:flex;align-items:center;gap:16px;padding:24px 40px;border-bottom:1px solid var(--border);flex-shrink:0}
+.search-overlay-head{display:flex;align-items:center;gap:16px;padding:20px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+@media(min-width:641px){.search-overlay-head{padding:24px 40px}}
 .search-overlay-head svg{width:22px;height:22px;color:var(--ink);opacity:.5;flex-shrink:0}
 #search-input{flex:1;font-family:'DM Sans',sans-serif;font-size:1.2rem;font-weight:500;border:none;background:transparent;outline:none;color:var(--ink)}
 #search-input::placeholder{color:rgba(13,13,13,.3)}
@@ -450,12 +506,29 @@ footer span{font-size:.8rem}
 
 /* ---- RESPONSIVE ---- */
 @media(max-width:768px){
-  nav{padding:0 20px}
-  .section{padding:64px 20px}
-  .hero-stats{gap:28px}
-  .country-hero{padding:32px 20px;height:340px}
+  nav{padding:0 16px}
+  .nav-links{gap:12px}
+  .nav-links a{font-size:.82rem}
+  .section{padding:56px 20px}
+  .hero-stats{gap:20px}
+  .hero-stat strong{font-size:1.5rem}
+  .hero-btns{gap:10px}
+  .btn-primary,.btn-ghost{padding:13px 24px;font-size:.9rem}
+  .country-hero{padding:32px 20px;height:300px}
   .city-section,.back-btn{padding-left:20px;padding-right:20px}
   .form-row{grid-template-columns:1fr}
+  .section-title{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .featured-section{padding:40px 0 0}
+}
+@media(max-width:480px){
+  .hero-content{padding:0 16px}
+  .hero-search-bar{padding:6px 6px 6px 16px}
+  .hero-search-bar input{font-size:.9rem}
+  .hero-search-go{padding:9px 16px;font-size:.8rem}
+  nav{height:60px}
+  :root{--nav-h:60px}
+  .nav-logo{font-size:1.3rem}
+  .hero-stats{flex-wrap:wrap;gap:16px}
 }
 
 /* ---- MISC ---- */
@@ -503,7 +576,7 @@ footer span{font-size:.8rem}
 <nav id="main-nav">
   <a class="nav-logo" onclick="showHome()" style="cursor:pointer;text-decoration:none;font-size:1.5rem">Able<span>dinos</span></a>
   <div class="nav-links">
-    <a href="javascript:void(0)" onclick="showHome();setTimeout(()=>document.getElementById('countries').scrollIntoView({behavior:'smooth'}),80)">Destinations</a>
+    <a href="javascript:void(0)" onclick="showHome();setTimeout(()=>document.getElementById('featured-cities-section').scrollIntoView({behavior:'smooth'}),80)">Destinations</a>
     <a href="javascript:void(0)" onclick="showHome();setTimeout(()=>document.getElementById('tips').scrollIntoView({behavior:'smooth'}),80)">Travel Tips</a>
     <button class="nav-search-btn" onclick="openSearch()" title="Search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -511,7 +584,17 @@ footer span{font-size:.8rem}
     </button>
     <button class="nav-admin-btn" onclick="openLogin()">Admin</button>
   </div>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<!-- MOBILE MENU -->
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a href="javascript:void(0)" onclick="closeMobileMenu();showHome();setTimeout(()=>document.getElementById('featured-cities-section').scrollIntoView({behavior:'smooth'}),80)">Destinations</a>
+  <a href="javascript:void(0)" onclick="closeMobileMenu();showHome();setTimeout(()=>document.getElementById('tips').scrollIntoView({behavior:'smooth'}),80)">Travel Tips</a>
+  <button class="nm-link" onclick="closeMobileMenu();openSearch()">🔍 Search</button>
+  <button class="nm-admin" onclick="closeMobileMenu();openLogin()">Admin</button>
+</div>
 
 <!-- SEARCH OVERLAY -->
 <div id="search-overlay">
@@ -587,11 +670,91 @@ footer span{font-size:.8rem}
   <div class="tips-grid" id="tips-grid"></div>
 </section>
 
+<!-- FEATURED CITIES CAROUSEL -->
+<section class="featured-section" id="featured-cities-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Handpicked</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Cities</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearch()">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('cities-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="cities-track-outer">
+      <div class="carousel-track" id="cities-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('cities-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- FEATURED RESTAURANTS CAROUSEL -->
+<section class="featured-section" id="featured-restaurants-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Dining</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Restaurants</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('restaurants')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('restaurants-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="restaurants-track-outer">
+      <div class="carousel-track" id="restaurants-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('restaurants-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- FEATURED ATTRACTIONS CAROUSEL -->
+<section class="featured-section" id="featured-attractions-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Must See</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Attractions</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('attractions')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('attractions-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="attractions-track-outer">
+      <div class="carousel-track" id="attractions-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('attractions-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- FEATURED OFFERS CAROUSEL -->
+<section class="featured-section" id="featured-offers-section" style="padding-bottom:40px">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Deals</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Offers</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('offers')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('offers-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="offers-track-outer">
+      <div class="carousel-track" id="offers-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('offers-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
 <!-- COUNTRIES -->
 <section id="countries" class="section">
   <div class="section-label">Top Destinations</div>
-  <h2 class="section-title">The World's Most Visited Countries</h2>
-  <p class="section-sub">From ancient ruins to modern wonders — explore the destinations that captivate millions each year.</p>
+  <h2 class="section-title">Explore by Country</h2>
+  <p class="section-sub">Tap any country to discover its cities, restaurants, and attractions.</p>
   <div class="countries-grid" id="countries-grid"></div>
 </section>
 
@@ -4581,6 +4744,7 @@ function renderHome(){
   applySettings();
   renderCountries();
   renderTips();
+  renderFeaturedCarousels();
 }
 function adCardHtml(ad){
   return`<div class="tip-card ad-card" style="background:${ad.bg};" onclick="window.open('${ad.link}','_blank')">
@@ -4615,27 +4779,15 @@ function renderCountries(){
   const g=document.getElementById('countries-grid');
   if(!g)return;
   let items=countries.map(c=>{
-    const iso=c.isoCode||'';
-    const flagImg=iso&&FLAG_IMAGES[iso]?FLAG_IMAGES[iso]:'';
-    const imgHtml=`<div style="width:100%;height:210px;background:linear-gradient(160deg,${c.gradient||'#2d5f8a,#c9a84c'});display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
-      ${flagImg?`<img src="${flagImg}" style="width:200px;height:auto;max-height:160px;object-fit:contain;border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,.4);display:block" alt="${c.name} flag">`:''}
-      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.25) 0%,transparent 70%)"></div>
-    </div>`;
     return`<div class="country-card" onclick="openCountry('${c.id}')">
-      ${c.featured=='1'?'<div class="country-badge">✦ Featured</div>':''}
-      ${imgHtml}
+      ${c.featured=='1'?'<div class="country-badge">✦</div>':''}
+      <span class="country-flag-large">${c.flag}</span>
       <div class="country-body">
-        <div class="country-flag">${c.flag}</div>
         <h3 class="country-name">${c.name}</h3>
-        <p class="country-desc">${c.desc}</p>
         <div class="country-meta">
-          <span>📅 ${c.season}</span>
-          <span>💰 ${c.currency}</span>
+          ${c.season?`<span>📅 ${c.season}</span>`:''}
+          ${c.currency?`<span>💰 ${c.currency}</span>`:''}
         </div>
-        <button class="cta-btn">
-          Explore ${c.name}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
       </div>
     </div>`;
   });
@@ -4654,6 +4806,98 @@ function renderTips(){
   items = insertAdsAt(items, 'tips-after-2');
   items = insertAdsAt(items, 'tips-after-4');
   g.innerHTML = items.join('');
+}
+
+// ===================== FEATURED CAROUSELS =====================
+
+function renderFeaturedCarousels(){
+  renderFeaturedCities();
+  renderFeaturedCategory('restaurants','restaurants-track');
+  renderFeaturedCategory('attractions','attractions-track');
+  renderFeaturedCategory('offers','offers-track');
+  initCarouselDrag();
+}
+
+function renderFeaturedCities(){
+  const track=document.getElementById('cities-track');
+  if(!track)return;
+  const featuredCities=cities.slice(0,12); // show up to 12 cities
+  if(!featuredCities.length){
+    track.innerHTML=`<div class="fc-empty">No cities added yet — add some in the Admin Panel.</div>`;
+    return;
+  }
+  track.innerHTML=featuredCities.map(city=>{
+    const country=countries.find(c=>c.id===city.countryId);
+    const img=city.heroImage||'';
+    const bg=img?`background-image:url('${img}')`:`background:linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})`;
+    return`<div class="fc-card" onclick="openCity('${city.id}')">
+      <div class="fc-img" style="${bg}">
+        ${!img?`<span style="position:relative;z-index:2;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))">${city.icon||'🏙'}</span>`:''}
+        <div class="fc-img-overlay"></div>
+        ${country?`<div class="fc-badge">${country.flag} ${country.name}</div>`:''}
+      </div>
+      <div class="fc-body">
+        <div class="fc-name">${city.name}</div>
+        <div class="fc-meta">${city.bestFor||city.desc||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFeaturedCategory(category, trackId){
+  const track=document.getElementById(trackId);
+  if(!track)return;
+  const CAT=CAT_META[category]||{icon:'📌',label:category,bg:'linear-gradient(135deg,#888,#aaa)'};
+  const items=(cityItems||[]).filter(i=>i.category===category).slice(0,14);
+  if(!items.length){
+    track.innerHTML=`<div class="fc-empty">No ${CAT.label.toLowerCase()} added yet — add some in the Admin Panel under City Items.</div>`;
+    return;
+  }
+  track.innerHTML=items.map(item=>{
+    const city=cities.find(c=>c.id===item.cityId);
+    const country=city?countries.find(c=>c.id===city.countryId):null;
+    const img=item.image||'';
+    const bg=img?`background-image:url('${img}')`:CAT.bg;
+    const isOffer=category==='offers';
+    return`<div class="fc-card${category==='restaurants'?' restaurant':''}" onclick="openCity('${item.cityId}');setTimeout(()=>{openCatListing('${item.cityId}','${category}');setTimeout(()=>openItemDetail('${item.id}'),300)},300)">
+      <div class="fc-img" style="${bg}">
+        ${!img?`<span style="position:relative;z-index:2;font-size:2.8rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))">${item.icon||CAT.icon}</span>`:''}
+        <div class="fc-img-overlay"></div>
+        ${city?`<div class="fc-badge">${city.icon||'🏙'} ${city.name}</div>`:''}
+        ${item.rating?`<div class="fc-rating">⭐ ${item.rating}</div>`:''}
+      </div>
+      <div class="fc-body">
+        <div class="fc-name">${item.name}</div>
+        <div class="fc-meta">${country?country.flag+' '+country.name:''}${item.address?' · '+item.address:''}</div>
+        ${item.price?`<div class="fc-price">${isOffer?'🏷️ ':'💰 '}${item.price}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function carouselScroll(trackId, direction){
+  const outer=document.getElementById(trackId+'-outer');
+  if(!outer)return;
+  const scrollAmount=outer.clientWidth*0.7;
+  outer.scrollBy({left:direction*scrollAmount,behavior:'smooth'});
+}
+
+function initCarouselDrag(){
+  document.querySelectorAll('.carousel-track-outer').forEach(outer=>{
+    let isDown=false,startX=0,scrollLeft=0;
+    outer.addEventListener('mousedown',e=>{isDown=true;outer.classList.add('dragging');startX=e.pageX-outer.offsetLeft;scrollLeft=outer.scrollLeft;});
+    outer.addEventListener('mouseleave',()=>{isDown=false;outer.classList.remove('dragging');});
+    outer.addEventListener('mouseup',()=>{isDown=false;outer.classList.remove('dragging');});
+    outer.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-outer.offsetLeft;outer.scrollLeft=scrollLeft-(x-startX)*1.2;});
+  });
+}
+
+function openSearchWithCategory(cat){
+  openSearch();
+  setTimeout(()=>{
+    const dd=document.getElementById('sd-category');
+    if(dd){dd.value=cat;onSdCategory();}
+  },100);
 }
 
 // ===================== COUNTRY PAGE =====================
@@ -4709,6 +4953,7 @@ function openCountry(id){
   document.getElementById('tips').style.display='none';
   document.getElementById('countries').style.display='none';
   document.getElementById('main-footer').style.display='none';
+  ['featured-cities-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('country-page').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -5085,6 +5330,7 @@ function showHome(){
   document.getElementById('tips').style.display='';
   document.getElementById('countries').style.display='';
   document.getElementById('main-footer').style.display='';
+  ['featured-cities-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
   document.getElementById('country-page').style.display='none';
   document.getElementById('city-cats').style.display='none';
   document.getElementById('cat-listing').style.display='none';
@@ -5126,7 +5372,7 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 
 function openAdmin(){
   if(!loggedIn){openLogin();return}
-  const hide=['hero','tips','countries','main-footer','country-page','city-cats','cat-listing'];
+  const hide=['hero','tips','countries','main-footer','country-page','city-cats','cat-listing','featured-cities-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'];
   hide.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('admin-page').style.display='block';
   window.scrollTo({top:0});
@@ -5134,7 +5380,7 @@ function openAdmin(){
 }
 function closeAdmin(){
   document.getElementById('admin-page').style.display='none';
-  const show=['hero','tips','countries','main-footer'];
+  const show=['hero','tips','countries','main-footer','featured-cities-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'];
   show.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
   currentCountryId=null;currentCityId=null;currentCatKey=null;
   window.scrollTo({top:0,behavior:'smooth'});
@@ -6290,6 +6536,20 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.style.display='block';
   setTimeout(()=>t.style.display='none',2400);
+}
+
+// ===================== MOBILE NAV =====================
+function toggleMobileMenu(){
+  const menu=document.getElementById('nav-mobile-menu');
+  const btn=document.getElementById('nav-hamburger');
+  const open=menu.classList.toggle('open');
+  btn.style.opacity=open?'1':'';
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeMobileMenu(){
+  document.getElementById('nav-mobile-menu').classList.remove('open');
+  document.getElementById('nav-hamburger').style.opacity='';
+  document.body.style.overflow='';
 }
 
 // ===================== INIT =====================
