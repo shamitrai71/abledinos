@@ -392,7 +392,7 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   max-width:900px;
   margin:0 auto;
   border-radius:20px;
-  overflow:visible;
+  overflow:hidden;
   box-shadow:0 8px 32px rgba(13,13,13,.10);
   position:relative;
 }
@@ -404,7 +404,7 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   justify-content:center;
   gap:6px;
   min-width:0;
-  border-radius:20px 0 0 20px;
+  border-radius:0;
   overflow:hidden;
 }
 .city-hub-back{
@@ -449,10 +449,10 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   border-radius:50px;
 }
 .city-hub-hero-right{
-  flex:0 0 240px;
+  flex:0 0 260px;
   position:relative;
   padding:14px 14px 14px 0;
-  border-radius:0 20px 20px 0;
+  border-radius:0;
   overflow:hidden;
   display:flex;
   align-items:stretch;
@@ -464,22 +464,25 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   position:relative;
   border-radius:12px;
   overflow:hidden;
-  min-height:192px;
+  min-height:220px;
 }
 .city-hub-hero:hover .city-hub-img{transform:scale(1.03)}
 @media(max-width:640px){
   #city-cats{padding-top:calc(var(--nav-h) + 14px)}
   .city-hub-hero{
-    flex-direction:column;
+    flex-direction:row;
     max-width:calc(100% - 32px);
     margin-left:16px;
     margin-right:16px;
-    min-height:auto;
-    border-radius:18px;
+    min-height:160px;
+    border-radius:16px;
   }
-  .city-hub-hero-left{border-radius:18px 18px 0 0;padding:20px 20px 12px}
-  .city-hub-hero-right{flex:0 0 auto;padding:0 12px 12px 12px;border-radius:0 0 18px 18px}
-  .city-hub-img{min-height:160px;border-radius:10px}
+  .city-hub-hero-left{padding:16px 18px}
+  .city-hub-hero-right{flex:0 0 120px;padding:10px 10px 10px 0}
+  .city-hub-img{min-height:140px;border-radius:10px}
+  .city-hub-icon{font-size:1.6rem}
+  .city-hub-title{font-size:1.15rem}
+  .city-hub-meta span{font-size:.68rem;padding:2px 8px}
 }
 
 /* ---- CATEGORY LISTING PAGE ---- */
@@ -6766,12 +6769,13 @@ function openCity(cityId){
   const img=city.heroImage||'';
   if(imgEl){
     if(img){
+      imgEl.innerHTML='';
       imgEl.style.backgroundImage=`url('${img}')`;
       imgEl.style.background=`url('${img}') center/cover no-repeat`;
     } else {
       imgEl.style.backgroundImage='none';
       imgEl.style.background=`linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})`;
-      imgEl.innerHTML=`<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:4rem">${city.icon||'🏙️'}</span>`;
+      imgEl.innerHTML='';
     }
   }
 
