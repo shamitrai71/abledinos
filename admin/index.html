@@ -29,7 +29,6 @@
       <button class="ap-nav-tab" onclick="apTab('ap-reviews',this)">⭐ Reviews</button>
       <button class="ap-nav-tab" onclick="apTab('ap-tips',this)">💡 Tips</button>
       <button class="ap-nav-tab" onclick="apTab('ap-ads',this)">📢 Ads</button>
-      <button class="ap-nav-tab" onclick="apTab('ap-newsletters',this)">✉️ Newsletters</button>
       <button class="ap-nav-tab" onclick="apTab('ap-settings',this)">⚙️ Settings</button>
       <button class="ap-nav-tab" onclick="apTab('ap-palette',this)">🎨 Palette</button>
       <button class="ap-nav-tab ap-ai-tab" onclick="apTab('ap-ai-assistant',this)">🤖 AI Assistant</button>
@@ -176,25 +175,6 @@
         <button class="ap-add-new-btn" onclick="openAdForm(null)">+ Add Ad</button>
       </div>
       <div class="ap-cards" id="ap-ads-grid"></div>
-    </div>
-
-
-    <div id="ap-newsletters" class="ap-tab-pane">
-      <div class="ap-page-header">
-        <div><div class="ap-page-title">Email Newsletters</div><div class="ap-page-sub">Manage subscribers, create campaigns, schedule sends, email all opted-in users, and export profile data</div></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="admin-btn" onclick="downloadUserProfilesCsv()">⬇ Download user profiles</button>
-          <button class="ap-add-new-btn" onclick="openNewsletterForm(null)">+ Create Campaign</button>
-        </div>
-      </div>
-      <div class="ap-settings-card" style="margin-bottom:18px">
-        <div class="form-row">
-          <div class="form-group"><label>Opted-in Newsletter Subscribers</label><div id="ap-newsletter-subscriber-count" style="font-weight:800;font-size:1.8rem">0</div></div>
-          <div class="form-group"><label>Offers Opt-in</label><div id="ap-newsletter-offers-count" style="font-weight:800;font-size:1.8rem">0</div></div>
-        </div>
-        <div class="form-group" style="margin-top:10px"><label>Subscriber Preview</label><div id="ap-newsletter-subscribers" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
-      </div>
-      <div class="ap-cards" id="ap-newsletters-grid"></div>
     </div>
 
     <!-- SETTINGS -->

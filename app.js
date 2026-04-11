@@ -6699,9 +6699,6 @@ function loadAds(){
 function saveAds(){
   ads=sortAdsForDisplay(ads||[]);
   localStorage.setItem('ab_ads',JSON.stringify(ads));
-  if(typeof abQueueRemoteStateSave==='function'){
-    try{ abQueueRemoteStateSave(); }catch(_e){}
-  }
 }
 // ===================== ADS RENDERING =====================
 function isDarkColor(hex){
@@ -7347,54 +7344,13 @@ const DEFAULT_SUPERADMIN={
 };
 
 function safeJsonParse(v,fallback){ try{return JSON.parse(v);}catch(_){return fallback;} }
-async function prototypeAuthRequest(action, payload={}){
-  const res = await fetch('/.netlify/functions/connect-db', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action, payload: { ...payload, origin: window.location.origin } })
-  });
-  const data = await res.json().catch(()=>({}));
-  if(!res.ok){ const err = new Error(data.error || 'Request failed'); err.data = data; throw err; }
-  return data;
-}
-function prototypeApplyRemoteUser(user){
-  if(!user) return null;
-  const local = prototypeFindUserByEmail(user.email) || {};
-  const merged = { ...local, ...user };
-  prototypePersistUser(merged);
-  return merged;
-}
-async function prototypeMaybeVerifyFromUrl(){
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('verify_email');
-  if(!token) return;
-  const box = document.getElementById('verifyEmailNotice');
-  const msg = document.getElementById('verifyEmailMessage');
-  if(box) box.style.display='block';
-  if(msg) msg.textContent='Verifying your email…';
-  try{
-    const data = await prototypeAuthRequest('verifyEmail', { token });
-    if(msg) msg.textContent='Your email has been verified. You can now log in.';
-    if(data.user) prototypeApplyRemoteUser(data.user);
-  }catch(err){
-    if(msg) msg.textContent=(err.data && err.data.error) ? err.data.error : 'We could not verify this link.';
-  }
-  params.delete('verify_email');
-  const qs = params.toString();
-  history.replaceState({}, document.title, window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
-  hideSectionsForStandalonePage('login-page');
-}
-async function resendVerificationForLogin(email){
-  await prototypeAuthRequest('resendVerification', { email });
-}
 function prototypeGetUsers(){
   const stored=safeJsonParse(localStorage.getItem(AB_USERS_KEY),[]);
   if(!Array.isArray(stored)) return [Object.assign({},DEFAULT_SUPERADMIN)];
   const hasSuper=stored.some(u=>String(u.email||'').toLowerCase()==='esraigroup@gmail.com');
-  if(!hasSuper) stored.unshift(Object.assign({},DEFAULT_SUPERADMIN,{emailVerified:true}));
+  if(!hasSuper) stored.unshift(Object.assign({},DEFAULT_SUPERADMIN));
   const superUser=stored.find(u=>String(u.email||'').toLowerCase()==='esraigroup@gmail.com');
   if(superUser && !superUser.password) superUser.password='super123';
-  if(superUser) superUser.emailVerified=true;
   prototypeSaveUsers(stored);
   return stored;
 }
@@ -7453,50 +7409,25 @@ function mockSocialLogin(provider){
   hideSectionsForStandalonePage('profile-page');
   updateFloatingAccountButton();
 }
-async function doPrototypeLogin(){
+function doPrototypeLogin(){
   const email=(document.getElementById('prototypeLoginEmail')?.value||'').trim().toLowerCase();
   const password=(document.getElementById('prototypeLoginPassword')?.value||'');
   const err=document.getElementById('loginPageError');
-  const note=document.getElementById('loginVerifyHelper');
-  if(note) note.style.display='none';
   if(!email || !password){ if(err){err.textContent='Please enter your email and password.'; err.style.display='block';} return; }
-  try{
-    const data = await prototypeAuthRequest('login', { email, password });
-    if(err){err.style.display='none'; err.textContent='';}
-    const user = prototypeApplyRemoteUser(data.user) || data.user;
-    loggedIn = user.role==='superadmin';
-    prototypeSetCurrentUser(user);
-    renderProfilePage();
-    hideSectionsForStandalonePage('profile-page');
-    updateFloatingAccountButton();
-    return;
-  }catch(remoteErr){
-    if(remoteErr?.data?.requiresVerification){
-      if(err){err.textContent=remoteErr.data.error || 'Please verify your email before logging in.'; err.style.display='block';}
-      if(note){
-        note.style.display='block';
-        note.innerHTML=`Please verify your email first. <button type="button" class="inline-link-btn" onclick="handleResendVerification('${email.replace(/'/g,"%27")}')">Resend verification email</button>`;
-      }
-      return;
-    }
-    const result=prototypeAuthenticate(email,password);
-    if(!result){ if(err){err.textContent= (remoteErr?.data?.error || 'Invalid email or password.'); err.style.display='block';} return; }
-    if(result.user.role!=='superadmin' && result.user.emailVerified===false){ if(err){err.textContent='Please verify your email before logging in.'; err.style.display='block';} return; }
-    if(err){err.style.display='none'; err.textContent='';}
-    loggedIn = result.user.role==='superadmin';
-    prototypeSetCurrentUser(result.user);
-    renderProfilePage();
-    hideSectionsForStandalonePage('profile-page');
-    updateFloatingAccountButton();
-  }
+  const result=prototypeAuthenticate(email,password);
+  if(!result){ if(err){err.textContent='Invalid email or password.'; err.style.display='block';} return; }
+  if(err){err.style.display='none'; err.textContent='';}
+  loggedIn = result.user.role==='superadmin';
+  prototypeSetCurrentUser(result.user);
+  renderProfilePage();
+  hideSectionsForStandalonePage('profile-page');
+  updateFloatingAccountButton();
 }
-async function doPrototypeSignup(){
+function doPrototypeSignup(){
   const v=id=>(document.getElementById(id)?.value||'').trim();
   const firstName=v('signupFirstName'), lastName=v('signupLastName'), email=v('signupEmail').toLowerCase(), password=v('signupPassword'), confirm=v('signupPasswordConfirm');
   const city=v('signupCity'), country=v('signupCountry');
   const err=document.getElementById('signupPageError');
-  const success=document.getElementById('signupPageSuccess');
-  if(success){ success.style.display='none'; success.textContent=''; }
   if(!firstName || !lastName || !email || !password || !city || !country){ if(err){err.textContent='Please fill all required fields.'; err.style.display='block';} return; }
   if(password.length<6){ if(err){err.textContent='Password must be at least 6 characters.'; err.style.display='block';} return; }
   if(password!==confirm){ if(err){err.textContent='Passwords do not match.'; err.style.display='block';} return; }
@@ -7505,25 +7436,12 @@ async function doPrototypeSignup(){
   const user={
     id:'user-'+Date.now(), email, password, firstName, lastName, name:(firstName+' '+lastName).trim(),
     screenName:v('signupScreenName')||firstName, provider:'email', role:'user', joinedAt:new Date().toISOString(),
-    mobile:[v('signupCountryCode'),v('signupMobile')].filter(Boolean).join(' '), dob:v('signupDob'), gender:v('signupGender'), ageGroup:v('signupAgeGroup'), nationality:v('signupNationality'), city, state:v('signupState'), country, pinCode:v('signupPinCode'), travelStyle:v('signupTravelStyle'), budget:v('signupBudget'), interests, avatar:'', emailVerified:false
+    mobile:[v('signupCountryCode'),v('signupMobile')].filter(Boolean).join(' '), dob:v('signupDob'), gender:v('signupGender'), ageGroup:v('signupAgeGroup'), nationality:v('signupNationality'), city, state:v('signupState'), country, pinCode:v('signupPinCode'), travelStyle:v('signupTravelStyle'), budget:v('signupBudget'), interests, avatar:''
   };
-  try{
-    const data = await prototypeAuthRequest('signup', user);
-    const merged = prototypeApplyRemoteUser(data.user) || user;
-    prototypeSetCurrentUser(null);
-    loggedIn=false;
-    if(err){err.style.display='none'; err.textContent='';}
-    if(success){
-      success.style.display='block';
-      success.innerHTML = data.emailSent
-        ? 'Account created. Please check your email and verify your address before logging in.'
-        : `Account created, but verification email is not configured yet. Use this verification link for now: <a href="${data.verificationUrl}" target="_blank" rel="noopener">Verify email</a>`;
-    }
-    hideSectionsForStandalonePage('login-page');
-    return;
-  }catch(remoteErr){
-    if(err){ err.textContent = remoteErr?.data?.error || 'We could not create your account right now.'; err.style.display='block'; }
-  }
+  const users=prototypeGetUsers(); users.push(user); prototypeSaveUsers(users); prototypeSetCurrentUser(user);
+  loggedIn=false;
+  if(err){err.style.display='none'; err.textContent='';}
+  renderProfilePage(); hideSectionsForStandalonePage('profile-page'); updateFloatingAccountButton();
 }
 function renderProfilePage(){
   const user=currentPrototypeUser();
@@ -7534,7 +7452,6 @@ function renderProfilePage(){
   set('profileEmail', user.email || '—');
   set('profileProvider', user.provider ? user.provider.charAt(0).toUpperCase()+user.provider.slice(1) : '—');
   set('profileRole', user.role==='superadmin' ? 'Super Admin' : 'User');
-  set('profileEmailVerified', user.emailVerified===false ? 'Pending verification' : 'Verified');
   set('profileMobile', user.mobile || '—'); set('profileDob', user.dob || '—'); set('profileGender', user.gender || '—'); set('profileAgeGroup', user.ageGroup || '—'); set('profileNationality', user.nationality || '—');
   set('profileJoined', user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : '—');
   set('profileCity', user.city || '—'); set('profileState', user.state || '—'); set('profileCountry', user.country || '—'); set('profilePinCode', user.pinCode || '—');
@@ -7547,7 +7464,6 @@ function renderProfilePage(){
   const loc=document.getElementById('profileLocationCard'); if(loc) loc.style.display=(user.city||user.country||user.state||user.pinCode)?'block':'none';
   const travel=document.getElementById('profileTravelCard'); if(travel) travel.style.display=(user.travelStyle||user.budget||(user.interests&&user.interests.length))?'block':'none';
   const adminCard=document.getElementById('adminAccessCard'); if(adminCard) adminCard.style.display=user.role==='superadmin'?'block':'none';
-  const verifyCard=document.getElementById('profileVerificationCard'); if(verifyCard) verifyCard.style.display=(user.role==='superadmin' || user.emailVerified!==false)?'none':'block';
   const normalCard=document.getElementById('normalUserCard'); if(normalCard) normalCard.style.display=user.role==='superadmin'?'none':'block';
   const screenInput=document.getElementById('profileScreenNameInput'); if(screenInput) screenInput.value=user.screenName||'';
   const pwPanel=document.getElementById('profileChangePassword'); if(pwPanel) pwPanel.style.display='none';
@@ -7584,24 +7500,6 @@ function saveProfileScreenName(){
   user.screenName=val || user.screenName || user.firstName || 'Traveler';
   prototypePersistUser(user); renderProfilePage(); showToast('Screen name updated');
 }
-async function handleResendVerification(email){
-  const targetEmail = (email || document.getElementById('prototypeLoginEmail')?.value || '').trim().toLowerCase();
-  const err=document.getElementById('loginPageError');
-  const note=document.getElementById('loginVerifyHelper');
-  if(!targetEmail){ if(err){err.textContent='Enter your email first so we know where to send the verification link.'; err.style.display='block';} return; }
-  try{
-    const data = await prototypeAuthRequest('resendVerification', { email: targetEmail });
-    if(note){
-      note.style.display='block';
-      note.innerHTML = data.emailSent
-        ? 'Verification email sent. Please check your inbox.'
-        : `Email delivery is not configured yet. Use this verification link for now: <a href="${data.verificationUrl}" target="_blank" rel="noopener">Verify email</a>`;
-    }
-  }catch(errObj){
-    if(err){err.textContent=(errObj?.data?.error || 'We could not resend the verification email.'); err.style.display='block';}
-  }
-}
-
 function toggleChangePassword(){
   const panel=document.getElementById('profileChangePassword'); if(!panel) return;
   const visible=panel.style.display==='block';
@@ -7609,28 +7507,17 @@ function toggleChangePassword(){
   const err=document.getElementById('profilePasswordError'); if(err){ err.style.display='none'; err.textContent=''; }
   ['profileCurrentPassword','profileNewPassword','profileConfirmPassword'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
 }
-async function saveChangedPassword(){
+function saveChangedPassword(){
   const user=currentPrototypeUser(); if(!user) return;
   const current=(document.getElementById('profileCurrentPassword')?.value||'');
   const next=(document.getElementById('profileNewPassword')?.value||'');
   const confirm=(document.getElementById('profileConfirmPassword')?.value||'');
   const err=document.getElementById('profilePasswordError');
-  if(!current || !next || !confirm){ if(err){err.textContent='Please fill all password fields.'; err.style.display='block';} return; }
-  if(next.length<6){ if(err){err.textContent='New password must be at least 6 characters.'; err.style.display='block';} return; }
-  if(next!==confirm){ if(err){err.textContent='New password and confirm password do not match.'; err.style.display='block';} return; }
-  try{
-    const data = await prototypeAuthRequest('changePassword', { email:user.email, currentPassword:current, newPassword:next });
-    const updated = prototypeApplyRemoteUser({ ...user, password: next, ...data.user }) || { ...user, password: next };
-    prototypeSetCurrentUser(updated);
-  }catch(remoteErr){
-    if(current!==String(user.password||'')){ if(err){err.textContent=(remoteErr?.data?.error || 'Current password is incorrect.'); err.style.display='block';} return; }
-    const updated=Object.assign({},user,{password:next});
-    prototypePersistUser(updated);
-  }
-  ['profileCurrentPassword','profileNewPassword','profileConfirmPassword'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  if(err){ err.style.display='none'; err.textContent=''; }
-  const panel=document.getElementById('profileChangePassword'); if(panel) panel.style.display='none';
-  alert('Password updated successfully.');
+  const fail=(msg)=>{ if(err){err.textContent=msg; err.style.display='block';} };
+  if(String(user.password||'')!==String(current||'')) return fail('Current password is incorrect.');
+  if(next.length<6) return fail('New password must be at least 6 characters.');
+  if(next!==confirm) return fail('New password and confirmation do not match.');
+  user.password=next; prototypePersistUser(user); if(err){err.style.display='none'; err.textContent='';} toggleChangePassword(); showToast('Password updated successfully');
 }
 function handleProfileAvatarUpload(input){
   const file=input && input.files && input.files[0]; if(!file) return;
@@ -7643,302 +7530,5 @@ function handleProfileAvatarUpload(input){
   const user=currentPrototypeUser();
   loggedIn=!!(user && user.role==='superadmin');
   updateFloatingAccountButton();
-  prototypeMaybeVerifyFromUrl();
   abSyncUsersFromServer();
 })();
-
-
-// ===================== NEWSLETTERS & CONSENT =====================
-const DEFAULT_NEWSLETTER_CAMPAIGNS = [];
-let newsletters = JSON.parse(localStorage.getItem('ab_newsletters') || 'null') || JSON.parse(JSON.stringify(DEFAULT_NEWSLETTER_CAMPAIGNS));
-
-function loadNewsletters(){
-  newsletters = JSON.parse(localStorage.getItem('ab_newsletters') || 'null') || JSON.parse(JSON.stringify(DEFAULT_NEWSLETTER_CAMPAIGNS));
-}
-function saveNewsletters(){
-  localStorage.setItem('ab_newsletters', JSON.stringify(newsletters||[]));
-}
-function normalizeNewsletterCampaign(c){
-  const x=Object.assign({
-    id:'nl-'+Date.now(),
-    name:'',
-    subject:'',
-    previewText:'',
-    headline:'',
-    body:'',
-    ctaText:'Read more',
-    ctaLink:'',
-    audience:'newsletter',
-    scheduledAt:'',
-    status:'draft',
-    createdAt:new Date().toISOString(),
-    updatedAt:new Date().toISOString(),
-    sentAt:'',
-    enabled:true
-  }, c||{});
-  if(x.sentAt) x.status='sent';
-  else if(x.enabled===false) x.status='paused';
-  else if(x.scheduledAt) x.status='scheduled';
-  else x.status='draft';
-  return x;
-}
-function newsletterAudienceLabel(audience){
-  return {newsletter:'Newsletter opt-ins',offers:'Offers opt-ins',all_opted_in:'All opted-in users'}[audience] || audience || 'Selected audience';
-}
-function getNewsletterSubscribers(){
-  return (prototypeGetUsers()||[]).filter(u=>u && u.role!=='superadmin' && u.email && u.termsAcceptedAt && (u.newsletterOptIn || u.offersOptIn));
-}
-function renderNewsletterSubscribers(){
-  const users=getNewsletterSubscribers();
-  const countEl=document.getElementById('ap-newsletter-subscriber-count');
-  const offersEl=document.getElementById('ap-newsletter-offers-count');
-  const box=document.getElementById('ap-newsletter-subscribers');
-  if(countEl) countEl.textContent=String(users.filter(u=>u.newsletterOptIn).length);
-  if(offersEl) offersEl.textContent=String(users.filter(u=>u.offersOptIn).length);
-  if(box){
-    if(!users.length){ box.innerHTML='<span class="ap-empty">No opted-in users yet.</span>'; return; }
-    box.innerHTML=users.slice(0,18).map(u=>`<span class="interest-tag">${u.email}${u.offersOptIn?' • offers':''}</span>`).join('') + (users.length>18?`<span class="interest-tag">+${users.length-18} more</span>`:'');
-  }
-}
-function renderApNewsletters(){
-  const grid=document.getElementById('ap-newsletters-grid');
-  renderNewsletterSubscribers();
-  if(!grid) return;
-  const list=(newsletters||[]).map(normalizeNewsletterCampaign).sort((a,b)=>{
-    const as=a.sentAt?2:(a.scheduledAt?1:0), bs=b.sentAt?2:(b.scheduledAt?1:0);
-    if(as!==bs) return as-bs;
-    return String(a.scheduledAt||a.createdAt||'').localeCompare(String(b.scheduledAt||b.createdAt||''));
-  });
-  if(!list.length){ grid.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">✉️</span>No newsletter campaigns yet.</div>'; return; }
-  grid.innerHTML=list.map(c=>{
-    const audienceLabel=newsletterAudienceLabel(c.audience);
-    return `<div class="ap-card">
-      <div class="ap-card-head"><div><h4>${c.name||'Untitled campaign'}</h4><small>${c.subject||'No subject yet'}</small></div><span class="ap-badge">${c.status}</span></div>
-      <div class="ap-meta-row"><span>Audience: ${audienceLabel}</span><span>${c.scheduledAt?('Scheduled: '+new Date(c.scheduledAt).toLocaleString()):'Not scheduled'}</span></div>
-      <p style="margin:10px 0 8px">${c.previewText||c.headline||'No preview text yet.'}</p>
-      <div class="ap-card-actions">
-        <button class="admin-btn admin-btn-primary" onclick="openNewsletterForm('${c.id}')">Edit</button>
-        <button class="admin-btn" onclick="previewNewsletterCampaign('${c.id}')">Preview</button>
-        <button class="admin-btn" onclick="sendNewsletterCampaignNow('${c.id}')">Send now</button>
-        <button class="admin-btn admin-btn-danger" onclick="deleteNewsletterCampaign('${c.id}')">Delete</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-function openNewsletterForm(id){
-  const c=normalizeNewsletterCampaign(id?(newsletters||[]).find(x=>x.id===id):null);
-  openApForm((id?'Edit Newsletter Campaign':'Create Newsletter Campaign'), `
-    <div class="form-row">
-      <div class="form-group"><label>Internal Campaign Name</label><input id="nl-name" value="${esc(c.name)}" placeholder="April city highlights"></div>
-      <div class="form-group"><label>Audience</label><select id="nl-audience"><option value="newsletter" ${c.audience==='newsletter'?'selected':''}>Newsletter opt-ins</option><option value="offers" ${c.audience==='offers'?'selected':''}>Offers opt-ins</option><option value="all_opted_in" ${c.audience==='all_opted_in'?'selected':''}>All opted-in users</option></select></div>
-    </div>
-    <div class="form-group"><label>Email Subject</label><input id="nl-subject" value="${esc(c.subject)}" placeholder="Your next getaway starts here"></div>
-    <div class="form-group"><label>Preview Text</label><input id="nl-preview" value="${esc(c.previewText)}" placeholder="Fresh destinations, offers, and travel ideas"></div>
-    <div class="form-group"><label>Headline</label><input id="nl-headline" value="${esc(c.headline)}" placeholder="April travel inspiration"></div>
-    <div class="form-group"><label>Email Body</label><textarea id="nl-body" rows="8" placeholder="Write your newsletter content here...">${esc(c.body)}</textarea></div>
-    <div class="form-row">
-      <div class="form-group"><label>CTA Button Text</label><input id="nl-cta-text" value="${esc(c.ctaText)}" placeholder="Explore now"></div>
-      <div class="form-group"><label>CTA Link</label><input id="nl-cta-link" value="${esc(c.ctaLink)}" placeholder="https://..."></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Scheduled Send Time</label><input id="nl-scheduled" type="datetime-local" value="${esc((c.scheduledAt||'').slice(0,16))}"></div>
-      <div class="form-group"><label><input id="nl-enabled" type="checkbox" ${c.enabled!==false?'checked':''}> Campaign enabled</label><small class="form-hint" style="display:block">Enabled scheduled campaigns are sent automatically when due.</small></div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button class="admin-btn" onclick="closeApForm()">Cancel</button><button class="admin-btn admin-btn-primary" onclick="saveNewsletterForm('${c.id}')">Save Campaign</button></div>
-  `);
-}
-function saveNewsletterForm(id){
-  const v=id=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
-  const enabled=!!document.getElementById('nl-enabled')?.checked;
-  const obj=normalizeNewsletterCampaign({
-    id: id||('nl-'+Date.now()),
-    name:v('nl-name'), subject:v('nl-subject'), previewText:v('nl-preview'), headline:v('nl-headline'), body:v('nl-body'),
-    ctaText:v('nl-cta-text')||'Read more', ctaLink:v('nl-cta-link'), audience:v('nl-audience')||'newsletter', scheduledAt:v('nl-scheduled')?new Date(v('nl-scheduled')).toISOString():'',
-    enabled, updatedAt:new Date().toISOString(), createdAt:(id?(newsletters||[]).find(x=>x.id===id)?.createdAt:'')||new Date().toISOString()
-  });
-  if(!obj.subject || !obj.body){ alert('Please add at least a subject and body for the newsletter.'); return; }
-  if(!newsletters) newsletters=[];
-  const idx=newsletters.findIndex(x=>x.id===obj.id);
-  if(idx>=0) newsletters[idx]=obj; else newsletters.push(obj);
-  saveAll();
-  renderApNewsletters();
-  closeApForm();
-  showToast(obj.scheduledAt ? 'Newsletter scheduled ✓' : 'Newsletter saved ✓');
-}
-function deleteNewsletterCampaign(id){
-  if(!confirm('Delete this newsletter campaign?')) return;
-  newsletters=(newsletters||[]).filter(x=>x.id!==id);
-  saveAll(); renderApNewsletters(); showToast('Newsletter deleted');
-}
-function previewNewsletterCampaign(id){
-  const c=normalizeNewsletterCampaign((newsletters||[]).find(x=>x.id===id));
-  openApForm('Newsletter Preview', `<div style="display:flex;flex-direction:column;gap:12px"><div class="form-group"><label>Subject</label><div class="ap-settings-card" style="padding:12px">${esc(c.subject)}</div></div><div class="form-group"><label>Preview Text</label><div class="ap-settings-card" style="padding:12px">${esc(c.previewText||'—')}</div></div><div class="form-group"><label>Body</label><div class="ap-settings-card" style="padding:12px;white-space:pre-wrap">${esc(c.body)}</div></div><div class="form-group"><label>CTA</label><div class="ap-settings-card" style="padding:12px">${esc(c.ctaText)} ${c.ctaLink?('→ '+esc(c.ctaLink)):''}</div></div><div style="display:flex;justify-content:flex-end"><button class="admin-btn admin-btn-primary" onclick="closeApForm()">Close</button></div></div>`);
-}
-
-async function sendNewsletterCampaignNow(id){
-  const campaign=normalizeNewsletterCampaign((newsletters||[]).find(x=>x.id===id));
-  if(!campaign || !campaign.id){ alert('Campaign not found.'); return; }
-  if(!campaign.subject || !campaign.body){ alert('Please add a subject and body before sending.'); return; }
-  const audienceLabel=newsletterAudienceLabel(campaign.audience);
-  if(!confirm(`Send "${campaign.subject || campaign.name || 'this campaign'}" now to ${audienceLabel}?`)) return;
-  try{
-    const data=await abBackendRequest('sendNewsletterNow',{ campaign });
-    const idx=(newsletters||[]).findIndex(x=>x.id===campaign.id);
-    if(idx>=0){
-      newsletters[idx]=normalizeNewsletterCampaign(Object.assign({}, newsletters[idx], {
-        sentAt:data.sentAt || new Date().toISOString(),
-        status:'sent',
-        updatedAt:new Date().toISOString()
-      }));
-      saveAll();
-      renderApNewsletters();
-    }
-    showToast(`Sent to ${data.recipientCount || 0} recipient${(data.recipientCount||0)===1?'':'s'} ✓`);
-  }catch(err){
-    alert('Could not send newsletter now. ' + (err && err.message ? err.message : err));
-  }
-}
-function csvEscape(value){
-  const str=String(value==null?'':value);
-  return /[\",\n]/.test(str) ? '"' + str.replace(/"/g,'""') + '"' : str;
-}
-function downloadUserProfilesCsv(){
-  const users=(prototypeGetUsers()||[]).filter(Boolean).map(u=>({
-    email:u.email||'', firstName:u.firstName||'', lastName:u.lastName||'', name:u.name||'', screenName:u.screenName||'', provider:u.provider||'', role:u.role||'',
-    emailVerified:u.emailVerified===false?'No':'Yes', newsletterOptIn:u.newsletterOptIn?'Yes':'No', offersOptIn:u.offersOptIn?'Yes':'No',
-    termsAccepted:(u.termsAccepted||u.termsAcceptedAt)?'Yes':'No', termsAcceptedAt:u.termsAcceptedAt||'', joinedAt:u.joinedAt||'',
-    mobile:u.mobile||'', dob:u.dob||'', gender:u.gender||'', ageGroup:u.ageGroup||'', nationality:u.nationality||'', city:u.city||'', state:u.state||'', country:u.country||'', pinCode:u.pinCode||'',
-    travelStyle:u.travelStyle||'', budget:u.budget||'', interests:Array.isArray(u.interests)?u.interests.join(' | '):(u.interests||''), avatar:u.avatar||''
-  }));
-  if(!users.length){ alert('No users available to export yet.'); return; }
-  const headers=Object.keys(users[0]);
-  const rows=[headers.join(',')].concat(users.map(row=>headers.map(h=>csvEscape(row[h])).join(',')));
-  const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`abledinos-user-profiles-${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast('User profiles downloaded ✓');
-}
-// extend state persistence to include newsletters
-function abBuildStateSnapshot(){
-  return { countries, cities, tips, settings, countryPages, cityPages, ads, cityItems, newsletters };
-}
-function abApplyStateSnapshot(snapshot, persistLocal=true){
-  if(!snapshot || typeof snapshot!=='object') return false;
-  countries=Array.isArray(snapshot.countries)&&snapshot.countries.length? snapshot.countries : abClone(DEFAULT_COUNTRIES);
-  cities=Array.isArray(snapshot.cities)&&snapshot.cities.length? snapshot.cities : abClone(DEFAULT_CITIES);
-  tips=Array.isArray(snapshot.tips)&&snapshot.tips.length? snapshot.tips : abClone(DEFAULT_TIPS);
-  settings=snapshot.settings&&typeof snapshot.settings==='object' ? snapshot.settings : abClone(DEFAULT_SETTINGS);
-  countryPages=snapshot.countryPages&&typeof snapshot.countryPages==='object' ? snapshot.countryPages : {};
-  cityPages=snapshot.cityPages&&typeof snapshot.cityPages==='object' ? snapshot.cityPages : {};
-  ads=Array.isArray(snapshot.ads)&&snapshot.ads.length? snapshot.ads : abClone(DEFAULT_ADS);
-  cityItems=Array.isArray(snapshot.cityItems)&&snapshot.cityItems.length? snapshot.cityItems : abClone(DEFAULT_CITY_ITEMS);
-  newsletters=Array.isArray(snapshot.newsletters)? snapshot.newsletters.map(normalizeNewsletterCampaign) : abClone(DEFAULT_NEWSLETTER_CAMPAIGNS);
-  if(persistLocal){
-    localStorage.setItem('ab_countries',JSON.stringify(countries));
-    localStorage.setItem('ab_cities',JSON.stringify(cities));
-    localStorage.setItem('ab_countryPages',JSON.stringify(countryPages));
-    localStorage.setItem('ab_cityPages',JSON.stringify(cityPages));
-    localStorage.setItem('ab_cityItems',JSON.stringify(cityItems));
-    localStorage.setItem('ab_tips',JSON.stringify(tips));
-    localStorage.setItem('ab_ads',JSON.stringify(ads));
-    localStorage.setItem('ab_settings',JSON.stringify(settings));
-    localStorage.setItem('ab_newsletters',JSON.stringify(newsletters));
-  }
-  return true;
-}
-function loadData(){
-  countries=JSON.parse(localStorage.getItem('ab_countries')||'null')||JSON.parse(JSON.stringify(DEFAULT_COUNTRIES));
-  cities=JSON.parse(localStorage.getItem('ab_cities')||'null')||JSON.parse(JSON.stringify(DEFAULT_CITIES));
-  tips=JSON.parse(localStorage.getItem('ab_tips')||'null')||JSON.parse(JSON.stringify(DEFAULT_TIPS));
-  settings=JSON.parse(localStorage.getItem('ab_settings')||'null')||JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-  cityPages=JSON.parse(localStorage.getItem('ab_cityPages')||localStorage.getItem('ab_citypages')||'{}');
-  countryPages=JSON.parse(localStorage.getItem('ab_countryPages')||'{}');
-  const storedItems=JSON.parse(localStorage.getItem('ab_cityItems')||localStorage.getItem('ab_cityitems')||'null');
-  cityItems=storedItems&&storedItems.length>0?storedItems:JSON.parse(JSON.stringify(DEFAULT_CITY_ITEMS));
-  loadAds();
-  loadNewsletters();
-}
-function saveAll(){
-  try{
-    localStorage.setItem('ab_countries',JSON.stringify(countries));
-    localStorage.setItem('ab_cities',JSON.stringify(cities));
-    localStorage.setItem('ab_countryPages',JSON.stringify(countryPages));
-    localStorage.setItem('ab_cityPages',JSON.stringify(cityPages));
-    localStorage.setItem('ab_cityItems',JSON.stringify(cityItems));
-    localStorage.setItem('ab_tips',JSON.stringify(tips));
-    localStorage.setItem('ab_ads',JSON.stringify(ads));
-    localStorage.setItem('ab_settings',JSON.stringify(settings));
-    localStorage.setItem('ab_newsletters',JSON.stringify(newsletters||[]));
-    abQueueRemoteStateSave();
-  }catch(err){
-    console.error(err);
-    if(err && (err.name === 'QuotaExceededError' || String(err).includes('QuotaExceeded'))){
-      alert('Storage quota exceeded. This usually means an older base64 image is still saved locally. Re-upload affected images through Cloudinary so only URLs are stored.');
-      return;
-    }
-    throw err;
-  }
-}
-function apInitAll(){
-  apPopulateSelects();
-  renderApCountries();
-  renderApCities();
-  renderApCountryPages();
-  renderApCityPages();
-  renderApCityItems();
-  renderApReviews();
-  renderApTips();
-  renderApAds();
-  renderApNewsletters();
-  loadSettingsForm();
-  loadPaletteForm();
-  aiPopulateSelectors();
-  if(typeof renderAnalytics==='function') renderAnalytics();
-  if(typeof renderExportStats==='function') renderExportStats();
-}
-
-// patch signup to capture newsletter and terms consent
-async function doPrototypeSignup(){
-  const v=id=>document.getElementById(id)?.value.trim()||'';
-  const firstName=v('signupFirstName'), lastName=v('signupLastName'), email=v('signupEmail').toLowerCase(), password=v('signupPassword'), confirm=v('signupPasswordConfirm');
-  const city=v('signupCity'), country=v('signupCountry');
-  const err=document.getElementById('signupPageError');
-  const success=document.getElementById('signupPageSuccess');
-  if(err) err.style.display='none'; if(success) success.style.display='none';
-  const termsAccepted=!!document.getElementById('signupTermsAccepted')?.checked;
-  const newsletterOptIn=!!document.getElementById('signupNewsletterOptIn')?.checked;
-  const offersOptIn=!!document.getElementById('signupOffersOptIn')?.checked;
-  if(!firstName || !lastName || !email || !password || !city || !country){ if(err){ err.textContent='Please fill in all required fields.'; err.style.display='block'; } return; }
-  if(password.length<6){ if(err){ err.textContent='Password must be at least 6 characters.'; err.style.display='block'; } return; }
-  if(password!==confirm){ if(err){ err.textContent='Passwords do not match.'; err.style.display='block'; } return; }
-  if(!termsAccepted){ if(err){ err.textContent='Please accept the Terms & Conditions / Terms of Service to continue.'; err.style.display='block'; } return; }
-  const interests=[...document.querySelectorAll('.signup-interests-grid input:checked')].map(i=>i.value);
-  const user={
-    id:'user-'+Date.now(), firstName,lastName,name:[firstName,lastName].filter(Boolean).join(' '), email,password,
-    screenName:v('signupScreenName')||firstName, provider:'email', role:'user', joinedAt:new Date().toISOString(),
-    mobile:[v('signupCountryCode'),v('signupMobile')].filter(Boolean).join(' '), dob:v('signupDob'), gender:v('signupGender'), ageGroup:v('signupAgeGroup'), nationality:v('signupNationality'), city, state:v('signupState'), country, pinCode:v('signupPinCode'), travelStyle:v('signupTravelStyle'), budget:v('signupBudget'), interests, avatar:'', emailVerified:false,
-    newsletterOptIn, offersOptIn, termsAccepted, termsAcceptedAt:new Date().toISOString()
-  };
-  try{
-    const data = await prototypeAuthRequest('signup', user);
-    if(success){
-      const parts=['Account created successfully.'];
-      parts.push(data.emailSent ? 'Please check your inbox to verify your email before logging in.' : 'Email sending is not configured yet. Use the verification link below to activate the account.');
-      if(data.verificationUrl) parts.push(`<a href="${data.verificationUrl}" style="display:inline-block;margin-top:8px">Verify your email now</a>`);
-      success.innerHTML=parts.join(' '); success.style.display='block';
-    }
-    document.querySelectorAll('#signup-page input').forEach(i=>{ if(i.type==='checkbox') i.checked=false; else i.value=''; });
-    document.querySelectorAll('#signup-page select').forEach(i=>i.selectedIndex=0);
-    await abSyncUsersFromServer();
-    renderNewsletterSubscribers();
-  }catch(e){ if(err){ err.textContent=e.message||'Signup failed.'; err.style.display='block'; } }
-}
-
-// keep admin subscriber panel fresh after auth sync
-window.addEventListener('ab:sync-status', ()=>{ if(document.getElementById('ap-newsletters-grid')) renderNewsletterSubscribers(); });

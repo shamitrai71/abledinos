@@ -87,14 +87,3 @@ The admin header now shows one of two states:
 - **Browser-only fallback active**: Neon is unavailable, so edits are only saved in the current browser.
 
 Use the refresh icon in the admin header after deployment if you want to re-check the connection.
-
-
-## Email verification setup
-
-Add these Netlify environment variables to enable email verification: 
-
-- `DATABASE_URL`
-- `RESEND_API_KEY`
-- `EMAIL_FROM` (for example `AbleDinos <noreply@yourdomain.com>`)
-
-After deploy, new signups stay unverified until they click the verification link sent by email.

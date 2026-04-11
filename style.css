@@ -1605,7 +1605,3 @@ footer span{font-size:.8rem}
 .places-suggestion-meta{font-size:.78rem;color:rgba(13,13,13,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .places-suggestion-badge{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:#e8f7f0;color:var(--sage);flex-shrink:0}
 .map-link-note{font-size:.88rem;line-height:1.6;color:rgba(13,13,13,.5);margin-bottom:14px}
-
-
-.login-success{display:none;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:12px 14px;border-radius:12px;margin-bottom:12px;font-size:14px;line-height:1.5}
-.inline-link-btn{background:none;border:none;padding:0;margin:0;color:#0f766e;text-decoration:underline;cursor:pointer;font:inherit}
