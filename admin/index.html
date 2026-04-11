@@ -36,33 +36,37 @@
       <button class="ap-nav-tab ap-analytics-tab" onclick="apTab('ap-analytics',this)">📊 Analytics</button>
       <button class="ap-nav-tab ap-export-tab" onclick="apTab('ap-export',this)">🚀 Export</button>
     </div>
-    <div class="ap-nav-actions">
-      <div id="ap-sync-status" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:#ffffff;border:1px solid rgba(13,13,13,.08);box-shadow:0 4px 14px rgba(0,0,0,.05);max-width:460px">
-        <span id="ap-sync-dot" style="width:10px;height:10px;border-radius:50%;background:#b0b0b0;flex:0 0 auto"></span>
-        <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0">
-          <strong id="ap-sync-label" style="font-size:12px">Checking sync…</strong>
-          <span id="ap-sync-sub" style="font-size:11px;opacity:.7">Admin will show whether data is shared or browser-only.</span>
-          <span id="ap-sync-time" style="font-size:10px;opacity:.58;margin-top:2px">Last synced: —</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto">
-          <button type="button" onclick="manualAdminSyncNow(event)" style="border:1px solid rgba(13,13,13,.12);background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer" title="Pull latest shared data now">Sync now</button>
-          <button type="button" onclick="refreshAdminSyncStatus()" style="border:none;background:transparent;font-size:14px;cursor:pointer" title="Refresh sync status">↻</button>
-        </div>
-      </div>
-      <div id="ap-sync-error-wrap" style="display:none;margin-top:8px;max-width:460px;margin-left:auto;background:#fff6f2;border:1px solid rgba(185,90,32,.18);border-radius:14px;padding:8px 10px;box-shadow:0 4px 14px rgba(0,0,0,.04)">
-        <div style="display:flex;align-items:center;gap:8px">
-          <strong style="font-size:11px;color:#9a4f1e">Sync error details</strong>
-          <button type="button" id="ap-sync-error-toggle" onclick="toggleAdminSyncErrorDetails()" style="margin-left:auto;border:none;background:transparent;font-size:11px;font-weight:700;cursor:pointer;color:#9a4f1e">Show details</button>
-        </div>
-        <div id="ap-sync-error-summary" style="font-size:11px;opacity:.75;margin-top:4px">The latest sync attempt returned an error.</div>
-        <pre id="ap-sync-error-details" style="display:none;white-space:pre-wrap;word-break:break-word;margin:8px 0 0;padding:8px 10px;background:#fff;border-radius:10px;border:1px solid rgba(13,13,13,.08);font-size:11px;line-height:1.45;max-height:180px;overflow:auto"></pre>
-      </div>
-      <button class="ap-exit-btn" onclick="closeAdmin()">← Back to Site</button>
+    <div class="ap-nav-actions">      <button class="ap-exit-btn" onclick="closeAdmin()">← Back to Site</button>
       <button class="ap-logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
 
   <div class="ap-content">
+
+    <div class="ap-page-header" style="padding:0 0 10px 0;border:none">
+      <div><div class="ap-page-title">Admin sync status</div><div class="ap-page-sub">Monitor Neon connectivity and manually pull the latest shared data.</div></div>
+      
+            <div id="ap-sync-status" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:#ffffff;border:1px solid rgba(13,13,13,.08);box-shadow:0 4px 14px rgba(0,0,0,.05);max-width:460px">
+              <span id="ap-sync-dot" style="width:10px;height:10px;border-radius:50%;background:#b0b0b0;flex:0 0 auto"></span>
+              <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0">
+                <strong id="ap-sync-label" style="font-size:12px">Checking sync…</strong>
+                <span id="ap-sync-sub" style="font-size:11px;opacity:.7">Admin will show whether data is shared or browser-only.</span>
+                <span id="ap-sync-time" style="font-size:10px;opacity:.58;margin-top:2px">Last synced: —</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto">
+                <button type="button" onclick="manualAdminSyncNow(event)" style="border:1px solid rgba(13,13,13,.12);background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer" title="Pull latest shared data now">Sync now</button>
+                <button type="button" onclick="refreshAdminSyncStatus()" style="border:none;background:transparent;font-size:14px;cursor:pointer" title="Refresh sync status">↻</button>
+              </div>
+            </div>
+            <div id="ap-sync-error-wrap" style="display:none;margin-top:8px;max-width:460px;margin-left:auto;background:#fff6f2;border:1px solid rgba(185,90,32,.18);border-radius:14px;padding:8px 10px;box-shadow:0 4px 14px rgba(0,0,0,.04)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <strong style="font-size:11px;color:#9a4f1e">Sync error details</strong>
+                <button type="button" id="ap-sync-error-toggle" onclick="toggleAdminSyncErrorDetails()" style="margin-left:auto;border:none;background:transparent;font-size:11px;font-weight:700;cursor:pointer;color:#9a4f1e">Show details</button>
+              </div>
+              <div id="ap-sync-error-summary" style="font-size:11px;opacity:.75;margin-top:4px">The latest sync attempt returned an error.</div>
+              <pre id="ap-sync-error-details" style="display:none;white-space:pre-wrap;word-break:break-word;margin:8px 0 0;padding:8px 10px;background:#fff;border-radius:10px;border:1px solid rgba(13,13,13,.08);font-size:11px;line-height:1.45;max-height:180px;overflow:auto"></pre>
+            </div>
+    </div>
 
     <!-- COUNTRIES -->
     <div id="ap-countries" class="ap-tab-pane active">
@@ -1068,8 +1072,7 @@
       'Time: ' + String(s.updatedAt || '—'),
       '',
       String(s.error || '')
-    ].join('
-') : '';
+    ].join('\n') : '';
     if(!hasError){
       var toggle = document.getElementById('ap-sync-error-toggle');
       if(toggle) toggle.textContent = 'Show details';
@@ -1109,6 +1112,15 @@
       if(btn){ btn.disabled = false; btn.textContent = old || 'Sync now'; btn.style.opacity = '1'; }
     }
   };
+
+  window.closeAdmin = function(){ window.location.href='/'; };
+  window.doLogout = function(){
+    try{ localStorage.removeItem('ab_current_user_v1'); }catch(_){ }
+    try{ localStorage.removeItem('abledinosPrototypeSession'); }catch(_){ }
+    try{ localStorage.removeItem('ab_sync_status_v1'); }catch(_){ }
+    window.location.href='/';
+  };
+
   window.addEventListener('ab:sync-status', function(ev){ renderSyncStatus(ev.detail); });
   if(typeof loadData === 'function') loadData();
   if(typeof apInitAll === 'function') apInitAll();

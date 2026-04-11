@@ -6572,10 +6572,31 @@ function deleteTipById(id){
 
 // ===================== ADS =====================
 
+function normalizeAd(ad){
+  if(!ad)return ad;
+  return {
+    ...ad,
+    body: ad.body||'',
+    order: Number.isFinite(Number(ad.order))?Number(ad.order):999,
+    enabled: ad.enabled!==false
+  };
+}
+
+function sortAdsForDisplay(list){
+  return (list||[])
+    .map(normalizeAd)
+    .sort((a,b)=>{
+      const ao=Number.isFinite(Number(a.order))?Number(a.order):999;
+      const bo=Number.isFinite(Number(b.order))?Number(b.order):999;
+      if(ao!==bo)return ao-bo;
+      return String(a.title||'').localeCompare(String(b.title||''));
+    });
+}
+
 function renderApAds(){
   const grid=document.getElementById('ap-ads-grid');
   if(!grid)return;
-  const loaded=ads||[];
+  const loaded=sortAdsForDisplay(ads||[]);
   if(!loaded.length){grid.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">📢</span>No ads yet.</div>';return;}
   const LOC_LABELS={'tips-after-2':'Tips (after 2nd)','tips-after-4':'Tips (after 4th)','countries-after-3':'Countries (after 3rd)','cities-after-2':'Cities (after 2nd)','hero-bottom':'Hero Bottom'};
   grid.innerHTML=loaded.map(a=>{
@@ -6586,7 +6607,8 @@ function renderApAds(){
       </div>
       <div class="ap-card-body">
         <div class="ap-card-title">${a.title||'Untitled'}</div>
-        <div class="ap-card-meta">📍 ${LOC_LABELS[a.location]||a.location} · CTA: ${a.cta||'—'}</div>
+        <div class="ap-card-meta">📍 ${LOC_LABELS[a.location]||a.location} · Order: ${a.order??999} · ${a.enabled===false?'Disabled':'Active'} · CTA: ${a.cta||'—'}</div>
+        ${a.body?`<div class="ap-card-sub" style="font-size:.9rem;color:#6b7280;margin-top:6px">${a.body}</div>`:''}
         <div class="ap-card-actions">
           <button class="ap-card-edit" onclick="openAdForm('${a.id}')">Edit</button>
           <button class="ap-card-del" onclick="deleteAdById('${a.id}')">Del</button>
@@ -6597,19 +6619,25 @@ function renderApAds(){
 }
 
 function openAdForm(id){
-  const a=id?(ads||[]).find(x=>x.id===id):null;
+  const a=normalizeAd(id?(ads||[]).find(x=>x.id===id):null);
   const locOpts=['tips-after-2','tips-after-4','countries-after-3','cities-after-2','hero-bottom']
-    .map(v=>`<option value="${v}"${a&&a.location===v?' selected':''}>${v}</option>`).join('');
+    .map(v=>`<option value="${v}"${a&&a.location===v?' selected':''}>${AD_LOCATION_LABELS[v]||v}</option>`).join('');
   const body=`
     <div class="form-group"><label>Ad Title</label><input type="text" id="adf-title" placeholder="e.g. Hotels 30% Off" value="${a?a.title:''}"></div>
+    <div class="form-group"><label>Ad Copy</label><textarea id="adf-body" rows="3" placeholder="Short supporting text for the ad card">${a?a.body||'':''}</textarea></div>
     <div class="form-row">
       <div class="form-group"><label>Location</label><select id="adf-location">${locOpts}</select></div>
       <div class="form-group"><label>Background Color</label><input type="color" id="adf-bg" value="${a?a.bg||'#c9a84c':'#c9a84c'}"></div>
     </div>
-    <div class="form-group"><label>Image <span class="form-hint-inline">optional — 300×210px</span></label>
+    <div class="form-row">
+      <div class="form-group"><label>Display Order</label><input type="number" id="adf-order" min="1" step="1" placeholder="1" value="${a&&Number.isFinite(Number(a.order))&&Number(a.order)!==999?a.order:''}"></div>
+      <div class="form-group"><label>Status</label><label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" id="adf-enabled" ${!a||a.enabled!==false?'checked':''}> Show this ad</label></div>
+    </div>
+    <div class="form-group"><label>Image URL <span class="form-hint-inline">Cloudinary or direct image URL</span></label><input type="url" id="adf-img-url" placeholder="https://..." value="${a?a.image||'':''}"></div>
+    <div class="form-group"><label>Upload Image <span class="form-hint-inline">optional — square or landscape works best</span></label>
       <input type="file" id="adf-img" accept="image/*" onchange="apPreviewImg('adf-img','adf-preview','adf-remove')">
       <div id="adf-preview" class="img-preview-box" style="display:none"></div>
-      <button class="ap-img-remove-btn" id="adf-remove" onclick="apRemoveImg('adf-img','','adf-preview','adf-remove')" style="display:none">✕ Remove</button>
+      <button class="ap-img-remove-btn" id="adf-remove" onclick="apRemoveImg('adf-img','adf-img-url','adf-preview','adf-remove')" style="display:none">✕ Remove</button>
     </div>
     <div class="form-group"><label>CTA Button Text</label><input type="text" id="adf-cta" placeholder="Book Now" value="${a?a.cta||'':''}"></div>
     <div class="form-group"><label>External Link</label><input type="url" id="adf-link" placeholder="https://..." value="${a?a.link||'':''}"></div>
@@ -6618,20 +6646,25 @@ function openAdForm(id){
     ()=>saveAdForm(id),
     id?()=>{ if(confirm('Delete?')){deleteAdById(id);closeApForm();} }:null
   );
-  if(a&&a.image)apSetImg(a.image,'adf-img','','adf-preview','adf-remove');
+  if(a&&a.image)apSetImg(a.image,'adf-img','adf-img-url','adf-preview','adf-remove');
 }
 
 function saveAdForm(id){
   const title=document.getElementById('adf-title').value.trim();
+  const body=document.getElementById('adf-body').value.trim();
   const cta=document.getElementById('adf-cta').value.trim();
   const link=document.getElementById('adf-link').value.trim();
   if(!title||!cta||!link){alert('Title, CTA and Link required');return;}
   const fileInput=document.getElementById('adf-img');
   const file=fileInput&&fileInput.files&&fileInput.files[0];
+  const imageUrl=(document.getElementById('adf-img-url')?.value||'').trim();
+  const orderRaw=(document.getElementById('adf-order')?.value||'').trim();
+  const order=orderRaw?Number(orderRaw):999;
   function persist(imgData){
     if(!ads)ads=[];
-    const obj={id:id||uid(),title,location:document.getElementById('adf-location').value,
-      bg:document.getElementById('adf-bg').value,cta,link,image:imgData};
+    const obj=normalizeAd({id:id||uid(),title,body,location:document.getElementById('adf-location').value,
+      bg:document.getElementById('adf-bg').value,cta,link,image:imgData,order,
+      enabled:!!document.getElementById('adf-enabled')?.checked});
     if(id){const i=ads.findIndex(x=>x.id===id);if(i>=0)ads[i]=obj;else ads.push(obj);}
     else ads.push(obj);
     saveAds();renderApAds();renderHome();closeApForm();showToast('Ad saved ✓');
@@ -6640,6 +6673,7 @@ function saveAdForm(id){
   else {
     const preview=document.getElementById('adf-preview');
     if(preview&&preview._removed) persist('');
+    else if(imageUrl) persist(imageUrl);
     else persist(id?(ads||[]).find(x=>x.id===id)?.image||'':'');
   }
 }
@@ -6652,17 +6686,18 @@ function deleteAdById(id){
 
 // ===================== ADS DATA & ADMIN =====================
 const DEFAULT_ADS = [
-  {id:'ad1',title:'Hotels 30% Off',location:'tips-after-2',bg:'#ff6b6b',image:'',cta:'Book Now',link:'https://booking.com'},
-  {id:'ad2',title:'Flights from $29',location:'countries-after-3',bg:'#4ecdc4',image:'',cta:'Find Deals',link:'https://kayak.com'}
+  {id:'ad1',title:'Hotels 30% Off',body:'Special rates for quick city breaks and weekend escapes.',location:'tips-after-2',bg:'#ff6b6b',image:'',cta:'Book Now',link:'https://booking.com',order:1,enabled:true},
+  {id:'ad2',title:'Flights from $29',body:'Compare fares and lock in limited-time flight deals.',location:'countries-after-3',bg:'#4ecdc4',image:'',cta:'Find Deals',link:'https://kayak.com',order:1,enabled:true}
 ];
 const AD_LOCATION_LABELS = {
   'tips-after-2':'Tips (after 2nd)','tips-after-4':'Tips (after 4th)',
   'countries-after-3':'Countries (after 3rd)','cities-after-2':'Cities (after 2nd)','hero-bottom':'Hero Bottom'
 };
 function loadAds(){
-  ads=JSON.parse(localStorage.getItem('ab_ads')||JSON.stringify(DEFAULT_ADS));
+  ads=sortAdsForDisplay(JSON.parse(localStorage.getItem('ab_ads')||JSON.stringify(DEFAULT_ADS)));
 }
 function saveAds(){
+  ads=sortAdsForDisplay(ads||[]);
   localStorage.setItem('ab_ads',JSON.stringify(ads));
 }
 // ===================== ADS RENDERING =====================
@@ -6672,16 +6707,19 @@ function isDarkColor(hex){
   return(0.299*r+0.587*g+0.114*b)<140;
 }
 function buildAdTileHTML(a){
+  a=normalizeAd(a);
   const bg=a.bg||'#c9a84c';
   const dark=isDarkColor(bg);
   const tc=dark?'#fff':'#0d0d0d';
   const imgHtml=a.image?`<div style="width:100%;height:140px;background:url('${a.image}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`:'';
+  const copyHtml=a.body?`<p style="font-size:.92rem;line-height:1.5;opacity:.88;margin:0 0 14px">${a.body}</p>`:'';
   const ctaHtml=(a.cta&&a.link)?`<a href="${a.link}" target="_blank" rel="noopener" style="display:inline-block;background:${dark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'};color:${tc};padding:8px 20px;border-radius:50px;font-size:.8rem;font-weight:700;text-decoration:none">${a.cta} →</a>`:'';
   return`<div style="background:${bg};border-radius:var(--radius);padding:${a.image?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow)">
     ${imgHtml}
     <div style="padding:${a.image?'18px':'0'} 24px 24px;color:${tc}">
       <p style="font-size:.63rem;letter-spacing:.25em;text-transform:uppercase;opacity:.6;margin-bottom:6px;font-family:'Space Mono',monospace">Sponsored</p>
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:12px;line-height:1.25">${a.title}</h3>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:${a.body?'10px':'12px'};line-height:1.25">${a.title}</h3>
+      ${copyHtml}
       ${ctaHtml}
     </div>
   </div>`;
@@ -6690,7 +6728,7 @@ function injectAds(){
   document.querySelectorAll('.ad-tile-wrapper').forEach(el=>el.remove());
   if(!ads||!ads.length)return;
   const byLoc={};
-  ads.forEach(a=>{(byLoc[a.location]=byLoc[a.location]||[]).push(a)});
+  sortAdsForDisplay((ads||[]).filter(a=>normalizeAd(a).enabled!==false)).forEach(a=>{(byLoc[a.location]=byLoc[a.location]||[]).push(normalizeAd(a))});
   ['tips-after-2','tips-after-4'].forEach(loc=>{
     if(!byLoc[loc])return;
     const grid=document.getElementById('tips-grid');if(!grid)return;
