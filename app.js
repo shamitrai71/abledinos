@@ -4579,6 +4579,139 @@ const FLAG_IMAGES = {
   'ph':'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIzIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDM4QTgiLz48cmVjdCB5PSIxIiB3aWR0aD0iMyIgaGVpZ2h0PSIxIiBmaWxsPSIjQ0UxMTI2Ii8+PHBvbHlnb24gcG9pbnRzPSIwLDAgMS41LDEgMCwyIiBmaWxsPSIjZmZmIi8+PC9zdmc+',
   'kr':'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzIDIiPjxyZWN0IHdpZHRoPSIzIiBoZWlnaHQ9IjIiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSIxLjUiIGN5PSIxIiByPSIwLjUiIGZpbGw9IiNDRDJFM0EiLz48cGF0aCBkPSJNMS41LDAuNSBBMC41LDAuNSAwIDAsMSAxLjUsMS41IEEwLjI1LDAuMjUgMCAwLDAgMS41LDEgQTAuMjUsMC4yNSAwIDAsMSAxLjUsMC41IiBmaWxsPSIjMDA0N0EwIi8+PC9zdmc+'
 };
+// ===================== SHARED PERSISTENCE =====================
+const AB_BACKEND_ENDPOINT='/.netlify/functions/connect-db';
+const AB_SYNC_STATUS_KEY='ab_sync_status_v1';
+let abRemoteSyncInFlight=false;
+let abRemoteUsersSyncInFlight=false;
+let abSyncStatus={ mode:'local', ok:false, scope:'startup', message:'Using local browser storage until shared sync is available.', updatedAt:null };
+
+function abUpdateSyncStatus(patch){
+  abSyncStatus=Object.assign({}, abSyncStatus, patch||{}, { updatedAt:new Date().toISOString() });
+  try{ localStorage.setItem(AB_SYNC_STATUS_KEY, JSON.stringify(abSyncStatus)); }catch(_){ }
+  try{ window.dispatchEvent(new CustomEvent('ab:sync-status', { detail: abSyncStatus })); }catch(_){ }
+  return abSyncStatus;
+}
+function abGetSyncStatus(){
+  try{
+    const stored=JSON.parse(localStorage.getItem(AB_SYNC_STATUS_KEY)||'null');
+    if(stored && typeof stored==='object') abSyncStatus=Object.assign({}, abSyncStatus, stored);
+  }catch(_){ }
+  return abSyncStatus;
+}
+window.abGetSyncStatus = abGetSyncStatus;
+window.abRefreshAdminSyncStatus = async function(){
+  await Promise.allSettled([abSyncStateFromServer(), abSyncUsersFromServer()]);
+  return abGetSyncStatus();
+};
+abUpdateSyncStatus({ mode:'local', ok:false, scope:'startup', message:'Using local browser storage until shared sync is available.' });
+
+function abClone(v){ return JSON.parse(JSON.stringify(v)); }
+function abBuildStateSnapshot(){
+  return { countries, cities, tips, settings, countryPages, cityPages, ads, cityItems };
+}
+function abApplyStateSnapshot(snapshot, persistLocal=true){
+  if(!snapshot || typeof snapshot!=='object') return false;
+  countries=Array.isArray(snapshot.countries)&&snapshot.countries.length? snapshot.countries : abClone(DEFAULT_COUNTRIES);
+  cities=Array.isArray(snapshot.cities)&&snapshot.cities.length? snapshot.cities : abClone(DEFAULT_CITIES);
+  tips=Array.isArray(snapshot.tips)&&snapshot.tips.length? snapshot.tips : abClone(DEFAULT_TIPS);
+  settings=snapshot.settings&&typeof snapshot.settings==='object' ? snapshot.settings : abClone(DEFAULT_SETTINGS);
+  countryPages=snapshot.countryPages&&typeof snapshot.countryPages==='object' ? snapshot.countryPages : {};
+  cityPages=snapshot.cityPages&&typeof snapshot.cityPages==='object' ? snapshot.cityPages : {};
+  ads=Array.isArray(snapshot.ads)&&snapshot.ads.length? snapshot.ads : abClone(DEFAULT_ADS);
+  cityItems=Array.isArray(snapshot.cityItems)&&snapshot.cityItems.length? snapshot.cityItems : abClone(DEFAULT_CITY_ITEMS);
+  if(persistLocal){
+    localStorage.setItem('ab_countries',JSON.stringify(countries));
+    localStorage.setItem('ab_cities',JSON.stringify(cities));
+    localStorage.setItem('ab_countryPages',JSON.stringify(countryPages));
+    localStorage.setItem('ab_cityPages',JSON.stringify(cityPages));
+    localStorage.setItem('ab_cityItems',JSON.stringify(cityItems));
+    localStorage.setItem('ab_tips',JSON.stringify(tips));
+    localStorage.setItem('ab_ads',JSON.stringify(ads));
+    localStorage.setItem('ab_settings',JSON.stringify(settings));
+  }
+  return true;
+}
+async function abBackendRequest(action, payload){
+  const res=await fetch(AB_BACKEND_ENDPOINT,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action,payload})
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || ('Request failed: '+res.status));
+  return data;
+}
+async function abSyncStateFromServer(){
+  if(abRemoteSyncInFlight) return;
+  abRemoteSyncInFlight=true;
+  try{
+    const data=await abBackendRequest('getState',{});
+    if(data && data.state){
+      abApplyStateSnapshot(data.state,true);
+      migrateFeaturedPinsToEntityOrder();
+      renderHome();
+      if(typeof apInitAll==='function' && document.getElementById('admin-page')) apInitAll();
+      abUpdateSyncStatus({ mode:'neon', ok:true, scope:'state', message:'Connected to shared Neon data.' });
+    }else{
+      abUpdateSyncStatus({ mode:'neon', ok:true, scope:'state', message:'Connected to Neon. No shared site state found yet.' });
+    }
+  }catch(err){
+    console.warn('Shared state sync skipped:', err.message || err);
+    abUpdateSyncStatus({ mode:'local', ok:false, scope:'state', message:'Shared sync unavailable. Using local browser data.', error:String(err && err.message || err || '') });
+  }finally{
+    abRemoteSyncInFlight=false;
+  }
+}
+let abSaveStateTimer=null;
+function abQueueRemoteStateSave(){
+  clearTimeout(abSaveStateTimer);
+  abSaveStateTimer=setTimeout(async ()=>{
+    try{
+      await abBackendRequest('saveState',{ state: abBuildStateSnapshot() });
+      abUpdateSyncStatus({ mode:'neon', ok:true, scope:'state-save', message:'Changes saved to shared Neon data.' });
+    }catch(err){
+      console.warn('Shared state save skipped:', err.message || err);
+      abUpdateSyncStatus({ mode:'local', ok:false, scope:'state-save', message:'Could not save to Neon. Changes are only in this browser for now.', error:String(err && err.message || err || '') });
+    }
+  },250);
+}
+async function abSyncUsersFromServer(){
+  if(abRemoteUsersSyncInFlight) return;
+  abRemoteUsersSyncInFlight=true;
+  try{
+    const data=await abBackendRequest('getUsers',{});
+    if(Array.isArray(data.users)){
+      localStorage.setItem(AB_USERS_KEY, JSON.stringify(data.users));
+      abUpdateSyncStatus({ mode:'neon', ok:true, scope:'users', message:'Connected to shared Neon data.' });
+      const current=safeJsonParse(localStorage.getItem(AB_CURRENT_USER_KEY), null);
+      if(current && current.email){
+        const fresh=data.users.find(u=>String(u.email||'').toLowerCase()===String(current.email||'').toLowerCase());
+        if(fresh) localStorage.setItem(AB_CURRENT_USER_KEY, JSON.stringify(fresh));
+      }
+      updateFloatingAccountButton();
+    }
+  }catch(err){
+    console.warn('Shared users sync skipped:', err.message || err);
+    abUpdateSyncStatus({ mode:'local', ok:false, scope:'users', message:'Shared user sync unavailable. Using local browser accounts.', error:String(err && err.message || err || '') });
+  }finally{
+    abRemoteUsersSyncInFlight=false;
+  }
+}
+let abSaveUsersTimer=null;
+function abQueueRemoteUsersSave(users){
+  clearTimeout(abSaveUsersTimer);
+  abSaveUsersTimer=setTimeout(async ()=>{
+    try{
+      await abBackendRequest('saveUsers',{ users });
+      abUpdateSyncStatus({ mode:'neon', ok:true, scope:'users-save', message:'Users saved to shared Neon data.' });
+    }catch(err){
+      console.warn('Shared users save skipped:', err.message || err);
+      abUpdateSyncStatus({ mode:'local', ok:false, scope:'users-save', message:'Could not save users to Neon. This browser is using local-only auth data.', error:String(err && err.message || err || '') });
+    }
+  },250);
+}
+
 // ===================== STATE =====================
 let countries,cities,tips,settings,countryPages,cityPages,ads,cityItems,currentCountryId=null,currentCityId=null,currentCatKey=null,loggedIn=false;
 
@@ -4603,6 +4736,7 @@ function saveAll(){
     localStorage.setItem('ab_tips',JSON.stringify(tips));
     localStorage.setItem('ab_ads',JSON.stringify(ads));
     localStorage.setItem('ab_settings',JSON.stringify(settings));
+    abQueueRemoteStateSave();
   }catch(err){
     console.error(err);
     if(err && (err.name === 'QuotaExceededError' || String(err).includes('QuotaExceeded'))){
@@ -7089,6 +7223,7 @@ document.addEventListener('click', function(e){
 loadData();
 migrateFeaturedPinsToEntityOrder();
 renderHome();
+abSyncStateFromServer();
 // Apply saved palette on load
 (function(){const p=JSON.parse(localStorage.getItem('ab_palette')||'null');if(p)applyPalette(p);})();
 
@@ -7181,7 +7316,7 @@ function prototypeGetUsers(){
   prototypeSaveUsers(stored);
   return stored;
 }
-function prototypeSaveUsers(users){ localStorage.setItem(AB_USERS_KEY, JSON.stringify(users)); }
+function prototypeSaveUsers(users){ localStorage.setItem(AB_USERS_KEY, JSON.stringify(users)); abQueueRemoteUsersSave(users); }
 function prototypeGetCurrentUser(){ return safeJsonParse(localStorage.getItem(AB_CURRENT_USER_KEY),'')||null; }
 function prototypeSetCurrentUser(user){
   if(user) localStorage.setItem(AB_CURRENT_USER_KEY, JSON.stringify(user));
@@ -7357,4 +7492,5 @@ function handleProfileAvatarUpload(input){
   const user=currentPrototypeUser();
   loggedIn=!!(user && user.role==='superadmin');
   updateFloatingAccountButton();
+  abSyncUsersFromServer();
 })();

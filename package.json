@@ -1,0 +1,15 @@
+{
+  "name": "abledino-project",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static travel site with Netlify Functions and Neon-backed shared persistence.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  },
+  "scripts": {
+    "dev": "netlify dev",
+    "start": "netlify dev",
+    "build": "echo \"Static site - no build step required\"",
+    "serve": "npx serve ."
+  }
+}
