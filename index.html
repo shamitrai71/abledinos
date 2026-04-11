@@ -679,9 +679,23 @@
             <button onclick="saveProfileScreenName()" style="background:var(--gold);color:var(--ink);border:none;padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">Save</button>
           </div>
         </div>
+        <div id="profileChangePassword" style="display:none;margin-top:14px;padding:14px;background:var(--cream);border-radius:12px">
+          <label style="font-size:.78rem;font-weight:600;color:rgba(13,13,13,.55);display:block;margin-bottom:8px">Change Password</label>
+          <div style="display:grid;gap:8px">
+            <input type="password" id="profileCurrentPassword" placeholder="Current password" autocomplete="current-password" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit">
+            <input type="password" id="profileNewPassword" placeholder="New password" autocomplete="new-password" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit">
+            <input type="password" id="profileConfirmPassword" placeholder="Confirm new password" autocomplete="new-password" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit">
+          </div>
+          <div id="profilePasswordError" class="login-error" style="display:none;margin-top:10px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button onclick="saveChangedPassword()" style="background:var(--gold);color:var(--ink);border:none;padding:9px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">Update Password</button>
+            <button onclick="toggleChangePassword()" style="background:#fff;color:var(--ink);border:1.5px solid var(--border);padding:9px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">Cancel</button>
+          </div>
+        </div>
         <div class="profile-actions">
           <button class="profile-btn primary" onclick="showHome()">Continue exploring</button>
           <button class="profile-btn secondary" onclick="toggleEditScreenName()">Edit Screen Name</button>
+          <button class="profile-btn secondary" onclick="toggleChangePassword()">Change Password</button>
           <button class="profile-btn secondary" onclick="prototypeLogout()">Logout</button>
         </div>
       </div>

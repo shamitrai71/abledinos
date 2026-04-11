@@ -5459,14 +5459,18 @@ window.addEventListener('scroll',()=>{
 function openLogin(){document.getElementById('login-modal').classList.add('show')}
 function closeLogin(){document.getElementById('login-modal').classList.remove('show')}
 function doLogin(){
-  const e=document.getElementById('login-email').value.trim();
+  const e=document.getElementById('login-email').value.trim().toLowerCase();
   const p=document.getElementById('login-pass').value;
-  if(e==='esraigroup@gmail.com'&&p==='super123'){
+  const result=prototypeAuthenticate(e,p);
+  if(result && result.user && result.user.role==='superadmin'){
     loggedIn=true;
+    prototypeSetCurrentUser(result.user);
     closeLogin();
     openAdmin();
     document.getElementById('login-error').style.display='none';
+    updateFloatingAccountButton();
   }else{
+    document.getElementById('login-error').textContent='Invalid superadmin email or password. Please try again.';
     document.getElementById('login-error').style.display='block';
   }
 }
@@ -7147,3 +7151,201 @@ document.querySelectorAll('.chip').forEach(chip=>{
   });
 });
 
+
+
+// ===================== PROTOTYPE ACCOUNT / PROFILE =====================
+const AB_USERS_KEY='ab_users_v1';
+const AB_CURRENT_USER_KEY='ab_current_user_v1';
+const DEFAULT_SUPERADMIN={
+  id:'superadmin-1',
+  email:'esraigroup@gmail.com',
+  password:'super123',
+  firstName:'Esrai',
+  lastName:'Group',
+  name:'Esrai Group',
+  screenName:'Super Admin',
+  provider:'email',
+  role:'superadmin',
+  joinedAt:new Date().toISOString(),
+  mobile:'',dob:'',gender:'',ageGroup:'',nationality:'',city:'',state:'',country:'',pinCode:'',travelStyle:'',budget:'',interests:[],avatar:''
+};
+
+function safeJsonParse(v,fallback){ try{return JSON.parse(v);}catch(_){return fallback;} }
+function prototypeGetUsers(){
+  const stored=safeJsonParse(localStorage.getItem(AB_USERS_KEY),[]);
+  if(!Array.isArray(stored)) return [Object.assign({},DEFAULT_SUPERADMIN)];
+  const hasSuper=stored.some(u=>String(u.email||'').toLowerCase()==='esraigroup@gmail.com');
+  if(!hasSuper) stored.unshift(Object.assign({},DEFAULT_SUPERADMIN));
+  const superUser=stored.find(u=>String(u.email||'').toLowerCase()==='esraigroup@gmail.com');
+  if(superUser && !superUser.password) superUser.password='super123';
+  prototypeSaveUsers(stored);
+  return stored;
+}
+function prototypeSaveUsers(users){ localStorage.setItem(AB_USERS_KEY, JSON.stringify(users)); }
+function prototypeGetCurrentUser(){ return safeJsonParse(localStorage.getItem(AB_CURRENT_USER_KEY),'')||null; }
+function prototypeSetCurrentUser(user){
+  if(user) localStorage.setItem(AB_CURRENT_USER_KEY, JSON.stringify(user));
+  else localStorage.removeItem(AB_CURRENT_USER_KEY);
+}
+function prototypeFindUserByEmail(email){
+  email=String(email||'').trim().toLowerCase();
+  return prototypeGetUsers().find(u=>String(u.email||'').trim().toLowerCase()===email) || null;
+}
+function prototypeAuthenticate(email,password){
+  const user=prototypeFindUserByEmail(email);
+  if(!user) return null;
+  if(String(user.password||'')!==String(password||'')) return null;
+  return {user};
+}
+function prototypePersistUser(user){
+  const users=prototypeGetUsers();
+  const idx=users.findIndex(u=>u.id===user.id || String(u.email||'').toLowerCase()===String(user.email||'').toLowerCase());
+  if(idx>=0) users[idx]=Object.assign({},users[idx],user);
+  else users.push(user);
+  prototypeSaveUsers(users);
+  prototypeSetCurrentUser(users[idx>=0?idx:users.length-1]);
+}
+function currentPrototypeUser(){ return prototypeGetCurrentUser(); }
+function updateFloatingAccountButton(){
+  const btnText=document.getElementById('floatingAccountBtnText');
+  const user=currentPrototypeUser();
+  if(btnText) btnText.textContent=user ? 'Account' : 'Login';
+}
+function hideSectionsForStandalonePage(pageId){
+  _homeSectionIds().concat(['country-page','city-cats','cat-listing','item-detail','admin-page','login-page','profile-page','signup-page']).forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=(id===pageId?'block':'none');
+  });
+  const footer=document.getElementById('main-footer')||document.querySelector('footer');
+  if(footer) footer.style.display=(pageId==='login-page'||pageId==='profile-page'||pageId==='signup-page')?'none':'';
+  safeScrollTop();
+}
+function openAccountArea(){
+  const user=currentPrototypeUser();
+  if(user){ renderProfilePage(); hideSectionsForStandalonePage('profile-page'); }
+  else { hideSectionsForStandalonePage('login-page'); }
+}
+function openSignupPage(){ hideSectionsForStandalonePage('signup-page'); }
+function openLoginPage(){ hideSectionsForStandalonePage('login-page'); }
+function mockSocialLogin(provider){
+  const id='social-'+provider;
+  const user={id, email:provider+'-demo@abledinos.local', password:'', firstName:provider==='google'?'Google':'Facebook', lastName:'User', name:(provider==='google'?'Google':'Facebook')+' User', screenName:(provider==='google'?'Google':'Facebook')+' Traveler', provider, role:'user', joinedAt:new Date().toISOString(), interests:[], avatar:''};
+  prototypePersistUser(user);
+  loggedIn = user.role==='superadmin';
+  renderProfilePage();
+  hideSectionsForStandalonePage('profile-page');
+  updateFloatingAccountButton();
+}
+function doPrototypeLogin(){
+  const email=(document.getElementById('prototypeLoginEmail')?.value||'').trim().toLowerCase();
+  const password=(document.getElementById('prototypeLoginPassword')?.value||'');
+  const err=document.getElementById('loginPageError');
+  if(!email || !password){ if(err){err.textContent='Please enter your email and password.'; err.style.display='block';} return; }
+  const result=prototypeAuthenticate(email,password);
+  if(!result){ if(err){err.textContent='Invalid email or password.'; err.style.display='block';} return; }
+  if(err){err.style.display='none'; err.textContent='';}
+  loggedIn = result.user.role==='superadmin';
+  prototypeSetCurrentUser(result.user);
+  renderProfilePage();
+  hideSectionsForStandalonePage('profile-page');
+  updateFloatingAccountButton();
+}
+function doPrototypeSignup(){
+  const v=id=>(document.getElementById(id)?.value||'').trim();
+  const firstName=v('signupFirstName'), lastName=v('signupLastName'), email=v('signupEmail').toLowerCase(), password=v('signupPassword'), confirm=v('signupPasswordConfirm');
+  const city=v('signupCity'), country=v('signupCountry');
+  const err=document.getElementById('signupPageError');
+  if(!firstName || !lastName || !email || !password || !city || !country){ if(err){err.textContent='Please fill all required fields.'; err.style.display='block';} return; }
+  if(password.length<6){ if(err){err.textContent='Password must be at least 6 characters.'; err.style.display='block';} return; }
+  if(password!==confirm){ if(err){err.textContent='Passwords do not match.'; err.style.display='block';} return; }
+  if(prototypeFindUserByEmail(email)){ if(err){err.textContent='An account with this email already exists.'; err.style.display='block';} return; }
+  const interests=[...document.querySelectorAll('.signup-interests-grid input:checked')].map(i=>i.value);
+  const user={
+    id:'user-'+Date.now(), email, password, firstName, lastName, name:(firstName+' '+lastName).trim(),
+    screenName:v('signupScreenName')||firstName, provider:'email', role:'user', joinedAt:new Date().toISOString(),
+    mobile:[v('signupCountryCode'),v('signupMobile')].filter(Boolean).join(' '), dob:v('signupDob'), gender:v('signupGender'), ageGroup:v('signupAgeGroup'), nationality:v('signupNationality'), city, state:v('signupState'), country, pinCode:v('signupPinCode'), travelStyle:v('signupTravelStyle'), budget:v('signupBudget'), interests, avatar:''
+  };
+  const users=prototypeGetUsers(); users.push(user); prototypeSaveUsers(users); prototypeSetCurrentUser(user);
+  loggedIn=false;
+  if(err){err.style.display='none'; err.textContent='';}
+  renderProfilePage(); hideSectionsForStandalonePage('profile-page'); updateFloatingAccountButton();
+}
+function renderProfilePage(){
+  const user=currentPrototypeUser();
+  if(!user){ hideSectionsForStandalonePage('login-page'); return; }
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val||'—'; };
+  set('profileName', user.name || [user.firstName,user.lastName].filter(Boolean).join(' ') || 'User');
+  set('profileScreenName', user.screenName || '—');
+  set('profileEmail', user.email || '—');
+  set('profileProvider', user.provider ? user.provider.charAt(0).toUpperCase()+user.provider.slice(1) : '—');
+  set('profileRole', user.role==='superadmin' ? 'Super Admin' : 'User');
+  set('profileMobile', user.mobile || '—'); set('profileDob', user.dob || '—'); set('profileGender', user.gender || '—'); set('profileAgeGroup', user.ageGroup || '—'); set('profileNationality', user.nationality || '—');
+  set('profileJoined', user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : '—');
+  set('profileCity', user.city || '—'); set('profileState', user.state || '—'); set('profileCountry', user.country || '—'); set('profilePinCode', user.pinCode || '—');
+  set('profileTravelStyle', user.travelStyle || '—'); set('profileBudget', user.budget || '—');
+  const display=document.getElementById('profileScreenNameDisplay');
+  if(display){ display.textContent=user.screenName ? '@'+user.screenName : ''; display.style.display=user.screenName?'block':'none'; }
+  const tags=document.getElementById('profileInterests');
+  if(tags){ tags.innerHTML=(user.interests&&user.interests.length)? user.interests.map(i=>`<span class="interest-tag">${i}</span>`).join(' ') : '—'; }
+  const details=document.getElementById('profileDetailsCard'); if(details) details.style.display=(user.mobile||user.dob||user.gender||user.ageGroup||user.nationality)?'block':'none';
+  const loc=document.getElementById('profileLocationCard'); if(loc) loc.style.display=(user.city||user.country||user.state||user.pinCode)?'block':'none';
+  const travel=document.getElementById('profileTravelCard'); if(travel) travel.style.display=(user.travelStyle||user.budget||(user.interests&&user.interests.length))?'block':'none';
+  const adminCard=document.getElementById('adminAccessCard'); if(adminCard) adminCard.style.display=user.role==='superadmin'?'block':'none';
+  const normalCard=document.getElementById('normalUserCard'); if(normalCard) normalCard.style.display=user.role==='superadmin'?'none':'block';
+  const screenInput=document.getElementById('profileScreenNameInput'); if(screenInput) screenInput.value=user.screenName||'';
+  const pwPanel=document.getElementById('profileChangePassword'); if(pwPanel) pwPanel.style.display='none';
+  const avatar=document.getElementById('profileAvatarImg');
+  if(avatar){
+    if(user.avatar){ avatar.style.backgroundImage=`url('${user.avatar.replace(/'/g,"%27")}')`; avatar.innerHTML=''; }
+    else { avatar.style.backgroundImage=''; avatar.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="rgba(13,13,13,.25)" stroke-width="1.5" style="width:36px;height:36px"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>'; }
+  }
+}
+function openAdminFromProfile(){
+  const user=currentPrototypeUser();
+  if(!user || user.role!=='superadmin'){ alert('Admin access is only available for the superadmin account.'); return; }
+  loggedIn=true; openAdmin();
+}
+function prototypeLogout(){
+  prototypeSetCurrentUser(null); loggedIn=false; updateFloatingAccountButton(); showHome();
+}
+function toggleEditScreenName(){
+  const box=document.getElementById('profileEditScreenName');
+  if(box) box.style.display = box.style.display==='none' || !box.style.display ? 'block' : 'none';
+}
+function saveProfileScreenName(){
+  const user=currentPrototypeUser(); if(!user) return;
+  const val=(document.getElementById('profileScreenNameInput')?.value||'').trim();
+  user.screenName=val || user.screenName || user.firstName || 'Traveler';
+  prototypePersistUser(user); renderProfilePage(); showToast('Screen name updated');
+}
+function toggleChangePassword(){
+  const panel=document.getElementById('profileChangePassword'); if(!panel) return;
+  const visible=panel.style.display==='block';
+  panel.style.display=visible?'none':'block';
+  const err=document.getElementById('profilePasswordError'); if(err){ err.style.display='none'; err.textContent=''; }
+  ['profileCurrentPassword','profileNewPassword','profileConfirmPassword'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function saveChangedPassword(){
+  const user=currentPrototypeUser(); if(!user) return;
+  const current=(document.getElementById('profileCurrentPassword')?.value||'');
+  const next=(document.getElementById('profileNewPassword')?.value||'');
+  const confirm=(document.getElementById('profileConfirmPassword')?.value||'');
+  const err=document.getElementById('profilePasswordError');
+  const fail=(msg)=>{ if(err){err.textContent=msg; err.style.display='block';} };
+  if(String(user.password||'')!==String(current||'')) return fail('Current password is incorrect.');
+  if(next.length<6) return fail('New password must be at least 6 characters.');
+  if(next!==confirm) return fail('New password and confirmation do not match.');
+  user.password=next; prototypePersistUser(user); if(err){err.style.display='none'; err.textContent='';} toggleChangePassword(); showToast('Password updated successfully');
+}
+function handleProfileAvatarUpload(input){
+  const file=input && input.files && input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{ const user=currentPrototypeUser(); if(!user) return; user.avatar=String(reader.result||''); prototypePersistUser(user); renderProfilePage(); showToast('Profile photo updated'); };
+  reader.readAsDataURL(file);
+}
+(function initPrototypeAuth(){
+  prototypeGetUsers();
+  const user=currentPrototypeUser();
+  loggedIn=!!(user && user.role==='superadmin');
+  updateFloatingAccountButton();
+})();
