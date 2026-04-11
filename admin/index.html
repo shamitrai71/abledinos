@@ -29,6 +29,8 @@
       <button class="ap-nav-tab" onclick="apTab('ap-reviews',this)">⭐ Reviews</button>
       <button class="ap-nav-tab" onclick="apTab('ap-tips',this)">💡 Tips</button>
       <button class="ap-nav-tab" onclick="apTab('ap-ads',this)">📢 Ads</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-newsletters',this)">✉️ Newsletters</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-users',this)">👥 Users</button>
       <button class="ap-nav-tab" onclick="apTab('ap-settings',this)">⚙️ Settings</button>
       <button class="ap-nav-tab" onclick="apTab('ap-palette',this)">🎨 Palette</button>
       <button class="ap-nav-tab ap-ai-tab" onclick="apTab('ap-ai-assistant',this)">🤖 AI Assistant</button>
@@ -177,7 +179,49 @@
       <div class="ap-cards" id="ap-ads-grid"></div>
     </div>
 
+
+    <div id="ap-newsletters" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Email Newsletters</div><div class="ap-page-sub">Manage subscribers, create campaigns, schedule sends, email all opted-in users, and export profile data</div></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="admin-btn" onclick="downloadUserProfilesCsv()">⬇ Download user profiles</button>
+          <button class="ap-add-new-btn" onclick="openNewsletterForm(null)">+ Create Campaign</button>
+        </div>
+      </div>
+      <div class="ap-settings-card" style="margin-bottom:18px">
+        <div class="form-row">
+          <div class="form-group"><label>Opted-in Newsletter Subscribers</label><div id="ap-newsletter-subscriber-count" style="font-weight:800;font-size:1.8rem">0</div></div>
+          <div class="form-group"><label>Offers Opt-in</label><div id="ap-newsletter-offers-count" style="font-weight:800;font-size:1.8rem">0</div></div>
+        </div>
+        <div class="form-group" style="margin-top:10px"><label>Subscriber Preview</label><div id="ap-newsletter-subscribers" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+      </div>
+      <div class="ap-cards" id="ap-newsletters-grid"></div>
+    </div>
+
     <!-- SETTINGS -->
+    <div id="ap-users" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Users</div><div class="ap-page-sub">Search, filter, review, and export user profiles by segment.</div></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="admin-btn" onclick="downloadFilteredUserProfilesCsv()">⬇ Export filtered CSV</button>
+          <button class="admin-btn admin-btn-primary" onclick="renderApUsers()">↻ Refresh Users</button>
+        </div>
+      </div>
+      <div class="ap-filters" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;align-items:end">
+        <div class="form-group" style="margin:0"><label>Search users</label><input id="ap-users-search" class="ap-filter-input" placeholder="Search by email, name, city, country" oninput="renderApUsers()"></div>
+        <div class="form-group" style="margin:0"><label>Role</label><select id="ap-users-role-filter" class="ap-filter-select" onchange="renderApUsers()"><option value="">All roles</option><option value="superadmin">Superadmin</option><option value="user">Users</option></select></div>
+        <div class="form-group" style="margin:0"><label>Email status</label><select id="ap-users-verified-filter" class="ap-filter-select" onchange="renderApUsers()"><option value="">All</option><option value="verified">Verified</option><option value="unverified">Unverified</option></select></div>
+        <div class="form-group" style="margin:0"><label>Consent segment</label><select id="ap-users-consent-filter" class="ap-filter-select" onchange="renderApUsers()"><option value="">All users</option><option value="newsletter">Newsletter opt-ins</option><option value="offers">Offers opt-ins</option><option value="all_opted_in">All opted-in</option><option value="terms">Accepted terms</option></select></div>
+      </div>
+      <div class="ap-metrics-grid" style="margin-top:12px">
+        <div class="ap-settings-card"><small>Total users</small><div id="ap-users-total" style="font-size:1.6rem;font-weight:800">0</div></div>
+        <div class="ap-settings-card"><small>Verified</small><div id="ap-users-verified" style="font-size:1.6rem;font-weight:800">0</div></div>
+        <div class="ap-settings-card"><small>Newsletter opt-ins</small><div id="ap-users-newsletter" style="font-size:1.6rem;font-weight:800">0</div></div>
+        <div class="ap-settings-card"><small>Offers opt-ins</small><div id="ap-users-offers" style="font-size:1.6rem;font-weight:800">0</div></div>
+      </div>
+      <div class="ap-cards" id="ap-users-grid" style="margin-top:14px"></div>
+    </div>
+
     <div id="ap-settings" class="ap-tab-pane">
       <div class="ap-page-header">
         <div><div class="ap-page-title">Site Settings</div><div class="ap-page-sub">Configure hero text, CTA buttons and homepage stats</div></div>
