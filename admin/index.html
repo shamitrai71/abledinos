@@ -34,7 +34,6 @@
       <button class="ap-nav-tab ap-ai-tab" onclick="apTab('ap-ai-assistant',this)">🤖 AI Assistant</button>
       <button class="ap-nav-tab ap-ai-tab" onclick="apTab('ap-ai-images',this)">🖼 AI Images</button>
       <button class="ap-nav-tab ap-analytics-tab" onclick="apTab('ap-analytics',this)">📊 Analytics</button>
-      <button class="ap-nav-tab ap-export-tab" onclick="apTab('ap-export',this)">🚀 Export</button>
     </div>
     <div class="ap-nav-actions">      <button class="ap-exit-btn" onclick="closeAdmin()">← Back to Site</button>
       <button class="ap-logout-btn" onclick="doLogout()">Sign Out</button>
@@ -44,7 +43,7 @@
   <div class="ap-content">
 
     <div class="ap-page-header" style="padding:0 0 10px 0;border:none">
-      <div><div class="ap-page-title">Admin sync status</div><div class="ap-page-sub">Monitor Neon connectivity and manually pull the latest shared data.</div></div>
+      <div><div class="ap-page-title">Admin sync status</div><div class="ap-page-sub">Shared changes sync automatically when Neon is connected. You can still pull the latest shared data manually.</div></div>
       
             <div id="ap-sync-status" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:#ffffff;border:1px solid rgba(13,13,13,.08);box-shadow:0 4px 14px rgba(0,0,0,.05);max-width:460px">
               <span id="ap-sync-dot" style="width:10px;height:10px;border-radius:50%;background:#b0b0b0;flex:0 0 auto"></span>
@@ -925,85 +924,7 @@
       </div>
     </div>
 
-    <!-- EXPORT & DEPLOY -->
-    <div id="ap-export" class="ap-tab-pane">
-      <div class="ap-page-header">
-        <div><div class="ap-page-title">🚀 Export & Deploy</div><div class="ap-page-sub">Download your site data or a deploy-ready HTML file with all admin changes baked in — so every Netlify visitor sees your content</div></div>
-      </div>
 
-      <!-- Warning banner -->
-      <div class="export-warning-banner">
-        <div class="export-warning-icon">⚠️</div>
-        <div>
-          <strong>Why you need this:</strong> All your admin edits (countries, cities, items, descriptions, images, AI-generated content) are currently stored in your browser's localStorage. Other visitors on Netlify see only the original defaults. Exporting bakes your changes into the HTML file so everyone sees them.
-        </div>
-      </div>
-
-      <div class="export-grid">
-        <!-- Card 1: Export Full Site HTML -->
-        <div class="export-card export-card-primary">
-          <div class="export-card-badge">Recommended</div>
-          <div class="export-card-icon">📄</div>
-          <h3>Export Deploy-Ready HTML</h3>
-          <p>Downloads a new <code>index.html</code> with all your current data — countries, cities, items, tips, settings, ads, palette — baked directly into the file. Upload this to Netlify (or commit to GitHub) and every visitor sees your changes.</p>
-          <div class="export-card-steps">
-            <div class="export-step"><span class="export-step-num">1</span> Click Export below</div>
-            <div class="export-step"><span class="export-step-num">2</span> Upload the downloaded file to Netlify via drag-and-drop deploy</div>
-            <div class="export-step"><span class="export-step-num">3</span> Or commit to your GitHub repo and Netlify auto-deploys</div>
-          </div>
-          <button class="export-primary-btn" onclick="exportFullSiteHTML()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export Site HTML
-          </button>
-          <div id="export-html-status" class="export-status"></div>
-        </div>
-
-        <!-- Card 2: Export Data JSON -->
-        <div class="export-card">
-          <div class="export-card-icon">💾</div>
-          <h3>Export Data as JSON</h3>
-          <p>Downloads all your current data as a JSON file. Useful as a backup, for transferring between browsers, or for importing into a future backend/database.</p>
-          <button class="export-secondary-btn" onclick="exportDataJSON()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export JSON Backup
-          </button>
-        </div>
-
-        <!-- Card 3: Import Data JSON -->
-        <div class="export-card">
-          <div class="export-card-icon">📥</div>
-          <h3>Import Data from JSON</h3>
-          <p>Restore data from a previously exported JSON backup. This overwrites your current localStorage data with the imported data.</p>
-          <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importDataJSON(this)">
-          <button class="export-secondary-btn" onclick="document.getElementById('import-json-input').click()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Import JSON
-          </button>
-        </div>
-
-        <!-- Card 4: Data Stats -->
-        <div class="export-card">
-          <div class="export-card-icon">📊</div>
-          <h3>Current Data Summary</h3>
-          <p>What will be included in your export:</p>
-          <div class="export-data-stats" id="export-data-stats"></div>
-        </div>
-      </div>
-
-      <!-- Cloudinary Checklist -->
-      <div class="export-card" style="margin-top:20px;max-width:100%">
-        <div class="export-card-icon">☁️</div>
-        <h3>Cloudinary Checklist for Netlify</h3>
-        <p>Before deploying, verify your Cloudinary settings so images display for all visitors:</p>
-        <div class="export-checklist">
-          <label class="export-check-item"><input type="checkbox"> Upload Preset is set to <strong>Unsigned</strong> in Cloudinary Settings → Upload</label>
-          <label class="export-check-item"><input type="checkbox"> Cloud Name matches what you entered in admin (Configure Cloudinary)</label>
-          <label class="export-check-item"><input type="checkbox"> All admin-uploaded images use Cloudinary URLs (not base64)</label>
-          <label class="export-check-item"><input type="checkbox"> Restricted Media Types are not blocking images (Settings → Security)</label>
-          <label class="export-check-item"><input type="checkbox"> If using Netlify Cloudinary Build Plugin: <code>picsum.photos</code> is whitelisted in Allowed Fetch Domains</label>
-        </div>
-      </div>
-    </div>
 
   </div><!-- /ap-content -->
 </div><!-- /admin-page -->
