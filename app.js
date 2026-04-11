@@ -7302,8 +7302,17 @@ function renderProfilePage(){
 }
 function openAdminFromProfile(){
   const user=currentPrototypeUser();
-  if(!user || user.role!=='superadmin'){ alert('Admin access is only available for the superadmin account.'); return; }
-  loggedIn=true; openAdmin();
+  if(!user || user.role!=='superadmin'){
+    alert('Admin access is only available for the superadmin account.');
+    return;
+  }
+  loggedIn=true;
+  const adminInline=document.getElementById('admin-page');
+  if(adminInline){
+    openAdmin();
+    return;
+  }
+  window.location.href='/admin';
 }
 function prototypeLogout(){
   prototypeSetCurrentUser(null); loggedIn=false; updateFloatingAccountButton(); showHome();
