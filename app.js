@@ -7863,7 +7863,8 @@ function downloadFilteredUserProfilesCsv(){
   if(!rows.length){ alert('No users match the current filters.'); return; }
   const headers=Object.keys(rows[0]);
   const csv=[headers.join(',')].concat(rows.map(row=>headers.map(h=>csvEscape(row[h])).join(',')));
-  const blob=new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const blob=new Blob([csv.join('
+')],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
