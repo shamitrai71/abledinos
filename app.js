@@ -5621,9 +5621,10 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 
 // ===================== ADMIN CORE =====================
 
-if (typeof window.aiPopulateSelectors !== "function") {
-  window.aiPopulateSelectors = function aiPopulateSelectors(){ return; };
+if (typeof globalThis.aiPopulateSelectors !== "function") {
+  globalThis.aiPopulateSelectors = function aiPopulateSelectors(){ return; };
 }
+var aiPopulateSelectors = globalThis.aiPopulateSelectors;
 
 
 function openAdmin(){
