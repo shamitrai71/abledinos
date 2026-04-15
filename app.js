@@ -5621,6 +5621,11 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 
 // ===================== ADMIN CORE =====================
 
+if (typeof window.aiPopulateSelectors !== "function") {
+  window.aiPopulateSelectors = function aiPopulateSelectors(){ return; };
+}
+
+
 function openAdmin(){
   if(!loggedIn){openLogin();return}
   _homeSectionIds().concat(['country-page','city-cats','cat-listing','item-detail']).forEach(id=>{
