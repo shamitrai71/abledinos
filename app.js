@@ -4865,7 +4865,7 @@ function renderCountries(){
       </div>
     </div>`;
   });
-  items = insertAdsAt(items, 'countries-after-3');
+  items = interleaveAdsMarkup(items, 'home-countries-tiles');
   g.innerHTML = items.join('');
 }
 function renderTips(){
@@ -4877,8 +4877,7 @@ function renderTips(){
       <h3>${t.title}</h3>
       <p>${t.content}</p>
     </div>`);
-  items = insertAdsAt(items, 'tips-after-2');
-  items = insertAdsAt(items, 'tips-after-4');
+  items = interleaveAdsMarkup(items, 'home-tips');
   g.innerHTML = items.join('');
 }
 
@@ -4886,6 +4885,7 @@ function renderTips(){
 
 function renderFeaturedCarousels(){
   renderFeaturedCities();
+  renderFeaturedCategory('hotels','hotels-track');
   renderFeaturedCategory('restaurants','restaurants-track');
   renderFeaturedCategory('attractions','attractions-track');
   renderFeaturedCategory('offers','offers-track');
@@ -4903,7 +4903,7 @@ function renderFeaturedCities(){
     track.innerHTML=`<div class="fc-empty">No cities added yet — add some in the Admin Panel.</div>`;
     return;
   }
-  track.innerHTML=featuredCities.map(city=>{
+  let cards=featuredCities.map(city=>{
     const country=countries.find(c=>c.id===city.countryId);
     const img=city.heroImage||'';
     const bg=img?`background-image:url('${img}')`:`background:linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})`;
@@ -4918,7 +4918,8 @@ function renderFeaturedCities(){
         <div class="fc-meta">${country?country.flag+' '+country.name:''}${city.bestFor?' · '+city.bestFor:''}</div>
       </div>
     </div>`;
-  }).join('');
+  });
+  track.innerHTML=interleaveAdsMarkup(cards, 'home-featured-cities', buildAdCarouselCardHTML).join('');
 }
 
 function renderFeaturedCategory(category, trackId){
@@ -4934,7 +4935,7 @@ function renderFeaturedCategory(category, trackId){
     track.innerHTML=`<div class="fc-empty">No ${CAT.label.toLowerCase()} added yet — add some in the Admin Panel under City Items.</div>`;
     return;
   }
-  track.innerHTML=items.map(item=>{
+  let cards=items.map(item=>{
     const city=cities.find(c=>c.id===item.cityId);
     const country=city?countries.find(c=>c.id===city.countryId):null;
     const img=item.image||'';
@@ -4953,7 +4954,8 @@ function renderFeaturedCategory(category, trackId){
         ${item.price?`<div class="fc-price">${isOffer?'🏷️ ':'💰 '}${item.price}</div>`:''}
       </div>
     </div>`;
-  }).join('');
+  });
+  track.innerHTML=interleaveAdsMarkup(cards, `home-featured-${category}`, buildAdCarouselCardHTML).join('');
 }
 
 function carouselScroll(trackId, direction){
@@ -5065,7 +5067,7 @@ function openCountry(id){
         </div>
       </div>`;
     });
-    cityItems = insertAdsAt(cityItems, 'cities-after-2');
+    cityItems = interleaveAdsMarkup(cityItems, 'country-cities-tiles');
     cg.innerHTML = cityItems.join('');
   } else {
     cg.innerHTML=`<p style="color:rgba(13,13,13,.4);grid-column:1/-1">No destinations added yet for this country. Add some in the Admin Panel.</p>`;
@@ -5149,7 +5151,7 @@ function openCity(cityId){
   };
 
   const grid=document.getElementById('city-cats-grid');
-  grid.innerHTML=Object.entries(CAT_META).map(([key,cat])=>{
+  let cityCatCards=Object.entries(CAT_META).map(([key,cat])=>{
     const count=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===key).length;
     const icon=(cat.icon||CAT_CARD_ICONS[key]||'✨');
     return `<div class="city-cat-card cat-${key}" data-city-id="${cityId}" data-cat-key="${key}" role="button" tabindex="0" aria-label="Open ${cat.label} in ${city.name}">
@@ -5159,7 +5161,8 @@ function openCity(cityId){
         <div class="city-cat-card-count">${count} item${count!==1?'s':''}</div>
       </div>
     </div>`;
-  }).join('');
+  });
+  grid.innerHTML=interleaveAdsMarkup(cityCatCards, 'city-category-tiles').join('');
 
   const aboutTitle=document.getElementById('city-about-title');
   const aboutText=document.getElementById('city-about-text');
@@ -5224,7 +5227,7 @@ function openCatListing(cityId, catKey){
   // Items grid
   const grid=document.getElementById('cat-listing-grid');
   if(items.length){
-    grid.innerHTML=items.map(item=>{
+    let listingCards=items.map(item=>{
       const tags=(item.tags||'').split(',').filter(Boolean).map(t=>`<span class="cat-tile-tag">${t.trim()}</span>`).join('');
       const imgStyle=item.image?`background-image:url('${item.image}');background-color:#eee`:`background:${cat.bg}`;
       // Special badges for events, offers, important-links
@@ -5255,7 +5258,8 @@ function openCatListing(cityId, catKey){
           ${ctaBtn}
         </div>
       </div>`;
-    }).join('');
+    });
+    grid.innerHTML=interleaveAdsMarkup(listingCards, 'city-item-tiles').join('');
   } else {
     grid.innerHTML=`<p style="color:rgba(13,13,13,.4);grid-column:1/-1;font-size:.95rem">No ${cat.label.toLowerCase()} added yet for ${city.name}. Add some in the Admin Panel under City Items.</p>`;
   }
@@ -5566,7 +5570,7 @@ function showCountry(){
   safeScrollTop();
 }
 function _homeSectionIds(){
-  return ['hero','countries','main-footer','tips','featured-cities-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'];
+  return ['hero','countries','main-footer','tips','featured-cities-section','featured-hotels-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'];
 }
 function showHome(){
   _homeSectionIds().forEach(id=>{
@@ -5647,11 +5651,35 @@ function aiGetStoredKeys(){
 function aiSetStoredKeys(obj){
   try{localStorage.setItem(AI_KEYS_KEY, JSON.stringify(obj||{}));}catch(_){}
 }
+function aiEnsureProviderSelect(){
+  const sel=document.getElementById('ai-provider');
+  if(!sel) return null;
+  const providers=aiGetProviders();
+  if(!sel.options || sel.options.length===0){
+    sel.innerHTML='';
+    Object.entries(providers).forEach(([value,cfg])=>{
+      const opt=document.createElement('option');
+      opt.value=value;
+      opt.textContent=cfg.label;
+      sel.appendChild(opt);
+    });
+  }
+  sel.disabled=false;
+  sel.style.pointerEvents='auto';
+  sel.style.position='relative';
+  sel.style.zIndex='10';
+  if(sel.dataset.aiBound!=='1'){
+    sel.addEventListener('change', aiProviderChanged);
+    sel.addEventListener('input', aiProviderChanged);
+    sel.dataset.aiBound='1';
+  }
+  return sel;
+}
 function aiUpdateKeyUI(){
   const providers=aiGetProviders();
   const provider=aiGetSelectedProvider();
   const cfg=providers[provider]||providers.claude;
-  const sel=document.getElementById('ai-provider');
+  const sel=aiEnsureProviderSelect();
   const input=document.getElementById('ai-api-key');
   const status=document.getElementById('ai-key-status');
   const keys=aiGetStoredKeys();
@@ -5661,9 +5689,9 @@ function aiUpdateKeyUI(){
     input.value=keys[provider]||'';
   }
   const title=document.querySelector('#ap-ai-assistant .ai-key-card h3');
-  if(title) title.textContent = cfg.label + ' API Key';
+  if(title) title.textContent = 'AI Agent API Key';
   const desc=document.querySelector('#ap-ai-assistant .ai-key-card .ai-section-header p');
-  if(desc) desc.textContent = 'Choose your AI provider and enter its API key. This key is stored only in this browser and used only for that provider.';
+  if(desc) desc.textContent = 'Choose your AI agent and enter its API key. This key is stored only in this browser and used only for that provider.';
   if(status){
     status.textContent = keys[provider] ? cfg.label + ' key saved in this browser.' : 'No ' + cfg.label + ' key saved yet.';
   }
@@ -5789,10 +5817,11 @@ function apPopulateSelects(){
 // ===================== FEATURED CAROUSELS ADMIN =====================
 
 const FEATURED_CAROUSEL_DEFS = [
-  {key:'cities',    label:'🏙 Featured Cities',       desc:'Cities carousel — top of homepage',  type:'city'},
-  {key:'restaurants',label:'🍽 Featured Restaurants', desc:'Restaurants carousel',               type:'item'},
-  {key:'attractions',label:'🏛 Featured Attractions', desc:'Attractions carousel',               type:'item'},
-  {key:'offers',    label:'🏷️ Featured Offers',        desc:'Offers carousel',                    type:'item'},
+  {key:'cities',      label:'🏙 Featured Cities',       desc:'Cities carousel — top of homepage',  type:'city'},
+  {key:'hotels',      label:'🏨 Featured Hotels',      desc:'Hotels carousel — under featured cities', type:'item'},
+  {key:'restaurants', label:'🍽 Featured Restaurants', desc:'Restaurants carousel',                 type:'item'},
+  {key:'attractions', label:'🏛 Featured Attractions', desc:'Attractions carousel',                 type:'item'},
+  {key:'offers',      label:'🏷️ Featured Offers',      desc:'Offers carousel',                      type:'item'},
 ];
 
 function loadFeaturedSettings(){
@@ -5810,7 +5839,7 @@ function renderApFeatured(){
     const pinned=feat[def.key]||[];
     const items=def.type==='city'
       ?cities.map(c=>({id:c.id,label:`${c.icon||'🏙'} ${c.name}`,sub:c.countryId?((countries.find(x=>x.id===c.countryId)||{}).name||''):''}))
-      :(cityItems||[]).filter(i=>i.category===def.key).map(i=>({id:i.id,label:`${i.icon||'📌'} ${i.name}`,sub:(cities.find(c=>c.id===i.cityId)||{}).name||''}));
+      :(cityItems||[]).filter(i=>i.category===def.key).map(i=>({id:i.id,label:`${i.icon||(CAT_META[def.key]||{}).icon||'📌'} ${i.name}`,sub:(cities.find(c=>c.id===i.cityId)||{}).name||''}));
     const pinnedSet=new Set(pinned);
     const checkedHtml=pinned.map((id,idx)=>{
       const it=items.find(x=>x.id===id);
@@ -6274,6 +6303,37 @@ function renderApCities(){
   }).join('');
 }
 
+function apClearFeaturedOrder(inputId){
+  const el=document.getElementById(inputId);
+  if(el) el.value='';
+}
+function apNextFeaturedOrderForCities(){
+  const max=(cities||[]).reduce((m,c)=>Math.max(m, Number(c&&c.featuredOrder)||0), 0);
+  return Math.max(1, max+1);
+}
+function apNextFeaturedOrderForCategory(category){
+  const max=(cityItems||[]).filter(i=>i.category===category).reduce((m,i)=>Math.max(m, Number(i&&i.featuredOrder)||0), 0);
+  return Math.max(1, max+1);
+}
+function apSetNextCityFeaturedOrder(){
+  const el=document.getElementById('cityf-featured-order');
+  if(el) el.value=apNextFeaturedOrderForCities();
+}
+function apUpdateCityItemFeaturedHint(){
+  const cat=(document.getElementById('cif-cat')||{}).value||'hotels';
+  const meta=CAT_META[cat]||{label:cat};
+  const hint=document.getElementById('cif-featured-hint');
+  const nextBtn=document.getElementById('cif-featured-next-btn');
+  if(hint) hint.textContent=`This controls the order inside the homepage ${meta.label} carousel. Leave blank to remove it from the homepage.`;
+  if(nextBtn) nextBtn.textContent=`Feature in ${meta.label}`;
+}
+function apSetNextCityItemFeaturedOrder(){
+  const cat=(document.getElementById('cif-cat')||{}).value||'hotels';
+  const el=document.getElementById('cif-featured-order');
+  if(el) el.value=apNextFeaturedOrderForCategory(cat);
+  apUpdateCityItemFeaturedHint();
+}
+
 function openCityForm(id){
   const c=id?cities.find(x=>x.id===id):null;
   const countryOpts=countries.map(x=>`<option value="${x.id}"${c&&c.countryId===x.id?' selected':''}>${x.flag} ${x.name}</option>`).join('');
@@ -6288,6 +6348,11 @@ function openCityForm(id){
     <div class="form-group"><label>Best For</label><input type="text" id="cityf-bestfor" placeholder="Romance, Art, Food" value="${c?c.bestFor||'':''}"></div>
     <div class="form-group"><label>Fallback Gradient</label><input type="text" id="cityf-gradient" placeholder="#c85a3c,#c9a84c" value="${c?c.gradient||'':''}"></div>
     <div class="form-group"><label>Homepage Featured Cities Order <span class="form-hint-inline">(1, 2, 3... leave blank to remove from homepage carousel)</span></label><input type="number" min="1" step="1" id="cityf-featured-order" placeholder="e.g. 1" value="${c&&c.featuredOrder?c.featuredOrder:''}"></div>
+    <div class="form-row" style="margin-top:-4px;margin-bottom:8px">
+      <button type="button" class="secondary" onclick="apSetNextCityFeaturedOrder()">Add to Featured Cities</button>
+      <button type="button" class="ghost" onclick="apClearFeaturedOrder('cityf-featured-order')">Remove from homepage</button>
+    </div>
+    <small class="form-hint" style="display:block;margin:-2px 0 10px">Use the buttons above to quickly add or remove this city from the homepage featured cities carousel.</small>
     <hr class="admin-divider">
     <p class="ap-section-label">🖼 Shared Square Image — 1200 × 1200 px recommended</p>
     ${apImgField('cityf-img','cityf-img-url','cityf-img-preview','cityf-img-remove','Cloudinary URL or direct image URL. Use one square image for the hero inset, tiles and carousels. Keep the subject centered.')}
@@ -6553,7 +6618,11 @@ function openCityItemForm(id){
     </div>
     <div class="form-group"><label>Address</label><input type="text" id="cif-address" placeholder="Champ de Mars, Paris" value="${item?item.address||'':''}"></div>
     <div class="form-group"><label>Homepage Featured Order <span class="form-hint-inline">(1, 2, 3... leave blank to remove from this category carousel)</span></label><input type="number" min="1" step="1" id="cif-featured-order" placeholder="e.g. 1" value="${item&&item.featuredOrder?item.featuredOrder:''}"></div>
-    <small class="form-hint" style="display:block;margin:-4px 0 10px">This controls the order inside the homepage ${item?(CAT_META[item.category]?.label||item.category):'category'} carousel.</small>
+    <div class="form-row" style="margin-top:-4px;margin-bottom:8px">
+      <button type="button" class="secondary" id="cif-featured-next-btn" onclick="apSetNextCityItemFeaturedOrder()">Add to homepage</button>
+      <button type="button" class="ghost" onclick="apClearFeaturedOrder('cif-featured-order')">Remove from homepage</button>
+    </div>
+    <small class="form-hint" id="cif-featured-hint" style="display:block;margin:-4px 0 10px">This controls the order inside the homepage ${item?(CAT_META[item.category]?.label||item.category):'category'} carousel. Leave blank to remove it from the homepage.</small>
     <hr class="admin-divider">
     <p class="ap-section-label">🖼 Shared Square Image — 1200 × 1200 px recommended</p>
     ${apImgField('cif-img','cif-img-url','cif-img-preview','cif-img-remove','Cloudinary URL or direct image URL. Use one square image for the hero inset, tiles and carousels. Keep the subject centered.')}
@@ -6580,6 +6649,9 @@ function openCityItemForm(id){
     ()=>saveCityItemForm(id),
     id?()=>{ if(confirm('Delete this item?')){deleteCityItemById(id);closeApForm();} }:null
   );
+  const catSel=document.getElementById('cif-cat');
+  if(catSel) catSel.addEventListener('change', apUpdateCityItemFeaturedHint);
+  apUpdateCityItemFeaturedHint();
   if(item){
     apSetImg(item.image||'','cif-img','cif-img-url','cif-img-preview','cif-img-remove');
   }
@@ -6689,11 +6761,48 @@ function deleteTipById(id){
 
 // ===================== ADS =====================
 
+const AD_ZONE_LABELS = {
+  'home-tips':'Front Page Tips',
+  'home-countries-tiles':'Front Page Countries',
+  'home-featured-cities':'Homepage Featured Cities Carousel',
+  'home-featured-hotels':'Homepage Featured Hotels Carousel',
+  'home-featured-restaurants':'Homepage Featured Restaurants Carousel',
+  'home-featured-attractions':'Homepage Featured Attractions Carousel',
+  'home-featured-offers':'Homepage Featured Offers Carousel',
+  'country-cities-tiles':'Country Page City Tiles',
+  'city-category-tiles':'City Page Category Tiles',
+  'city-item-tiles':'City Item Listing Tiles',
+  'item-detail-info':'City Item Detail Info',
+  'hero-bottom':'Hero Bottom'
+};
+
+function parseLegacyAdLocation(location){
+  const loc=String(location||'').trim();
+  if(!loc) return {zone:'home-countries-tiles',slot:3};
+  if(loc==='hero-bottom') return {zone:'hero-bottom',slot:1};
+  if(loc.startsWith('tips-after-')) return {zone:'home-tips',slot:Number(loc.split('-').pop())||2};
+  if(loc.startsWith('countries-after-')) return {zone:'home-countries-tiles',slot:Number(loc.split('-').pop())||3};
+  if(loc.startsWith('cities-after-')) return {zone:'country-cities-tiles',slot:Number(loc.split('-').pop())||2};
+  const m=loc.match(/^(.*)-after-(\d+)$/);
+  if(m) return {zone:m[1],slot:Number(m[2])||1};
+  return {zone:loc,slot:1};
+}
+
 function normalizeAd(ad){
   if(!ad)return ad;
+  const legacy=parseLegacyAdLocation(ad.location||ad.zone);
+  const zone=ad.zone||legacy.zone;
+  const slot=Number.isFinite(Number(ad.slot))?Number(ad.slot):legacy.slot;
   return {
     ...ad,
+    zone,
+    slot,
+    location:`${zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`}`,
     body: ad.body||'',
+    image: ad.image||ad.backgroundImage||'',
+    backgroundImage: ad.backgroundImage||ad.image||'',
+    cta: ad.cta||'',
+    link: ad.link||'',
     order: Number.isFinite(Number(ad.order))?Number(ad.order):999,
     enabled: ad.enabled!==false
   };
@@ -6705,6 +6814,8 @@ function sortAdsForDisplay(list){
     .sort((a,b)=>{
       const ao=Number.isFinite(Number(a.order))?Number(a.order):999;
       const bo=Number.isFinite(Number(b.order))?Number(b.order):999;
+      if(a.zone!==b.zone)return String(a.zone).localeCompare(String(b.zone));
+      if(a.slot!==b.slot)return Number(a.slot)-Number(b.slot);
       if(ao!==bo)return ao-bo;
       return String(a.title||'').localeCompare(String(b.title||''));
     });
@@ -6715,20 +6826,20 @@ function renderApAds(){
   if(!grid)return;
   const loaded=sortAdsForDisplay(ads||[]);
   if(!loaded.length){grid.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">📢</span>No ads yet.</div>';return;}
-  const LOC_LABELS={'tips-after-2':'Tips (after 2nd)','tips-after-4':'Tips (after 4th)','countries-after-3':'Countries (after 3rd)','cities-after-2':'Cities (after 2nd)','hero-bottom':'Hero Bottom'};
   grid.innerHTML=loaded.map(a=>{
-    const imgStyle=a.image?`background-image:url('${a.image}')`:(`background:${a.bg||'#c9a84c'}`);
+    const img=(a.backgroundImage||a.image||'').trim();
+    const imgStyle=img?`background-image:url('${img}')`:(`background:${a.bg||'#c9a84c'}`);
     return`<div class="ap-card">
       <div class="ap-card-img" style="${imgStyle}">
         <div class="ap-card-img-overlay"></div>
       </div>
       <div class="ap-card-body">
         <div class="ap-card-title">${a.title||'Untitled'}</div>
-        <div class="ap-card-meta">📍 ${LOC_LABELS[a.location]||a.location} · Order: ${a.order??999} · ${a.enabled===false?'Disabled':'Active'} · CTA: ${a.cta||'—'}</div>
+        <div class="ap-card-meta">📍 ${AD_ZONE_LABELS[a.zone]||a.zone} · After: ${a.slot||1} · Sort: ${a.order??999} · ${a.enabled===false?'Disabled':'Active'} · CTA: ${a.cta||'—'}</div>
         ${a.body?`<div class="ap-card-sub" style="font-size:.9rem;color:#6b7280;margin-top:6px">${a.body}</div>`:''}
         <div class="ap-card-actions">
-          <button class="ap-card-edit" onclick="openAdForm('${a.id}')">Edit</button>
-          <button class="ap-card-del" onclick="deleteAdById('${a.id}')">Del</button>
+          <button type="button" class="ap-card-edit" onclick="openAdForm('${a.id}')">Edit</button>
+          <button type="button" class="ap-card-del" onclick="deleteAdById('${a.id}')">Del</button>
         </div>
       </div>
     </div>`;
@@ -6737,33 +6848,44 @@ function renderApAds(){
 
 function openAdForm(id){
   const a=normalizeAd(id?(ads||[]).find(x=>x.id===id):null);
-  const locOpts=['tips-after-2','tips-after-4','countries-after-3','cities-after-2','hero-bottom']
-    .map(v=>`<option value="${v}"${a&&a.location===v?' selected':''}>${AD_LOCATION_LABELS[v]||v}</option>`).join('');
+  const zoneOpts=Object.entries(AD_ZONE_LABELS)
+    .map(([v,label])=>`<option value="${v}"${a&&a.zone===v?' selected':''}>${label}</option>`).join('');
   const body=`
-    <div class="form-group"><label>Ad Title</label><input type="text" id="adf-title" placeholder="e.g. Hotels 30% Off" value="${a?a.title:''}"></div>
+    <div class="form-group"><label>Ad Title</label><input type="text" id="adf-title" placeholder="e.g. Hotels 30% Off" value="${a?a.title||'':''}"></div>
     <div class="form-group"><label>Ad Copy</label><textarea id="adf-body" rows="3" placeholder="Short supporting text for the ad card">${a?a.body||'':''}</textarea></div>
     <div class="form-row">
-      <div class="form-group"><label>Location</label><select id="adf-location">${locOpts}</select></div>
+      <div class="form-group"><label>Placement Area</label><select id="adf-zone">${zoneOpts}</select></div>
       <div class="form-group"><label>Background Color</label><input type="color" id="adf-bg" value="${a?a.bg||'#c9a84c':'#c9a84c'}"></div>
     </div>
     <div class="form-row">
+      <div class="form-group"><label>Position After Item/Card #</label><input type="number" id="adf-slot" min="1" step="1" placeholder="2" value="${a&&Number.isFinite(Number(a.slot))?a.slot:2}"></div>
       <div class="form-group"><label>Display Order</label><input type="number" id="adf-order" min="1" step="1" placeholder="1" value="${a&&Number.isFinite(Number(a.order))&&Number(a.order)!==999?a.order:''}"></div>
-      <div class="form-group"><label>Status</label><label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" id="adf-enabled" ${!a||a.enabled!==false?'checked':''}> Show this ad</label></div>
     </div>
-    <div class="form-group"><label>Image URL <span class="form-hint-inline">Cloudinary or direct image URL</span></label><input type="url" id="adf-img-url" placeholder="https://..." value="${a?a.image||'':''}"></div>
-    <div class="form-group"><label>Upload Image <span class="form-hint-inline">optional — square or landscape works best</span></label>
+    <div class="form-group"><label>Background Image URL <span class="form-hint-inline">Cloudinary or direct image URL</span></label><input type="url" id="adf-img-url" placeholder="https://..." value="${a?(a.backgroundImage||a.image||''):''}"></div>
+    <div class="form-group"><label>Upload Background Image <span class="form-hint-inline">optional — landscape works best</span></label>
       <input type="file" id="adf-img" accept="image/*" onchange="apPreviewImg('adf-img','adf-preview','adf-remove','adf-img-url')">
       <div id="adf-preview" class="img-preview-box" style="display:none"></div>
       <button type="button" class="ap-img-remove-btn" id="adf-remove" onclick="apRemoveImg('adf-img','adf-img-url','adf-preview','adf-remove');return false;" style="display:none">✕ Remove</button>
     </div>
-    <div class="form-group"><label>CTA Button Text</label><input type="text" id="adf-cta" placeholder="Book Now" value="${a?a.cta||'':''}"></div>
-    <div class="form-group"><label>External Link</label><input type="url" id="adf-link" placeholder="https://..." value="${a?a.link||'':''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>CTA Button Text</label><input type="text" id="adf-cta" placeholder="Book Now" value="${a?a.cta||'':''}"></div>
+      <div class="form-group"><label>CTA Button Link</label><input type="url" id="adf-link" placeholder="https://..." value="${a?a.link||'':''}"></div>
+    </div>
+    <div class="form-group"><label>Status</label><label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" id="adf-enabled" ${!a||a.enabled!==false?'checked':''}> Show this ad</label></div>
   `;
   openApForm(a?`Edit: ${a.title}`:'New Ad', body,
     ()=>saveAdForm(id),
-    id?()=>{ if(confirm('Delete?')){deleteAdById(id);closeApForm();} }:null
+    id?()=>{ if(confirm('Delete this ad?')){deleteAdById(id);closeApForm();} }:null
   );
-  if(a&&a.image)apSetImg(a.image,'adf-img','adf-img-url','adf-preview','adf-remove');
+  const existingImg=a&&(a.backgroundImage||a.image);
+  if(existingImg)apSetImg(existingImg,'adf-img','adf-img-url','adf-preview','adf-remove');
+  const zoneEl=document.getElementById('adf-zone');
+  const slotEl=document.getElementById('adf-slot');
+  const syncSlotUi=()=>{
+    const heroOnly=zoneEl&&zoneEl.value==='hero-bottom';
+    if(slotEl){slotEl.disabled=heroOnly; if(heroOnly)slotEl.value='1';}
+  };
+  if(zoneEl){zoneEl.onchange=syncSlotUi; syncSlotUi();}
 }
 
 function saveAdForm(id){
@@ -6771,23 +6893,28 @@ function saveAdForm(id){
   const body=(document.getElementById('adf-body')?.value||'').trim();
   const cta=(document.getElementById('adf-cta')?.value||'').trim();
   const link=(document.getElementById('adf-link')?.value||'').trim();
-  const location=(document.getElementById('adf-location')?.value||'').trim() || 'tips-after-2';
+  const zone=(document.getElementById('adf-zone')?.value||'').trim() || 'home-countries-tiles';
   const bg=(document.getElementById('adf-bg')?.value||'#c9a84c').trim() || '#c9a84c';
-  if(!title||!cta||!link){alert('Title, CTA and Link required');return;}
+  if(!title){alert('Ad title is required');return;}
   const fileInput=document.getElementById('adf-img');
   const file=fileInput&&fileInput.files&&fileInput.files[0];
   const imageUrl=(document.getElementById('adf-img-url')?.value||'').trim();
+  const slotRaw=(document.getElementById('adf-slot')?.value||'').trim();
+  const slotParsed=Number(slotRaw);
+  const slot=zone==='hero-bottom'?1:(slotRaw!=='' && Number.isFinite(slotParsed) && slotParsed>0 ? slotParsed : 2);
   const orderRaw=(document.getElementById('adf-order')?.value||'').trim();
   const parsedOrder=Number(orderRaw);
   const order=orderRaw!=='' && Number.isFinite(parsedOrder) ? parsedOrder : 999;
   const existing=id?(ads||[]).find(x=>x.id===id):null;
   function persist(imgData){
     if(!ads)ads=[];
+    const nextImg=typeof imgData==='string'?imgData:(existing?.backgroundImage||existing?.image||'');
     const obj=normalizeAd({
       ...(existing||{}),
       id:id||existing?.id||uid(),
-      title,body,location,bg,cta,link,
-      image:typeof imgData==='string'?imgData:(existing?.image||''),
+      title,body,zone,slot,location:zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`,bg,cta,link,
+      image:nextImg,
+      backgroundImage:nextImg,
       order,
       enabled:!!document.getElementById('adf-enabled')?.checked
     });
@@ -6813,7 +6940,7 @@ function saveAdForm(id){
     const preview=document.getElementById('adf-preview');
     if(preview&&preview._removed) persist('');
     else if(imageUrl) persist(imageUrl);
-    else persist(existing?.image||'');
+    else persist(existing?.backgroundImage||existing?.image||'');
   }
 }
 
@@ -6829,13 +6956,10 @@ function deleteAdById(id){
 
 // ===================== ADS DATA & ADMIN =====================
 const DEFAULT_ADS = [
-  {id:'ad1',title:'Hotels 30% Off',body:'Special rates for quick city breaks and weekend escapes.',location:'tips-after-2',bg:'#ff6b6b',image:'',cta:'Book Now',link:'https://booking.com',order:1,enabled:true},
-  {id:'ad2',title:'Flights from $29',body:'Compare fares and lock in limited-time flight deals.',location:'countries-after-3',bg:'#4ecdc4',image:'',cta:'Find Deals',link:'https://kayak.com',order:1,enabled:true}
+  {id:'ad1',title:'Hotels 30% Off',body:'Special rates for quick city breaks and weekend escapes.',zone:'home-tips',slot:2,bg:'#ff6b6b',backgroundImage:'',cta:'Book Now',link:'https://booking.com',order:1,enabled:true},
+  {id:'ad2',title:'Flights from $29',body:'Compare fares and lock in limited-time flight deals.',zone:'home-countries-tiles',slot:3,bg:'#4ecdc4',backgroundImage:'',cta:'Find Deals',link:'https://kayak.com',order:1,enabled:true}
 ];
-const AD_LOCATION_LABELS = {
-  'tips-after-2':'Tips (after 2nd)','tips-after-4':'Tips (after 4th)',
-  'countries-after-3':'Countries (after 3rd)','cities-after-2':'Cities (after 2nd)','hero-bottom':'Hero Bottom'
-};
+const AD_LOCATION_LABELS = AD_ZONE_LABELS;
 function loadAds(){
   ads=sortAdsForDisplay(JSON.parse(localStorage.getItem('ab_ads')||JSON.stringify(DEFAULT_ADS)));
 }
@@ -6849,17 +6973,24 @@ function isDarkColor(hex){
   const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
   return(0.299*r+0.587*g+0.114*b)<140;
 }
+function getAdsForZone(zone){
+  return sortAdsForDisplay((ads||[]).filter(a=>{
+    const ad=normalizeAd(a);
+    return ad && ad.enabled!==false && ad.zone===zone;
+  }));
+}
 function buildAdTileHTML(a){
   a=normalizeAd(a);
   const bg=a.bg||'#c9a84c';
   const dark=isDarkColor(bg);
   const tc=dark?'#fff':'#0d0d0d';
-  const imgHtml=a.image?`<div style="width:100%;height:140px;background:url('${a.image}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`:'';
+  const img=(a.backgroundImage||a.image||'').trim();
+  const imgHtml=img?`<div style="width:100%;height:140px;background:url('${img}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`:'';
   const copyHtml=a.body?`<p style="font-size:.92rem;line-height:1.5;opacity:.88;margin:0 0 14px">${a.body}</p>`:'';
   const ctaHtml=(a.cta&&a.link)?`<a href="${a.link}" target="_blank" rel="noopener" style="display:inline-block;background:${dark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'};color:${tc};padding:8px 20px;border-radius:50px;font-size:.8rem;font-weight:700;text-decoration:none">${a.cta} →</a>`:'';
-  return`<div style="background:${bg};border-radius:var(--radius);padding:${a.image?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow)">
+  return`<div class="ad-tile-wrapper" style="background:${bg};border-radius:var(--radius);padding:${img?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow)">
     ${imgHtml}
-    <div style="padding:${a.image?'18px':'0'} 24px 24px;color:${tc}">
+    <div style="padding:${img?'18px':'0'} 24px 24px;color:${tc}">
       <p style="font-size:.63rem;letter-spacing:.25em;text-transform:uppercase;opacity:.6;margin-bottom:6px;font-family:'Space Mono',monospace">Sponsored</p>
       <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:${a.body?'10px':'12px'};line-height:1.25">${a.title}</h3>
       ${copyHtml}
@@ -6867,41 +6998,51 @@ function buildAdTileHTML(a){
     </div>
   </div>`;
 }
-function injectAds(){
-  document.querySelectorAll('.ad-tile-wrapper').forEach(el=>el.remove());
-  if(!ads||!ads.length)return;
-  const byLoc={};
-  sortAdsForDisplay((ads||[]).filter(a=>normalizeAd(a).enabled!==false)).forEach(a=>{(byLoc[a.location]=byLoc[a.location]||[]).push(normalizeAd(a))});
-  ['tips-after-2','tips-after-4'].forEach(loc=>{
-    if(!byLoc[loc])return;
-    const grid=document.getElementById('tips-grid');if(!grid)return;
-    const idx=loc==='tips-after-2'?2:4;
-    const cards=[...grid.children];
-    const w=document.createElement('div');w.className='ad-tile-wrapper';
-    w.innerHTML=byLoc[loc].map(buildAdTileHTML).join('');
-    if(cards[idx])grid.insertBefore(w,cards[idx]);else grid.appendChild(w);
+function buildAdCarouselCardHTML(a){
+  a=normalizeAd(a);
+  const img=(a.backgroundImage||a.image||'').trim();
+  const bg=img?`background-image:url('${img}')`:`background:${a.bg||'#c9a84c'}`;
+  return`<div class="fc-card ad-fc-card" onclick="${a.link?`window.open('${a.link}','_blank')`:''}">
+    <div class="fc-img" style="${bg}">
+      <div class="fc-img-overlay"></div>
+      <div class="fc-badge">Sponsored</div>
+    </div>
+    <div class="fc-body">
+      <div class="fc-name">${a.title||'Featured Partner'}</div>
+      <div class="fc-meta">${a.body||'Travel offer'}</div>
+      ${a.cta&&a.link?`<div class="fc-price">🔗 ${a.cta}</div>`:''}
+    </div>
+  </div>`;
+}
+function interleaveAdsMarkup(items, zone, renderer){
+  const zoneAds=getAdsForZone(zone);
+  if(!zoneAds.length) return items;
+  const render=renderer||buildAdTileHTML;
+  const buckets={};
+  zoneAds.forEach(ad=>{
+    const slot=Number.isFinite(Number(ad.slot))?Math.max(1,Number(ad.slot)):1;
+    (buckets[slot]=buckets[slot]||[]).push(render(ad));
   });
-  if(byLoc['countries-after-3']){
-    const grid=document.getElementById('countries-grid');if(grid){
-      const cards=[...grid.children];
-      const w=document.createElement('div');w.className='ad-tile-wrapper';
-      w.innerHTML=byLoc['countries-after-3'].map(buildAdTileHTML).join('');
-      if(cards[3])grid.insertBefore(w,cards[3]);else grid.appendChild(w);
-    }
-  }
-  if(byLoc['cities-after-2']){
-    const grid=document.getElementById('cities-grid');if(grid){
-      const cards=[...grid.children];
-      const w=document.createElement('div');w.className='ad-tile-wrapper';
-      w.innerHTML=byLoc['cities-after-2'].map(buildAdTileHTML).join('');
-      if(cards[2])grid.insertBefore(w,cards[2]);else grid.appendChild(w);
-    }
-  }
-  if(byLoc['hero-bottom']){
-    const hero=document.getElementById('hero');if(hero){
-      let hw=hero.querySelector('.hero-ad-wrapper');
+  const result=[];
+  const pre=(buckets[0]||[]); if(pre.length) result.push(...pre);
+  items.forEach((item,idx)=>{
+    result.push(item);
+    const after=idx+1;
+    if(buckets[after]) result.push(...buckets[after]);
+  });
+  Object.keys(buckets).map(Number).filter(k=>k>items.length).sort((a,b)=>a-b).forEach(k=>result.push(...buckets[k]));
+  return result;
+}
+function injectAds(){
+  const heroAds=getAdsForZone('hero-bottom');
+  const hero=document.getElementById('hero');
+  if(hero){
+    let hw=hero.querySelector('.hero-ad-wrapper');
+    if(heroAds.length){
       if(!hw){hw=document.createElement('div');hw.className='hero-ad-wrapper ad-tile-wrapper';hw.style.cssText='position:absolute;bottom:80px;right:40px;width:280px;z-index:3';hero.appendChild(hw);}
-      hw.innerHTML=byLoc['hero-bottom'].map(buildAdTileHTML).join('');
+      hw.innerHTML=heroAds.map(buildAdTileHTML).join('');
+    } else if(hw){
+      hw.remove();
     }
   }
 }
