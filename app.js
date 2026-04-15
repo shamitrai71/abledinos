@@ -5626,6 +5626,106 @@ if (typeof globalThis.aiPopulateSelectors !== "function") {
 }
 var aiPopulateSelectors = globalThis.aiPopulateSelectors;
 
+const AI_PROVIDER_KEY = 'ab_ai_provider';
+const AI_KEYS_KEY = 'ab_ai_keys';
+function aiGetProviders(){
+  return {
+    claude:{label:'Claude',placeholder:'sk-ant-api03-...',help:'Anthropic / Claude API key'},
+    chatgpt:{label:'ChatGPT',placeholder:'sk-proj-... or sk-...',help:'OpenAI API key'},
+    gemini:{label:'Gemini',placeholder:'AIza... or Gemini API key',help:'Google AI Studio / Gemini API key'}
+  };
+}
+function aiGetSelectedProvider(){
+  try{return localStorage.getItem(AI_PROVIDER_KEY)||'claude';}catch(_){return 'claude';}
+}
+function aiSetSelectedProvider(v){
+  try{localStorage.setItem(AI_PROVIDER_KEY, v||'claude');}catch(_){}
+}
+function aiGetStoredKeys(){
+  try{return JSON.parse(localStorage.getItem(AI_KEYS_KEY)||'{}')||{};}catch(_){return {};}
+}
+function aiSetStoredKeys(obj){
+  try{localStorage.setItem(AI_KEYS_KEY, JSON.stringify(obj||{}));}catch(_){}
+}
+function aiUpdateKeyUI(){
+  const providers=aiGetProviders();
+  const provider=aiGetSelectedProvider();
+  const cfg=providers[provider]||providers.claude;
+  const sel=document.getElementById('ai-provider');
+  const input=document.getElementById('ai-api-key');
+  const status=document.getElementById('ai-key-status');
+  const keys=aiGetStoredKeys();
+  if(sel) sel.value=provider;
+  if(input){
+    input.placeholder=cfg.placeholder;
+    input.value=keys[provider]||'';
+  }
+  const title=document.querySelector('#ap-ai-assistant .ai-key-card h3');
+  if(title) title.textContent = cfg.label + ' API Key';
+  const desc=document.querySelector('#ap-ai-assistant .ai-key-card .ai-section-header p');
+  if(desc) desc.textContent = 'Choose your AI provider and enter its API key. This key is stored only in this browser and used only for that provider.';
+  if(status){
+    status.textContent = keys[provider] ? cfg.label + ' key saved in this browser.' : 'No ' + cfg.label + ' key saved yet.';
+  }
+}
+function aiProviderChanged(){
+  const sel=document.getElementById('ai-provider');
+  aiSetSelectedProvider(sel && sel.value ? sel.value : 'claude');
+  aiUpdateKeyUI();
+}
+function aiSaveKey(){
+  const provider=aiGetSelectedProvider();
+  const input=document.getElementById('ai-api-key');
+  const keys=aiGetStoredKeys();
+  keys[provider]=(input && input.value ? input.value.trim() : '');
+  aiSetStoredKeys(keys);
+  aiUpdateKeyUI();
+  if(typeof showToast==='function') showToast((aiGetProviders()[provider]||{}).label + ' key saved ✓');
+}
+function aiClearKey(){
+  const provider=aiGetSelectedProvider();
+  const keys=aiGetStoredKeys();
+  delete keys[provider];
+  aiSetStoredKeys(keys);
+  aiUpdateKeyUI();
+  if(typeof showToast==='function') showToast((aiGetProviders()[provider]||{}).label + ' key cleared');
+}
+function aiToggleKeyVisibility(){
+  const input=document.getElementById('ai-api-key');
+  if(input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+function aiPopulateSelectors(){
+  const countrySel=document.getElementById('aic-city-country');
+  if(countrySel){
+    countrySel.innerHTML='<option value="">— Select country —</option>'+countries.map(c=>`<option value="${c.id}">${c.flag||''} ${c.name}</option>`).join('');
+  }
+  const citySel=document.getElementById('aic-item-city');
+  if(citySel){
+    citySel.innerHTML='<option value="">— Select city —</option>'+cities.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  }
+  aiUpdateKeyUI();
+}
+globalThis.aiPopulateSelectors = aiPopulateSelectors;
+function aiEnsureKey(){
+  const provider=aiGetSelectedProvider();
+  const keys=aiGetStoredKeys();
+  if(keys[provider]) return true;
+  aiUpdateKeyUI();
+  if(typeof showToast==='function') showToast('Add your '+(aiGetProviders()[provider]||{}).label+' API key first');
+  return false;
+}
+function aiGenerate(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI generation for the selected provider is not wired in this build yet'); }
+function aiCreateCountry(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI create country is not wired in this build yet'); }
+function aiCreateCity(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI create city is not wired in this build yet'); }
+function aiCreateItem(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI create item is not wired in this build yet'); }
+function aiCreateTab(type,btn){
+  document.querySelectorAll('.ai-create-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.ai-create-pane').forEach(p=>p.classList.remove('active'));
+  const pane=document.getElementById('ai-create-'+type); if(pane) pane.classList.add('active');
+}
+function aiCreateItemCityChanged(){ return; }
+
 
 function openAdmin(){
   if(!loggedIn){openLogin();return}
