@@ -1,3 +1,18 @@
+// ===== GLOBAL SAFE INITIALIZATION =====
+globalThis.AD_ZONE_LABELS = {
+  "frontpage-countries": "Front Page Countries",
+  "featured-cities": "Featured Cities Carousel",
+  "featured-hotels": "Featured Hotels Carousel",
+  "featured-restaurants": "Featured Restaurants Carousel",
+  "featured-attractions": "Featured Attractions Carousel",
+  "featured-offers": "Featured Offers Carousel",
+  "country-city-tiles": "Country Page City Tiles",
+  "city-category-tiles": "City Page Category Tiles",
+  "city-item-tiles": "City Item Tiles",
+  "hero-bottom": "Hero Bottom"
+};
+var AD_ZONE_LABELS = globalThis.AD_ZONE_LABELS;
+
 // ===================== DEFAULT DATA =====================
 // Early palette init so startup/admin code can safely read it before later sections execute
 var DEFAULT_PALETTE = globalThis.DEFAULT_PALETTE || {ink:'#0d0d0d',cream:'#f5f0e8',gold:'#c9a84c',terra:'#c85a3c',sage:'#4a7c6a',sky:'#2d5f8a'};
