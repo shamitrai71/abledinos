@@ -35,6 +35,7 @@ abledino-project/
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_UPLOAD_PRESET` | Unsigned upload preset |
 | `FAL_API_KEY` | fal.ai API key (AI image generation) |
+| `GOOGLE_PLACES_API_KEY` | Google Places API (New) key — powers autocomplete, place details & text search |
 
 ## Phases
 

@@ -1,4 +1,6 @@
 window.ABLEDINOS_CONFIG = window.ABLEDINOS_CONFIG || {
-  // Add a referrer-restricted browser key here after enabling Places API (New)
+  // Google Places API key is now handled server-side via
+  // the GOOGLE_PLACES_API_KEY env var in Netlify.
+  // See netlify/functions/places-proxy.js
   googlePlacesApiKey: ''
 };
