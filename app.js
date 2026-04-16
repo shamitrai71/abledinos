@@ -1,18 +1,3 @@
-// ===== GLOBAL SAFE INITIALIZATION =====
-globalThis.AD_ZONE_LABELS = {
-  "frontpage-countries": "Front Page Countries",
-  "featured-cities": "Featured Cities Carousel",
-  "featured-hotels": "Featured Hotels Carousel",
-  "featured-restaurants": "Featured Restaurants Carousel",
-  "featured-attractions": "Featured Attractions Carousel",
-  "featured-offers": "Featured Offers Carousel",
-  "country-city-tiles": "Country Page City Tiles",
-  "city-category-tiles": "City Page Category Tiles",
-  "city-item-tiles": "City Item Tiles",
-  "hero-bottom": "Hero Bottom"
-};
-var AD_ZONE_LABELS = globalThis.AD_ZONE_LABELS;
-
 // ===================== DEFAULT DATA =====================
 // Early palette init so startup/admin code can safely read it before later sections execute
 var DEFAULT_PALETTE = globalThis.DEFAULT_PALETTE || {ink:'#0d0d0d',cream:'#f5f0e8',gold:'#c9a84c',terra:'#c85a3c',sage:'#4a7c6a',sky:'#2d5f8a'};
@@ -5640,6 +5625,136 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 
 // ===================== ADMIN CORE =====================
 
+if (typeof globalThis.aiPopulateSelectors !== "function") {
+  globalThis.aiPopulateSelectors = function aiPopulateSelectors(){ return; };
+}
+var aiPopulateSelectors = globalThis.aiPopulateSelectors;
+
+const AI_PROVIDER_KEY = 'ab_ai_provider';
+const AI_KEYS_KEY = 'ab_ai_keys';
+function aiGetProviders(){
+  return {
+    claude:{label:'Claude',placeholder:'sk-ant-api03-...',help:'Anthropic / Claude API key'},
+    chatgpt:{label:'ChatGPT',placeholder:'sk-proj-... or sk-...',help:'OpenAI API key'},
+    gemini:{label:'Gemini',placeholder:'AIza... or Gemini API key',help:'Google AI Studio / Gemini API key'}
+  };
+}
+function aiGetSelectedProvider(){
+  try{return localStorage.getItem(AI_PROVIDER_KEY)||'claude';}catch(_){return 'claude';}
+}
+function aiSetSelectedProvider(v){
+  try{localStorage.setItem(AI_PROVIDER_KEY, v||'claude');}catch(_){}
+}
+function aiGetStoredKeys(){
+  try{return JSON.parse(localStorage.getItem(AI_KEYS_KEY)||'{}')||{};}catch(_){return {};}
+}
+function aiSetStoredKeys(obj){
+  try{localStorage.setItem(AI_KEYS_KEY, JSON.stringify(obj||{}));}catch(_){}
+}
+function aiEnsureProviderSelect(){
+  const sel=document.getElementById('ai-provider');
+  if(!sel) return null;
+  const providers=aiGetProviders();
+  if(!sel.options || sel.options.length===0){
+    sel.innerHTML='';
+    Object.entries(providers).forEach(([value,cfg])=>{
+      const opt=document.createElement('option');
+      opt.value=value;
+      opt.textContent=cfg.label;
+      sel.appendChild(opt);
+    });
+  }
+  sel.disabled=false;
+  sel.style.pointerEvents='auto';
+  sel.style.position='relative';
+  sel.style.zIndex='10';
+  if(sel.dataset.aiBound!=='1'){
+    sel.addEventListener('change', aiProviderChanged);
+    sel.addEventListener('input', aiProviderChanged);
+    sel.dataset.aiBound='1';
+  }
+  return sel;
+}
+function aiUpdateKeyUI(){
+  const providers=aiGetProviders();
+  const provider=aiGetSelectedProvider();
+  const cfg=providers[provider]||providers.claude;
+  const sel=aiEnsureProviderSelect();
+  const input=document.getElementById('ai-api-key');
+  const status=document.getElementById('ai-key-status');
+  const keys=aiGetStoredKeys();
+  if(sel) sel.value=provider;
+  if(input){
+    input.placeholder=cfg.placeholder;
+    input.value=keys[provider]||'';
+  }
+  const title=document.querySelector('#ap-ai-assistant .ai-key-card h3');
+  if(title) title.textContent = 'AI Agent API Key';
+  const desc=document.querySelector('#ap-ai-assistant .ai-key-card .ai-section-header p');
+  if(desc) desc.textContent = 'Choose your AI agent and enter its API key. This key is stored only in this browser and used only for that provider.';
+  if(status){
+    status.textContent = keys[provider] ? cfg.label + ' key saved in this browser.' : 'No ' + cfg.label + ' key saved yet.';
+  }
+}
+function aiProviderChanged(){
+  const sel=document.getElementById('ai-provider');
+  aiSetSelectedProvider(sel && sel.value ? sel.value : 'claude');
+  aiUpdateKeyUI();
+}
+function aiSaveKey(){
+  const provider=aiGetSelectedProvider();
+  const input=document.getElementById('ai-api-key');
+  const keys=aiGetStoredKeys();
+  keys[provider]=(input && input.value ? input.value.trim() : '');
+  aiSetStoredKeys(keys);
+  aiUpdateKeyUI();
+  if(typeof showToast==='function') showToast((aiGetProviders()[provider]||{}).label + ' key saved ✓');
+}
+function aiClearKey(){
+  const provider=aiGetSelectedProvider();
+  const keys=aiGetStoredKeys();
+  delete keys[provider];
+  aiSetStoredKeys(keys);
+  aiUpdateKeyUI();
+  if(typeof showToast==='function') showToast((aiGetProviders()[provider]||{}).label + ' key cleared');
+}
+function aiToggleKeyVisibility(){
+  const input=document.getElementById('ai-api-key');
+  if(input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+function aiPopulateSelectors(){
+  const countrySel=document.getElementById('aic-city-country');
+  if(countrySel){
+    countrySel.innerHTML='<option value="">— Select country —</option>'+countries.map(c=>`<option value="${c.id}">${c.flag||''} ${c.name}</option>`).join('');
+  }
+  const citySel=document.getElementById('aic-item-city');
+  if(citySel){
+    citySel.innerHTML='<option value="">— Select city —</option>'+cities.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  }
+  aiUpdateKeyUI();
+}
+globalThis.aiPopulateSelectors = aiPopulateSelectors;
+function aiEnsureKey(){
+  const provider=aiGetSelectedProvider();
+  const keys=aiGetStoredKeys();
+  if(keys[provider]) return true;
+  aiUpdateKeyUI();
+  if(typeof showToast==='function') showToast('Add your '+(aiGetProviders()[provider]||{}).label+' API key first');
+  return false;
+}
+function aiGenerate(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI generation for the selected provider is not wired in this build yet'); }
+function aiCreateCountry(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI create country is not wired in this build yet'); }
+function aiCreateCity(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI create city is not wired in this build yet'); }
+function aiCreateItem(){ if(!aiEnsureKey()) return; if(typeof showToast==='function') showToast('AI create item is not wired in this build yet'); }
+function aiCreateTab(type,btn){
+  document.querySelectorAll('.ai-create-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.ai-create-pane').forEach(p=>p.classList.remove('active'));
+  const pane=document.getElementById('ai-create-'+type); if(pane) pane.classList.add('active');
+}
+function aiCreateItemCityChanged(){ return; }
+
+
 function openAdmin(){
   if(!loggedIn){openLogin();return}
   _homeSectionIds().concat(['country-page','city-cats','cat-listing','item-detail']).forEach(id=>{
@@ -5674,11 +5789,13 @@ function apInitAll(){
   renderApCountryPages();
   renderApCityPages();
   renderApCityItems();
+  renderApFeatured();
   renderApReviews();
   renderApTips();
   renderApAds();
   loadSettingsForm();
   loadPaletteForm();
+  aiPopulateSelectors();
   if(typeof renderAnalytics==='function') renderAnalytics();
   if(typeof renderExportStats==='function') renderExportStats();
 }
@@ -5793,6 +5910,7 @@ function featuredAdd(key){
   const ids=getFeaturedPinnedIds(def);
   if(!ids.includes(sel.value)) ids.push(sel.value);
   reindexFeaturedOrders(def, ids);
+  renderApFeatured();
   renderFeaturedCarousels();
   if(def.type==='city') renderApCities(); else renderApCityItems();
   showToast('Added to homepage ✓');
@@ -5801,6 +5919,7 @@ function featuredRemove(key,id){
   const def=FEATURED_CAROUSEL_DEFS.find(x=>x.key===key);
   if(!def)return;
   reindexFeaturedOrders(def, getFeaturedPinnedIds(def).filter(x=>x!==id));
+  renderApFeatured();
   renderFeaturedCarousels();
   if(def.type==='city') renderApCities(); else renderApCityItems();
   showToast('Removed from homepage');
@@ -5812,6 +5931,7 @@ function featuredMoveUp(key,id){
   const i=arr.indexOf(id);
   if(i>0){arr.splice(i,1);arr.splice(i-1,0,id);}
   reindexFeaturedOrders(def, arr);
+  renderApFeatured();
   renderFeaturedCarousels();
   if(def.type==='city') renderApCities(); else renderApCityItems();
 }
@@ -5822,6 +5942,7 @@ function featuredMoveDown(key,id){
   const i=arr.indexOf(id);
   if(i>=0&&i<arr.length-1){arr.splice(i,1);arr.splice(i+1,0,id);}
   reindexFeaturedOrders(def, arr);
+  renderApFeatured();
   renderFeaturedCarousels();
   if(def.type==='city') renderApCities(); else renderApCityItems();
 }
@@ -5830,6 +5951,7 @@ function featuredClear(key){
   if(!def)return;
   if(!confirm('Remove every item from this homepage carousel?'))return;
   reindexFeaturedOrders(def, []);
+  renderApFeatured();
   renderFeaturedCarousels();
   if(def.type==='city') renderApCities(); else renderApCityItems();
   showToast('Carousel cleared');
@@ -6686,7 +6808,7 @@ function deleteTipById(id){
 
 // ===================== ADS =====================
 
-const AD_ZONE_LABELS = globalThis.AD_ZONE_LABELS || {
+const AD_ZONE_LABELS = {
   'home-tips':'Front Page Tips',
   'home-countries-tiles':'Front Page Countries',
   'home-featured-cities':'Homepage Featured Cities Carousel',
@@ -6700,15 +6822,6 @@ const AD_ZONE_LABELS = globalThis.AD_ZONE_LABELS || {
   'item-detail-info':'City Item Detail Info',
   'hero-bottom':'Hero Bottom'
 };
-globalThis.AD_ZONE_LABELS = AD_ZONE_LABELS;
-
-const AD_CTA_STYLE_LABELS = globalThis.AD_CTA_STYLE_LABELS || {
-  solid:'Solid Button',
-  outline:'Outline Button',
-  ghost:'Ghost Button',
-  pill:'Pill Button'
-};
-globalThis.AD_CTA_STYLE_LABELS = AD_CTA_STYLE_LABELS;
 
 function parseLegacyAdLocation(location){
   const loc=String(location||'').trim();
@@ -6723,31 +6836,21 @@ function parseLegacyAdLocation(location){
 }
 
 function normalizeAd(ad){
-  if(!ad)return null;
+  if(!ad)return ad;
   const legacy=parseLegacyAdLocation(ad.location||ad.zone);
-  const zone=String(ad.zone||legacy.zone||'home-countries-tiles').trim();
-  const slot=zone==='hero-bottom' ? 1 : (Number.isFinite(Number(ad.slot)) && Number(ad.slot)>0 ? Number(ad.slot) : legacy.slot || 1);
-  const bg=(ad.bg||ad.backgroundColor||'#c9a84c').trim ? (ad.bg||ad.backgroundColor||'#c9a84c').trim() : '#c9a84c';
-  const img=(ad.backgroundImage||ad.image||'').trim ? (ad.backgroundImage||ad.image||'').trim() : '';
+  const zone=ad.zone||legacy.zone;
+  const slot=Number.isFinite(Number(ad.slot))?Number(ad.slot):legacy.slot;
   return {
     ...ad,
-    id: ad.id||uid(),
-    title: String(ad.title||'').trim(),
-    body: String(ad.body||ad.text||ad.description||'').trim(),
     zone,
     slot,
-    location: zone==='hero-bottom' ? 'hero-bottom' : `${zone}-after-${slot}`,
-    bg,
-    backgroundColor:bg,
-    image:img,
-    backgroundImage:img,
-    cta: String(ad.cta||ad.ctaText||'').trim(),
-    link: String(ad.link||ad.ctaLink||'').trim(),
-    ctaStyle: String(ad.ctaStyle||'solid').trim() || 'solid',
-    ctaBg: String(ad.ctaBg||ad.ctaBackgroundColor||'').trim(),
-    ctaColor: String(ad.ctaColor||ad.ctaTextColor||'').trim(),
-    ctaOutline: String(ad.ctaOutline||ad.ctaOutlineColor||'').trim(),
-    order: Number.isFinite(Number(ad.order)) ? Number(ad.order) : 999,
+    location:`${zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`}`,
+    body: ad.body||'',
+    image: ad.image||ad.backgroundImage||'',
+    backgroundImage: ad.backgroundImage||ad.image||'',
+    cta: ad.cta||'',
+    link: ad.link||'',
+    order: Number.isFinite(Number(ad.order))?Number(ad.order):999,
     enabled: ad.enabled!==false
   };
 }
@@ -6755,7 +6858,6 @@ function normalizeAd(ad){
 function sortAdsForDisplay(list){
   return (list||[])
     .map(normalizeAd)
-    .filter(Boolean)
     .sort((a,b)=>{
       const ao=Number.isFinite(Number(a.order))?Number(a.order):999;
       const bo=Number.isFinite(Number(b.order))?Number(b.order):999;
@@ -6766,45 +6868,25 @@ function sortAdsForDisplay(list){
     });
 }
 
-function adButtonPreviewStyle(ad){
-  const a=normalizeAd(ad)||{};
-  const bg=a.ctaBg || (a.ctaStyle==='outline' || a.ctaStyle==='ghost' ? 'transparent' : '#0d0d0d');
-  const color=a.ctaColor || (a.ctaStyle==='solid' || a.ctaStyle==='pill' ? '#ffffff' : '#0d0d0d');
-  const border=a.ctaStyle==='ghost' ? '1px dashed rgba(13,13,13,.24)' : `1px solid ${a.ctaOutline||color}`;
-  const radius=a.ctaStyle==='pill' ? '999px' : (a.ctaStyle==='ghost' ? '12px' : '10px');
-  return `display:inline-flex;align-items:center;justify-content:center;gap:8px;background:${bg};color:${color};border:${border};border-radius:${radius};padding:9px 16px;font-size:.76rem;font-weight:700;text-decoration:none;min-width:0;`;
-}
-
 function renderApAds(){
   const grid=document.getElementById('ap-ads-grid');
   if(!grid)return;
   const loaded=sortAdsForDisplay(ads||[]);
-  if(!loaded.length){
-    grid.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">📢</span>No ads yet.</div>';
-    return;
-  }
+  if(!loaded.length){grid.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">📢</span>No ads yet.</div>';return;}
   grid.innerHTML=loaded.map(a=>{
     const img=(a.backgroundImage||a.image||'').trim();
-    const heroStyle=img
-      ? `background-image:linear-gradient(180deg,rgba(13,13,13,.02),rgba(13,13,13,.45)),url('${img}')`
-      : `background:${a.bg||'#c9a84c'}`;
+    const imgStyle=img?`background-image:url('${img}')`:(`background:${a.bg||'#c9a84c'}`);
     return`<div class="ap-card">
-      <div class="ap-card-img" style="${heroStyle}">
+      <div class="ap-card-img" style="${imgStyle}">
         <div class="ap-card-img-overlay"></div>
       </div>
       <div class="ap-card-body">
         <div class="ap-card-title">${a.title||'Untitled'}</div>
-        <div class="ap-card-meta">📍 ${AD_ZONE_LABELS[a.zone]||a.zone} · After: ${a.slot||1} · Sort: ${a.order??999} · ${a.enabled===false?'Disabled':'Active'}</div>
+        <div class="ap-card-meta">📍 ${AD_ZONE_LABELS[a.zone]||a.zone} · After: ${a.slot||1} · Sort: ${a.order??999} · ${a.enabled===false?'Disabled':'Active'} · CTA: ${a.cta||'—'}</div>
         ${a.body?`<div class="ap-card-sub" style="font-size:.9rem;color:#6b7280;margin-top:6px">${a.body}</div>`:''}
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px">
-          <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
-            <div style="font-size:.68rem;color:#8a8f98;text-transform:uppercase;letter-spacing:.16em">CTA Preview</div>
-            <span style="${adButtonPreviewStyle(a)}">${a.cta||'No CTA'}</span>
-          </div>
-          <div class="ap-card-actions">
-            <button type="button" class="ap-card-edit" onclick="openAdForm('${a.id}')">Edit</button>
-            <button type="button" class="ap-card-del" onclick="deleteAdById('${a.id}')">Delete</button>
-          </div>
+        <div class="ap-card-actions">
+          <button type="button" class="ap-card-edit" onclick="openAdForm('${a.id}')">Edit</button>
+          <button type="button" class="ap-card-del" onclick="deleteAdById('${a.id}')">Del</button>
         </div>
       </div>
     </div>`;
@@ -6812,133 +6894,90 @@ function renderApAds(){
 }
 
 function openAdForm(id){
-  const a=normalizeAd(id?(ads||[]).find(x=>x.id===id):null) || normalizeAd({
-    bg:'#c9a84c',
-    zone:'home-countries-tiles',
-    slot:2,
-    order:'',
-    enabled:true,
-    ctaStyle:'solid',
-    ctaBg:'#0d0d0d',
-    ctaColor:'#ffffff',
-    ctaOutline:'#0d0d0d'
-  });
+  const a=normalizeAd(id?(ads||[]).find(x=>x.id===id):null);
   const zoneOpts=Object.entries(AD_ZONE_LABELS)
-    .map(([v,label])=>`<option value="${v}"${a.zone===v?' selected':''}>${label}</option>`).join('');
-  const ctaStyleOpts=Object.entries(AD_CTA_STYLE_LABELS)
-    .map(([v,label])=>`<option value="${v}"${a.ctaStyle===v?' selected':''}>${label}</option>`).join('');
+    .map(([v,label])=>`<option value="${v}"${a&&a.zone===v?' selected':''}>${label}</option>`).join('');
   const body=`
-    <div class="form-group"><label>Ad Title</label><input type="text" id="adf-title" placeholder="e.g. Boutique Hotels 30% Off" value="${a.title||''}"></div>
-    <div class="form-group"><label>Ad Copy</label><textarea id="adf-body" rows="3" placeholder="Short supporting text for the ad card">${a.body||''}</textarea></div>
+    <div class="form-group"><label>Ad Title</label><input type="text" id="adf-title" placeholder="e.g. Hotels 30% Off" value="${a?a.title||'':''}"></div>
+    <div class="form-group"><label>Ad Copy</label><textarea id="adf-body" rows="3" placeholder="Short supporting text for the ad card">${a?a.body||'':''}</textarea></div>
     <div class="form-row">
       <div class="form-group"><label>Placement Area</label><select id="adf-zone">${zoneOpts}</select></div>
-      <div class="form-group"><label>Display Order</label><input type="number" id="adf-order" min="1" step="1" placeholder="1" value="${Number.isFinite(Number(a.order))&&Number(a.order)!==999?a.order:''}"></div>
+      <div class="form-group"><label>Background Color</label><input type="color" id="adf-bg" value="${a?a.bg||'#c9a84c':'#c9a84c'}"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Position After Item/Card #</label><input type="number" id="adf-slot" min="1" step="1" placeholder="2" value="${a.slot||2}"></div>
-      <div class="form-group"><label>Background Color</label><input type="color" id="adf-bg" value="${a.bg||'#c9a84c'}"></div>
+      <div class="form-group"><label>Position After Item/Card #</label><input type="number" id="adf-slot" min="1" step="1" placeholder="2" value="${a&&Number.isFinite(Number(a.slot))?a.slot:2}"></div>
+      <div class="form-group"><label>Display Order</label><input type="number" id="adf-order" min="1" step="1" placeholder="1" value="${a&&Number.isFinite(Number(a.order))&&Number(a.order)!==999?a.order:''}"></div>
     </div>
-    <div class="form-group"><label>Background Image URL <span class="form-hint-inline">Cloudinary or direct image URL</span></label><input type="url" id="adf-img-url" placeholder="https://..." value="${a.backgroundImage||a.image||''}"></div>
+    <div class="form-group"><label>Background Image URL <span class="form-hint-inline">Cloudinary or direct image URL</span></label><input type="url" id="adf-img-url" placeholder="https://..." value="${a?(a.backgroundImage||a.image||''):''}"></div>
     <div class="form-group"><label>Upload Background Image <span class="form-hint-inline">optional — landscape works best</span></label>
       <input type="file" id="adf-img" accept="image/*" onchange="apPreviewImg('adf-img','adf-preview','adf-remove','adf-img-url')">
       <div id="adf-preview" class="img-preview-box" style="display:none"></div>
       <button type="button" class="ap-img-remove-btn" id="adf-remove" onclick="apRemoveImg('adf-img','adf-img-url','adf-preview','adf-remove');return false;" style="display:none">✕ Remove</button>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>CTA Button Text</label><input type="text" id="adf-cta" placeholder="Book Now" value="${a.cta||''}"></div>
-      <div class="form-group"><label>CTA Button Link</label><input type="url" id="adf-link" placeholder="https://..." value="${a.link||''}"></div>
+      <div class="form-group"><label>CTA Button Text</label><input type="text" id="adf-cta" placeholder="Book Now" value="${a?a.cta||'':''}"></div>
+      <div class="form-group"><label>CTA Button Link</label><input type="url" id="adf-link" placeholder="https://..." value="${a?a.link||'':''}"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>CTA Button Style</label><select id="adf-cta-style">${ctaStyleOpts}</select></div>
-      <div class="form-group"><label>CTA Fill Color</label><input type="color" id="adf-cta-bg" value="${a.ctaBg||'#0d0d0d'}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>CTA Text Color</label><input type="color" id="adf-cta-color" value="${a.ctaColor||'#ffffff'}"></div>
-      <div class="form-group"><label>CTA Border Color</label><input type="color" id="adf-cta-outline" value="${a.ctaOutline||'#0d0d0d'}"></div>
-    </div>
-    <div class="form-group">
-      <label>CTA Preview</label>
-      <div style="padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--cream)">
-        <span id="adf-cta-preview" style="${adButtonPreviewStyle(a)}">${a.cta||'Preview Button'}</span>
-      </div>
-    </div>
-    <div class="form-group"><label>Status</label><label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" id="adf-enabled" ${a.enabled!==false?'checked':''}> Show this ad</label></div>
+    <div class="form-group"><label>Status</label><label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" id="adf-enabled" ${!a||a.enabled!==false?'checked':''}> Show this ad</label></div>
   `;
-  openApForm(a&&a.id?`Edit Ad: ${a.title||'Untitled'}`:'Create Ad', body,
+  openApForm(a?`Edit: ${a.title}`:'New Ad', body,
     ()=>saveAdForm(id),
     id?()=>{ if(confirm('Delete this ad?')){deleteAdById(id);closeApForm();} }:null
   );
-  const existingImg=a.backgroundImage||a.image;
-  if(existingImg) apSetImg(existingImg,'adf-img','adf-img-url','adf-preview','adf-remove');
+  const existingImg=a&&(a.backgroundImage||a.image);
+  if(existingImg)apSetImg(existingImg,'adf-img','adf-img-url','adf-preview','adf-remove');
   const zoneEl=document.getElementById('adf-zone');
   const slotEl=document.getElementById('adf-slot');
-  const ctaEls=['adf-cta','adf-cta-style','adf-cta-bg','adf-cta-color','adf-cta-outline'].map(id=>document.getElementById(id)).filter(Boolean);
   const syncSlotUi=()=>{
     const heroOnly=zoneEl&&zoneEl.value==='hero-bottom';
     if(slotEl){slotEl.disabled=heroOnly; if(heroOnly)slotEl.value='1';}
   };
-  const syncCtaPreview=()=>{
-    const ad=normalizeAd({
-      cta:document.getElementById('adf-cta')?.value||'Preview Button',
-      ctaStyle:document.getElementById('adf-cta-style')?.value||'solid',
-      ctaBg:document.getElementById('adf-cta-bg')?.value||'#0d0d0d',
-      ctaColor:document.getElementById('adf-cta-color')?.value||'#ffffff',
-      ctaOutline:document.getElementById('adf-cta-outline')?.value||'#0d0d0d'
-    });
-    const el=document.getElementById('adf-cta-preview');
-    if(el){el.style.cssText=adButtonPreviewStyle(ad); el.textContent=ad.cta||'Preview Button';}
-  };
   if(zoneEl){zoneEl.onchange=syncSlotUi; syncSlotUi();}
-  ctaEls.forEach(el=>{
-    el.oninput=syncCtaPreview;
-    el.onchange=syncCtaPreview;
-  });
-  syncCtaPreview();
 }
 
 function saveAdForm(id){
   const title=(document.getElementById('adf-title')?.value||'').trim();
-  if(!title){alert('Ad title is required');return;}
-  const zone=(document.getElementById('adf-zone')?.value||'').trim() || 'home-countries-tiles';
   const body=(document.getElementById('adf-body')?.value||'').trim();
   const cta=(document.getElementById('adf-cta')?.value||'').trim();
   const link=(document.getElementById('adf-link')?.value||'').trim();
+  const zone=(document.getElementById('adf-zone')?.value||'').trim() || 'home-countries-tiles';
   const bg=(document.getElementById('adf-bg')?.value||'#c9a84c').trim() || '#c9a84c';
-  const ctaStyle=(document.getElementById('adf-cta-style')?.value||'solid').trim() || 'solid';
-  const ctaBg=(document.getElementById('adf-cta-bg')?.value||'#0d0d0d').trim() || '#0d0d0d';
-  const ctaColor=(document.getElementById('adf-cta-color')?.value||'#ffffff').trim() || '#ffffff';
-  const ctaOutline=(document.getElementById('adf-cta-outline')?.value||'#0d0d0d').trim() || '#0d0d0d';
+  if(!title){alert('Ad title is required');return;}
+  const fileInput=document.getElementById('adf-img');
+  const file=fileInput&&fileInput.files&&fileInput.files[0];
   const imageUrl=(document.getElementById('adf-img-url')?.value||'').trim();
   const slotRaw=(document.getElementById('adf-slot')?.value||'').trim();
   const slotParsed=Number(slotRaw);
-  const slot=zone==='hero-bottom' ? 1 : (slotRaw!=='' && Number.isFinite(slotParsed) && slotParsed>0 ? slotParsed : 2);
+  const slot=zone==='hero-bottom'?1:(slotRaw!=='' && Number.isFinite(slotParsed) && slotParsed>0 ? slotParsed : 2);
   const orderRaw=(document.getElementById('adf-order')?.value||'').trim();
-  const orderParsed=Number(orderRaw);
-  const order=orderRaw!=='' && Number.isFinite(orderParsed) ? orderParsed : 999;
-  const enabled=!!document.getElementById('adf-enabled')?.checked;
-  const fileInput=document.getElementById('adf-img');
-  const file=fileInput&&fileInput.files&&fileInput.files[0];
+  const parsedOrder=Number(orderRaw);
+  const order=orderRaw!=='' && Number.isFinite(parsedOrder) ? parsedOrder : 999;
   const existing=id?(ads||[]).find(x=>x.id===id):null;
   function persist(imgData){
-    const nextImg=typeof imgData==='string' ? imgData : (existing?.backgroundImage||existing?.image||'');
+    if(!ads)ads=[];
+    const nextImg=typeof imgData==='string'?imgData:(existing?.backgroundImage||existing?.image||'');
     const obj=normalizeAd({
       ...(existing||{}),
       id:id||existing?.id||uid(),
-      title, body, zone, slot, location:zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`,
-      bg, backgroundColor:bg, image:nextImg, backgroundImage:nextImg,
-      cta, link, ctaStyle, ctaBg, ctaColor, ctaOutline,
-      order, enabled
+      title,body,zone,slot,location:zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`,bg,cta,link,
+      image:nextImg,
+      backgroundImage:nextImg,
+      order,
+      enabled:!!document.getElementById('adf-enabled')?.checked
     });
-    if(!Array.isArray(ads)) ads=[];
-    const idx=id ? ads.findIndex(x=>x.id===id) : -1;
-    if(idx>=0) ads[idx]=obj;
-    else ads.push(obj);
-    ads=sortAdsForDisplay(ads);
+    if(id){
+      const i=ads.findIndex(x=>x.id===id);
+      if(i>=0) ads[i]=obj;
+      else ads.push(obj);
+    }else{
+      ads.push(obj);
+    }
+    ads=sortAdsForDisplay(ads||[]);
     saveAll();
     renderApAds();
     renderHome();
     closeApForm();
-    showToast(id?'Ad updated ✓':'Ad created ✓');
+    showToast('Ad saved ✓');
   }
   if(file){
     const r=new FileReader();
@@ -6953,7 +6992,6 @@ function saveAdForm(id){
 }
 
 function deleteAdById(id){
-  if(!id)return;
   if(!confirm('Delete this ad?'))return;
   ads=(ads||[]).filter(x=>x.id!==id);
   ads=sortAdsForDisplay(ads||[]);
@@ -6963,15 +7001,10 @@ function deleteAdById(id){
   showToast('Ad deleted');
 }
 
-globalThis.openAdForm = openAdForm;
-globalThis.saveAdForm = saveAdForm;
-globalThis.deleteAdById = deleteAdById;
-globalThis.renderApAds = renderApAds;
-
 // ===================== ADS DATA & ADMIN =====================
 const DEFAULT_ADS = [
-  {id:'ad1',title:'Hotels 30% Off',body:'Special rates for quick city breaks and weekend escapes.',zone:'home-tips',slot:2,bg:'#ff6b6b',backgroundImage:'',cta:'Book Now',link:'https://booking.com',order:1,enabled:true,ctaStyle:'solid',ctaBg:'#0d0d0d',ctaColor:'#ffffff',ctaOutline:'#0d0d0d'},
-  {id:'ad2',title:'Flights from $29',body:'Compare fares and lock in limited-time flight deals.',zone:'home-countries-tiles',slot:3,bg:'#4ecdc4',backgroundImage:'',cta:'Find Deals',link:'https://kayak.com',order:1,enabled:true,ctaStyle:'pill',ctaBg:'#0d0d0d',ctaColor:'#ffffff',ctaOutline:'#0d0d0d'}
+  {id:'ad1',title:'Hotels 30% Off',body:'Special rates for quick city breaks and weekend escapes.',zone:'home-tips',slot:2,bg:'#ff6b6b',backgroundImage:'',cta:'Book Now',link:'https://booking.com',order:1,enabled:true},
+  {id:'ad2',title:'Flights from $29',body:'Compare fares and lock in limited-time flight deals.',zone:'home-countries-tiles',slot:3,bg:'#4ecdc4',backgroundImage:'',cta:'Find Deals',link:'https://kayak.com',order:1,enabled:true}
 ];
 const AD_LOCATION_LABELS = AD_ZONE_LABELS;
 function loadAds(){
@@ -7001,14 +7034,7 @@ function buildAdTileHTML(a){
   const img=(a.backgroundImage||a.image||'').trim();
   const imgHtml=img?`<div style="width:100%;height:140px;background:url('${img}') center/cover no-repeat;border-radius:10px 10px 0 0"></div>`:'';
   const copyHtml=a.body?`<p style="font-size:.92rem;line-height:1.5;opacity:.88;margin:0 0 14px">${a.body}</p>`:'';
-  const previewAd=normalizeAd({
-    cta:a.cta,
-    ctaStyle:a.ctaStyle,
-    ctaBg:a.ctaBg || (a.ctaStyle==='outline'||a.ctaStyle==='ghost' ? 'transparent' : (dark?'rgba(255,255,255,.18)':'#0d0d0d')),
-    ctaColor:a.ctaColor || (a.ctaStyle==='solid'||a.ctaStyle==='pill' ? '#ffffff' : tc),
-    ctaOutline:a.ctaOutline || tc
-  });
-  const ctaHtml=(a.cta&&a.link)?`<a href="${a.link}" target="_blank" rel="noopener" style="${adButtonPreviewStyle(previewAd)}">${a.cta} →</a>`:'';
+  const ctaHtml=(a.cta&&a.link)?`<a href="${a.link}" target="_blank" rel="noopener" style="display:inline-block;background:${dark?'rgba(255,255,255,.18)':'rgba(0,0,0,.12)'};color:${tc};padding:8px 20px;border-radius:50px;font-size:.8rem;font-weight:700;text-decoration:none">${a.cta} →</a>`:'';
   return`<div class="ad-tile-wrapper" style="background:${bg};border-radius:var(--radius);padding:${img?'0':'28px'} 0 0;overflow:hidden;box-shadow:var(--shadow)">
     ${imgHtml}
     <div style="padding:${img?'18px':'0'} 24px 24px;color:${tc}">
@@ -7023,13 +7049,6 @@ function buildAdCarouselCardHTML(a){
   a=normalizeAd(a);
   const img=(a.backgroundImage||a.image||'').trim();
   const bg=img?`background-image:url('${img}')`:`background:${a.bg||'#c9a84c'}`;
-  const previewAd=normalizeAd({
-    cta:a.cta,
-    ctaStyle:a.ctaStyle,
-    ctaBg:a.ctaBg || '#0d0d0d',
-    ctaColor:a.ctaColor || '#ffffff',
-    ctaOutline:a.ctaOutline || '#0d0d0d'
-  });
   return`<div class="fc-card ad-fc-card" onclick="${a.link?`window.open('${a.link}','_blank')`:''}">
     <div class="fc-img" style="${bg}">
       <div class="fc-img-overlay"></div>
@@ -7038,10 +7057,43 @@ function buildAdCarouselCardHTML(a){
     <div class="fc-body">
       <div class="fc-name">${a.title||'Featured Partner'}</div>
       <div class="fc-meta">${a.body||'Travel offer'}</div>
-      ${a.cta&&a.link?`<div style="margin-top:10px"><span style="${adButtonPreviewStyle(previewAd)}">${a.cta}</span></div>`:''}
+      ${a.cta&&a.link?`<div class="fc-price">🔗 ${a.cta}</div>`:''}
     </div>
   </div>`;
 }
+function interleaveAdsMarkup(items, zone, renderer){
+  const zoneAds=getAdsForZone(zone);
+  if(!zoneAds.length) return items;
+  const render=renderer||buildAdTileHTML;
+  const buckets={};
+  zoneAds.forEach(ad=>{
+    const slot=Number.isFinite(Number(ad.slot))?Math.max(1,Number(ad.slot)):1;
+    (buckets[slot]=buckets[slot]||[]).push(render(ad));
+  });
+  const result=[];
+  const pre=(buckets[0]||[]); if(pre.length) result.push(...pre);
+  items.forEach((item,idx)=>{
+    result.push(item);
+    const after=idx+1;
+    if(buckets[after]) result.push(...buckets[after]);
+  });
+  Object.keys(buckets).map(Number).filter(k=>k>items.length).sort((a,b)=>a-b).forEach(k=>result.push(...buckets[k]));
+  return result;
+}
+function injectAds(){
+  const heroAds=getAdsForZone('hero-bottom');
+  const hero=document.getElementById('hero');
+  if(hero){
+    let hw=hero.querySelector('.hero-ad-wrapper');
+    if(heroAds.length){
+      if(!hw){hw=document.createElement('div');hw.className='hero-ad-wrapper ad-tile-wrapper';hw.style.cssText='position:absolute;bottom:80px;right:40px;width:280px;z-index:3';hero.appendChild(hw);}
+      hw.innerHTML=heroAds.map(buildAdTileHTML).join('');
+    } else if(hw){
+      hw.remove();
+    }
+  }
+}
+
 // ===================== SETTINGS =====================
 function loadSettingsForm(){
   ['s-hero1','s-hero2','s-herosub','s-stat1n','s-stat1l','s-stat2n','s-stat2l','s-stat3n','s-stat3l'].forEach(id=>{
