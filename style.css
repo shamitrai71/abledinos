@@ -1633,3 +1633,30 @@ footer span{font-size:.8rem}
 
 #ai-provider{appearance:auto;-webkit-appearance:menulist;pointer-events:auto !important;position:relative;z-index:10;background:var(--card-bg);}
 .ai-key-card,.ai-key-banner{overflow:visible;}
+
+
+.city-discover-section{max-width:1180px;margin:0 auto 72px;padding:0 24px}
+.city-discover-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.city-discover-label{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(13,13,13,.42);margin-bottom:8px}
+.city-discover-title{margin:0;font-size:clamp(1.55rem,3.6vw,2.15rem);line-height:1.08;color:var(--ink)}
+.city-discover-sub{margin:8px 0 0;color:rgba(13,13,13,.62);max-width:720px;line-height:1.7}
+.city-discover-map-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--ink);text-decoration:none;font-weight:700;white-space:nowrap}
+.city-discover-tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.city-discover-tab{border:1px solid var(--border);background:#fff;color:var(--ink);border-radius:999px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;transition:.18s ease}
+.city-discover-tab:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(13,13,13,.06)}
+.city-discover-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.city-discover-status{margin-bottom:16px;color:rgba(13,13,13,.56);font-size:.95rem}
+.city-discover-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.city-discover-card{background:#fff;border:1px solid var(--border);border-radius:24px;overflow:hidden;box-shadow:0 12px 34px rgba(13,13,13,.06);display:flex;flex-direction:column;min-width:0}
+.city-discover-card-image{height:184px;background:linear-gradient(135deg,#e8f1fd,#fdf4e5);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.city-discover-card-image span{font-size:3rem;line-height:1;opacity:.9}
+.city-discover-card-body{padding:18px;display:flex;flex-direction:column;gap:12px}
+.city-discover-card-name{font-size:1.02rem;font-weight:800;line-height:1.35;color:var(--ink)}
+.city-discover-card-meta{display:flex;flex-wrap:wrap;gap:10px;color:rgba(13,13,13,.7);font-size:.88rem;font-weight:700}
+.city-discover-card-meta small{font-size:.78rem;color:rgba(13,13,13,.48)}
+.city-discover-card-address{font-size:.9rem;line-height:1.6;color:rgba(13,13,13,.58);min-height:2.8em}
+.city-discover-card-actions{margin-top:auto;display:flex;gap:10px}
+.city-discover-card-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:999px;text-decoration:none;font-weight:700;border:1px solid var(--border)}
+.city-discover-card-btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+@media(max-width:980px){.city-discover-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.city-discover-section{padding:0 16px;margin-bottom:48px}.city-discover-head{flex-direction:column}.city-discover-map-link{width:100%}.city-discover-grid{grid-template-columns:1fr}.city-discover-card-image{height:170px}}

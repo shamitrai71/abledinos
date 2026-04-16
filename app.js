@@ -5221,6 +5221,7 @@ function openCity(cityId){
   document.getElementById('cat-listing').style.display='none';
   const tipsEl=document.getElementById('tips');if(tipsEl)tipsEl.style.display='none';
   document.getElementById('city-cats').style.display='block';
+  loadCityDiscoverMore(CITY_DISCOVER_STATE.activeCategory||'restaurants');
   safeScrollTop();
 }
 
@@ -5336,6 +5337,127 @@ function showCityCats(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+
+
+const CITY_DISCOVER_STATE={cache:{},activeCategory:'restaurants'};
+
+function normalizePlaceText(str){
+  return String(str||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim();
+}
+
+function getCityDiscoverConfig(category, city){
+  const cityName=city&&city.name?city.name:'';
+  const configs={
+    restaurants:{label:'Restaurants',emoji:'🍽️',query:`best restaurants in ${cityName}`},
+    hotels:{label:'Hotels',emoji:'🏨',query:`best hotels in ${cityName}`},
+    attractions:{label:'Attractions',emoji:'🏛️',query:`top tourist attractions in ${cityName}`}
+  };
+  return configs[category]||configs.restaurants;
+}
+
+function getCuratedPlaceDedupes(cityId, category){
+  const items=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===category);
+  const placeIds=new Set();
+  const names=new Set();
+  const addresses=new Set();
+  items.forEach(item=>{
+    if(item.placeId)placeIds.add(String(item.placeId).trim());
+    if(item.name)names.add(normalizePlaceText(item.name));
+    if(item.address)addresses.add(normalizePlaceText(item.address));
+  });
+  return {placeIds,names,addresses};
+}
+
+function filterDiscoverPlaces(cityId, category, places){
+  const dedupe=getCuratedPlaceDedupes(cityId, category);
+  return (places||[]).filter(place=>{
+    const id=String(place.id||'').trim();
+    const name=normalizePlaceText(place.displayName&&place.displayName.text||place.displayName||'');
+    const address=normalizePlaceText(place.formattedAddress||'');
+    if(id && dedupe.placeIds.has(id)) return false;
+    if(name && dedupe.names.has(name)) return false;
+    if(address && dedupe.addresses.has(address) && name && dedupe.names.has(name)) return false;
+    return true;
+  });
+}
+
+function renderCityDiscoverCards(city, category, places){
+  const grid=document.getElementById('city-discover-grid');
+  const status=document.getElementById('city-discover-status');
+  const mapLink=document.getElementById('city-discover-map-link');
+  if(!grid||!status||!city)return;
+  const cfg=getCityDiscoverConfig(category, city);
+  if(mapLink){
+    mapLink.href=getGoogleMapsSearchUrl(`${cfg.label} in ${city.name}`);
+  }
+  if(!places||!places.length){
+    status.textContent=`No additional ${cfg.label.toLowerCase()} found right now.`;
+    grid.innerHTML='';
+    return;
+  }
+  status.textContent=`Showing live Google Places suggestions not already in your curated ${cfg.label.toLowerCase()}.`;
+  grid.innerHTML=places.map(place=>{
+    const name=escapeHtml(place.displayName&&place.displayName.text||place.displayName||'Untitled place');
+    const address=escapeHtml(place.formattedAddress||'');
+    const rating=place.rating?`<span>⭐ ${place.rating}${place.userRatingCount?` <small>(${Number(place.userRatingCount).toLocaleString()})</small>`:''}</span>`:'';
+    const price=place.priceLevel?`<span>${({'PRICE_LEVEL_FREE':'Free','PRICE_LEVEL_INEXPENSIVE':'$','PRICE_LEVEL_MODERATE':'$$','PRICE_LEVEL_EXPENSIVE':'$$$','PRICE_LEVEL_VERY_EXPENSIVE':'$$$$'})[place.priceLevel]||escapeHtml(place.priceLevel)}</span>`:'';
+    const photoName=place.photos&&place.photos[0]&&place.photos[0].name?place.photos[0].name:'';
+    const imageStyle=photoName
+      ? `background-image:url('/.netlify/functions/places-photo?ref=${encodeURIComponent(photoName)}&maxW=700');background-size:cover;background-position:center;`
+      : '';
+    const mapsUrl=place.googleMapsUri||getGoogleMapsSearchUrl(`${place.displayName&&place.displayName.text||place.displayName||''} ${city.name}`);
+    return `<article class="city-discover-card">
+      <div class="city-discover-card-image${photoName?' has-image':''}" style="${imageStyle}">${photoName?'':`<span>${cfg.emoji}</span>`}</div>
+      <div class="city-discover-card-body">
+        <div class="city-discover-card-name">${name}</div>
+        <div class="city-discover-card-meta">${[rating,price].filter(Boolean).join('')}</div>
+        <div class="city-discover-card-address">${address||'Address not available'}</div>
+        <div class="city-discover-card-actions">
+          <a class="city-discover-card-btn primary" href="${mapsUrl}" target="_blank" rel="noopener">View in Maps</a>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function loadCityDiscoverMore(category='restaurants'){
+  const cityId=currentCityId;
+  const city=(cities||[]).find(x=>x.id===cityId);
+  const status=document.getElementById('city-discover-status');
+  const grid=document.getElementById('city-discover-grid');
+  if(!city||!status||!grid)return;
+  CITY_DISCOVER_STATE.activeCategory=category;
+  document.querySelectorAll('.city-discover-tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.category===category));
+  const cacheKey=`${cityId}::${category}`;
+  if(CITY_DISCOVER_STATE.cache[cacheKey]){
+    renderCityDiscoverCards(city, category, CITY_DISCOVER_STATE.cache[cacheKey]);
+    return;
+  }
+  status.textContent='Loading live places…';
+  grid.innerHTML='';
+  try{
+    const country=(countries||[]).find(x=>x.id===city.countryId);
+    const cfg=getCityDiscoverConfig(category, city);
+    const reqBody={action:'searchText',textQuery:cfg.query,maxResults:8};
+    if(country&&country.id)reqBody.regionCode=String(country.id).toUpperCase();
+    const res=await fetch('/.netlify/functions/places-proxy',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(reqBody)
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||data.error){
+      throw new Error(data&&data.error||`Places request failed (${res.status})`);
+    }
+    const filtered=filterDiscoverPlaces(cityId, category, data.places||[]).slice(0,6);
+    CITY_DISCOVER_STATE.cache[cacheKey]=filtered;
+    renderCityDiscoverCards(city, category, filtered);
+  }catch(err){
+    console.warn('City discover more failed', err);
+    status.textContent='Live Google Places results are unavailable right now.';
+    grid.innerHTML='';
+  }
+}
 
 function hideHomeSections(){
   ['hero','countries','main-footer','tips','featured-cities-section','featured-hotels-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'].forEach(id=>{
