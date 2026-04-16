@@ -111,8 +111,9 @@ exports.handler = async (event) => {
 
     const fieldMask = body.fieldMask || [
       'displayName', 'rating', 'userRatingCount',
-      'formattedAddress', 'currentOpeningHours',
-      'websiteUri', 'nationalPhoneNumber',
+      'formattedAddress', 'currentOpeningHours', 'regularOpeningHours',
+      'websiteUri', 'nationalPhoneNumber', 'internationalPhoneNumber',
+      'location',
       'googleMapsUri', 'photos', 'priceLevel', 'reviews'
     ].join(',');
 

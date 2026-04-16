@@ -5221,7 +5221,6 @@ function openCity(cityId){
   document.getElementById('cat-listing').style.display='none';
   const tipsEl=document.getElementById('tips');if(tipsEl)tipsEl.style.display='none';
   document.getElementById('city-cats').style.display='block';
-  loadCityDiscoverMore(CITY_DISCOVER_STATE.activeCategory||'restaurants');
   safeScrollTop();
 }
 
@@ -5337,127 +5336,6 @@ function showCityCats(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-
-
-const CITY_DISCOVER_STATE={cache:{},activeCategory:'restaurants'};
-
-function normalizePlaceText(str){
-  return String(str||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim();
-}
-
-function getCityDiscoverConfig(category, city){
-  const cityName=city&&city.name?city.name:'';
-  const configs={
-    restaurants:{label:'Restaurants',emoji:'🍽️',query:`best restaurants in ${cityName}`},
-    hotels:{label:'Hotels',emoji:'🏨',query:`best hotels in ${cityName}`},
-    attractions:{label:'Attractions',emoji:'🏛️',query:`top tourist attractions in ${cityName}`}
-  };
-  return configs[category]||configs.restaurants;
-}
-
-function getCuratedPlaceDedupes(cityId, category){
-  const items=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===category);
-  const placeIds=new Set();
-  const names=new Set();
-  const addresses=new Set();
-  items.forEach(item=>{
-    if(item.placeId)placeIds.add(String(item.placeId).trim());
-    if(item.name)names.add(normalizePlaceText(item.name));
-    if(item.address)addresses.add(normalizePlaceText(item.address));
-  });
-  return {placeIds,names,addresses};
-}
-
-function filterDiscoverPlaces(cityId, category, places){
-  const dedupe=getCuratedPlaceDedupes(cityId, category);
-  return (places||[]).filter(place=>{
-    const id=String(place.id||'').trim();
-    const name=normalizePlaceText(place.displayName&&place.displayName.text||place.displayName||'');
-    const address=normalizePlaceText(place.formattedAddress||'');
-    if(id && dedupe.placeIds.has(id)) return false;
-    if(name && dedupe.names.has(name)) return false;
-    if(address && dedupe.addresses.has(address) && name && dedupe.names.has(name)) return false;
-    return true;
-  });
-}
-
-function renderCityDiscoverCards(city, category, places){
-  const grid=document.getElementById('city-discover-grid');
-  const status=document.getElementById('city-discover-status');
-  const mapLink=document.getElementById('city-discover-map-link');
-  if(!grid||!status||!city)return;
-  const cfg=getCityDiscoverConfig(category, city);
-  if(mapLink){
-    mapLink.href=getGoogleMapsSearchUrl(`${cfg.label} in ${city.name}`);
-  }
-  if(!places||!places.length){
-    status.textContent=`No additional ${cfg.label.toLowerCase()} found right now.`;
-    grid.innerHTML='';
-    return;
-  }
-  status.textContent=`Showing live Google Places suggestions not already in your curated ${cfg.label.toLowerCase()}.`;
-  grid.innerHTML=places.map(place=>{
-    const name=escapeHtml(place.displayName&&place.displayName.text||place.displayName||'Untitled place');
-    const address=escapeHtml(place.formattedAddress||'');
-    const rating=place.rating?`<span>⭐ ${place.rating}${place.userRatingCount?` <small>(${Number(place.userRatingCount).toLocaleString()})</small>`:''}</span>`:'';
-    const price=place.priceLevel?`<span>${({'PRICE_LEVEL_FREE':'Free','PRICE_LEVEL_INEXPENSIVE':'$','PRICE_LEVEL_MODERATE':'$$','PRICE_LEVEL_EXPENSIVE':'$$$','PRICE_LEVEL_VERY_EXPENSIVE':'$$$$'})[place.priceLevel]||escapeHtml(place.priceLevel)}</span>`:'';
-    const photoName=place.photos&&place.photos[0]&&place.photos[0].name?place.photos[0].name:'';
-    const imageStyle=photoName
-      ? `background-image:url('/.netlify/functions/places-photo?ref=${encodeURIComponent(photoName)}&maxW=700');background-size:cover;background-position:center;`
-      : '';
-    const mapsUrl=place.googleMapsUri||getGoogleMapsSearchUrl(`${place.displayName&&place.displayName.text||place.displayName||''} ${city.name}`);
-    return `<article class="city-discover-card">
-      <div class="city-discover-card-image${photoName?' has-image':''}" style="${imageStyle}">${photoName?'':`<span>${cfg.emoji}</span>`}</div>
-      <div class="city-discover-card-body">
-        <div class="city-discover-card-name">${name}</div>
-        <div class="city-discover-card-meta">${[rating,price].filter(Boolean).join('')}</div>
-        <div class="city-discover-card-address">${address||'Address not available'}</div>
-        <div class="city-discover-card-actions">
-          <a class="city-discover-card-btn primary" href="${mapsUrl}" target="_blank" rel="noopener">View in Maps</a>
-        </div>
-      </div>
-    </article>`;
-  }).join('');
-}
-
-async function loadCityDiscoverMore(category='restaurants'){
-  const cityId=currentCityId;
-  const city=(cities||[]).find(x=>x.id===cityId);
-  const status=document.getElementById('city-discover-status');
-  const grid=document.getElementById('city-discover-grid');
-  if(!city||!status||!grid)return;
-  CITY_DISCOVER_STATE.activeCategory=category;
-  document.querySelectorAll('.city-discover-tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.category===category));
-  const cacheKey=`${cityId}::${category}`;
-  if(CITY_DISCOVER_STATE.cache[cacheKey]){
-    renderCityDiscoverCards(city, category, CITY_DISCOVER_STATE.cache[cacheKey]);
-    return;
-  }
-  status.textContent='Loading live places…';
-  grid.innerHTML='';
-  try{
-    const country=(countries||[]).find(x=>x.id===city.countryId);
-    const cfg=getCityDiscoverConfig(category, city);
-    const reqBody={action:'searchText',textQuery:cfg.query,maxResults:8};
-    if(country&&country.id)reqBody.regionCode=String(country.id).toUpperCase();
-    const res=await fetch('/.netlify/functions/places-proxy',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(reqBody)
-    });
-    const data=await res.json().catch(()=>({}));
-    if(!res.ok||data.error){
-      throw new Error(data&&data.error||`Places request failed (${res.status})`);
-    }
-    const filtered=filterDiscoverPlaces(cityId, category, data.places||[]).slice(0,6);
-    CITY_DISCOVER_STATE.cache[cacheKey]=filtered;
-    renderCityDiscoverCards(city, category, filtered);
-  }catch(err){
-    console.warn('City discover more failed', err);
-    status.textContent='Live Google Places results are unavailable right now.';
-    grid.innerHTML='';
-  }
-}
 
 function hideHomeSections(){
   ['hero','countries','main-footer','tips','featured-cities-section','featured-hotels-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'].forEach(id=>{
@@ -6835,6 +6713,19 @@ function openCityItemForm(id){
   }).join('');
   const catOpts=Object.entries(CAT_META).map(([k,v])=>`<option value="${k}"${item&&item.category===k?' selected':''}>${v.icon} ${v.label}</option>`).join('');
   const body=`
+    <div class="cif-autofill-wrap" id="cif-autofill-wrap">
+      <p class="ap-section-label" style="margin-bottom:6px">✨ Autofill from Google Places</p>
+      <div class="cif-autofill-search-row">
+        <div class="cif-autofill-input-wrap">
+          <span class="cif-autofill-icon">🔍</span>
+          <input type="text" id="cif-autofill-input" class="cif-autofill-input" placeholder="Search a venue to auto-populate fields below…" autocomplete="off" oninput="apAdminPlacesSearchDebounce(this.value)" onkeydown="apAdminPlacesInputKeydown(event)">
+          <span class="cif-autofill-spinner" id="cif-autofill-spinner" style="display:none">⏳</span>
+        </div>
+        <div class="cif-autofill-dropdown" id="cif-autofill-dropdown" style="display:none"></div>
+      </div>
+      <p class="cif-autofill-hint" id="cif-autofill-status">Type a venue name — name, address, phone, hours, website and Place ID will be filled in automatically.</p>
+    </div>
+    <hr class="admin-divider" style="margin-top:4px">
     <p class="ap-section-label" style="margin-bottom:8px">📋 Basic Info</p>
     <div class="form-row">
       <div class="form-group"><label>City</label><select id="cif-city">${cityOpts}</select></div>
@@ -7633,6 +7524,16 @@ async function fetchPlaceDetailsViaProxy(placeId){
   }catch(e){console.warn('Places detail fetch failed',e);return null;}
 }
 
+function gpToggleReview(idx,fullHtml,shortHtml){
+  const txtEl=document.getElementById("gp-review-txt-"+idx);
+  const btnEl=document.getElementById("gp-review-btn-"+idx);
+  if(!txtEl||!btnEl)return;
+  const expanded=btnEl.dataset.expanded==="1";
+  txtEl.innerHTML=expanded?shortHtml:fullHtml;
+  btnEl.textContent=expanded?"Read more ↓":"Show less ↑";
+  btnEl.dataset.expanded=expanded?"":"1";
+}
+
 function renderPlacesEnrichment(place){
   const block=document.getElementById('id-google-places-block');
   if(!block)return;
@@ -7688,18 +7589,33 @@ function renderPlacesEnrichment(place){
   const reviewsBlock=document.getElementById('gp-reviews-block');
   if(place.reviews&&place.reviews.length){
     reviewsBlock.style.display='block';
-    reviewsEl.innerHTML=place.reviews.slice(0,3).map(r=>{
+    reviewsEl.innerHTML=place.reviews.slice(0,3).map((r,idx)=>{
       const stars='★'.repeat(r.rating||0)+'☆'.repeat(5-(r.rating||0));
       const author=(r.authorAttribution&&r.authorAttribution.displayName)||'Google User';
+      const photoUri=(r.authorAttribution&&r.authorAttribution.photoUri)||'';
       const relTime=r.relativePublishTimeDescription||'';
-      const txt=(r.text&&r.text.text)||'';
+      const rawTxt=(r.text&&r.text.text)||'';
+      const LIMIT=220;
+      const isLong=rawTxt.length>LIMIT;
+      const shortTxt=isLong?rawTxt.slice(0,LIMIT).replace(/\s+\S*$/,'…'):rawTxt;
+      const avatarHtml=photoUri
+        ?`<img src="${escapeHtml(photoUri)}" class="gp-review-avatar" alt="${escapeHtml(author)}" loading="lazy" onerror="this.style.display='none'">`
+        :`<span class="gp-review-avatar-fallback">${escapeHtml((author||'G').charAt(0).toUpperCase())}</span>`;
+      const fullHtml=escapeHtml(rawTxt).replace(/\n/g,'<br>');
+      const shortHtml=escapeHtml(shortTxt);
       return `<div class="gp-review">
         <div class="gp-review-head">
-          <span class="gp-review-author">${escapeHtml(author)}</span>
-          <span class="gp-review-time">${escapeHtml(relTime)}</span>
+          <div class="gp-review-author-row">
+            ${avatarHtml}
+            <div>
+              <span class="gp-review-author">${escapeHtml(author)}</span>
+              <span class="gp-review-time">${escapeHtml(relTime)}</span>
+            </div>
+          </div>
+          <div class="gp-review-stars">${stars}</div>
         </div>
-        <div class="gp-review-stars">${stars}</div>
-        <p class="gp-review-text">${escapeHtml(txt)}</p>
+        <p class="gp-review-text" id="gp-review-txt-${idx}">${isLong?shortHtml:fullHtml}</p>
+        ${isLong?`<button type="button" class="gp-review-expand" id="gp-review-btn-${idx}" onclick="gpToggleReview(${idx},${JSON.stringify(fullHtml)},${JSON.stringify(shortHtml)})">Read more ↓</button>`:''}
       </div>`;
     }).join('');
   }else{reviewsBlock.style.display='none';reviewsEl.innerHTML='';}
@@ -7767,6 +7683,7 @@ async function fetchGooglePlacesSuggestions(mode,query){
         renderGooglePlacesSuggestionsBox(mode,query,[],true);
         return;
       }
+      console.warn('Places proxy error response:', res.status, errData);
       throw new Error(`Places proxy request failed: ${res.status}`);
     }
     const data=await res.json();
@@ -7780,7 +7697,7 @@ async function fetchGooglePlacesSuggestions(mode,query){
     renderGooglePlacesSuggestionsBox(mode,query,items,false);
   }catch(err){
     console.warn('Google Places suggestions unavailable',err);
-    renderGooglePlacesSuggestionsBox(mode,query,[],true);
+    renderGooglePlacesSuggestionsBox(mode,query,[],false);
   }
 }
 
@@ -8155,3 +8072,118 @@ function handleProfileAvatarUpload(input){
   updateFloatingAccountButton();
   abSyncUsersFromServer();
 })();
+
+// ===================== ADMIN PLACES AUTOFILL =====================
+var _apAdminPlacesTimer=null;
+function apAdminPlacesSearchDebounce(val){
+  clearTimeout(_apAdminPlacesTimer);
+  const q=(val||'').trim();
+  const dropdown=document.getElementById('cif-autofill-dropdown');
+  if(q.length<2){if(dropdown)dropdown.style.display='none';return;}
+  _apAdminPlacesTimer=setTimeout(()=>apAdminPlacesSearch(q),240);
+}
+
+async function apAdminPlacesSearch(query){
+  const dropdown=document.getElementById('cif-autofill-dropdown');
+  const spinner=document.getElementById('cif-autofill-spinner');
+  const status=document.getElementById('cif-autofill-status');
+  if(!dropdown)return;
+  if(spinner)spinner.style.display='inline';
+  try{
+    const res=await fetch('/.netlify/functions/places-proxy',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'autocomplete',input:query})
+    });
+    if(spinner)spinner.style.display='none';
+    if(!res.ok){
+      if(status)status.textContent='⚠ Places API unavailable — fill fields manually.';
+      dropdown.style.display='none';
+      return;
+    }
+    const data=await res.json();
+    const items=(data.suggestions||[]).map(s=>s.placePrediction).filter(Boolean).slice(0,6);
+    if(!items.length){
+      dropdown.innerHTML='<div class="cif-autofill-empty">No results found</div>';
+      dropdown.style.display='block';
+      return;
+    }
+    dropdown.innerHTML=items.map((pred,i)=>{
+      const main=(pred.structuredFormat&&pred.structuredFormat.mainText&&pred.structuredFormat.mainText.text)||(pred.text&&pred.text.text)||'';
+      const secondary=(pred.structuredFormat&&pred.structuredFormat.secondaryText&&pred.structuredFormat.secondaryText.text)||'';
+      const placeId=pred.placeId||'';
+      return`<button type="button" class="cif-autofill-item" data-idx="${i}" onclick="apPlacesAutofill(${JSON.stringify(placeId)},${JSON.stringify(main)})">
+        <span class="cif-autofill-item-icon">📍</span>
+        <span class="cif-autofill-item-body">
+          <span class="cif-autofill-item-name">${escapeHtml(main)}</span>
+          <span class="cif-autofill-item-meta">${escapeHtml(secondary)}</span>
+        </span>
+      </button>`;
+    }).join('');
+    dropdown.style.display='block';
+  }catch(err){
+    if(spinner)spinner.style.display='none';
+    if(status)status.textContent='⚠ Could not reach Places API — fill fields manually.';
+    dropdown.style.display='none';
+  }
+}
+
+async function apPlacesAutofill(placeId,displayName){
+  if(!placeId)return;
+  const spinner=document.getElementById('cif-autofill-spinner');
+  const status=document.getElementById('cif-autofill-status');
+  const dropdown=document.getElementById('cif-autofill-dropdown');
+  if(dropdown)dropdown.style.display='none';
+  if(spinner)spinner.style.display='inline';
+  if(status)status.textContent='Fetching details…';
+
+  const place=await fetchPlaceDetailsViaProxy(placeId);
+  if(spinner)spinner.style.display='none';
+
+  if(!place){
+    if(status)status.textContent='⚠ Could not fetch place details. Place ID has been filled — try saving manually.';
+    const nameEl=document.getElementById('cif-name');
+    const pidEl=document.getElementById('cif-placeId');
+    if(nameEl&&!nameEl.value&&displayName)nameEl.value=displayName;
+    if(pidEl)pidEl.value=placeId;
+    return;
+  }
+
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&val)el.value=val;};
+
+  const name=(place.displayName&&place.displayName.text)||displayName||'';
+  set('cif-name',name);
+  set('cif-address',place.formattedAddress||'');
+  set('cif-phone',place.nationalPhoneNumber||place.internationalPhoneNumber||'');
+  set('cif-website',place.websiteUri||'');
+  if(place.rating) set('cif-rating',place.rating+' \u2605');
+  if(place.currentOpeningHours&&place.currentOpeningHours.weekdayDescriptions){
+    set('cif-hours',place.currentOpeningHours.weekdayDescriptions.join(' | '));
+  } else if(place.regularOpeningHours&&place.regularOpeningHours.weekdayDescriptions){
+    set('cif-hours',place.regularOpeningHours.weekdayDescriptions.join(' | '));
+  }
+  set('cif-placeId',placeId);
+  if(place.location&&place.location.latitude&&place.location.longitude){
+    set('cif-coords',place.location.latitude+','+place.location.longitude);
+  }
+
+  const input=document.getElementById('cif-autofill-input');
+  if(input)input.value=name;
+
+  const filled=[name,place.formattedAddress,place.nationalPhoneNumber,place.websiteUri,place.rating,placeId].filter(Boolean).length;
+  if(status)status.innerHTML='\u2705 Autofilled '+filled+' fields from Google Places. Review and adjust before saving.';
+}
+
+function apAdminPlacesInputKeydown(e){
+  if(e.key==='Escape'){
+    const d=document.getElementById('cif-autofill-dropdown');
+    if(d)d.style.display='none';
+  }
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#cif-autofill-wrap')){
+    const d=document.getElementById('cif-autofill-dropdown');
+    if(d)d.style.display='none';
+  }
+});
