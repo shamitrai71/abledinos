@@ -4656,6 +4656,7 @@ async function abSyncStateFromServer(){
     const data=await abBackendRequest('getState',{});
     if(data && data.state){
       abApplyStateSnapshot(data.state,true);
+      sanitizeAllImagePlaceholders();
       migrateFeaturedPinsToEntityOrder();
       renderHome();
       if(typeof apInitAll==='function' && document.getElementById('admin-page')) apInitAll();
@@ -4722,6 +4723,39 @@ function abQueueRemoteUsersSave(users){
 // ===================== STATE =====================
 let countries,cities,tips,settings,countryPages,cityPages,ads,cityItems,currentCountryId=null,currentCityId=null,currentCatKey=null,loggedIn=false;
 
+
+function isPlaceholderImageUrl(url){
+  const value=String(url||'').trim();
+  if(!value) return false;
+  return /picsum\.photos|source\.unsplash\.com|images\.unsplash\.com\/random|placehold\.co|via\.placeholder\.com|dummyimage\.com/i.test(value);
+}
+function sanitizeImageUrl(url){
+  const value=String(url||'').trim();
+  return isPlaceholderImageUrl(value)?'':value;
+}
+function sanitizeAllImagePlaceholders(){
+  (countries||[]).forEach(c=>{
+    c.heroImage=sanitizeImageUrl(c.heroImage);
+    c.pageHeroImage=sanitizeImageUrl(c.pageHeroImage);
+  });
+  (cities||[]).forEach(c=>{
+    c.heroImage=sanitizeImageUrl(c.heroImage);
+    c.pageHeroImage=sanitizeImageUrl(c.pageHeroImage);
+  });
+  (cityItems||[]).forEach(item=>{
+    item.image=sanitizeImageUrl(item.image);
+    item.pageHeroImage=sanitizeImageUrl(item.pageHeroImage);
+    if(typeof item.gallery==='string'){
+      item.gallery=item.gallery.split(',').map(v=>sanitizeImageUrl(v)).filter(Boolean).join(',');
+    }
+  });
+  (ads||[]).forEach(ad=>{
+    ad.image=sanitizeImageUrl(ad.image);
+    ad.backgroundImage=sanitizeImageUrl(ad.backgroundImage);
+  });
+}
+
+
 function loadData(){
   countries=JSON.parse(localStorage.getItem('ab_countries')||'null')||JSON.parse(JSON.stringify(DEFAULT_COUNTRIES));
   cities=JSON.parse(localStorage.getItem('ab_cities')||'null')||JSON.parse(JSON.stringify(DEFAULT_CITIES));
@@ -4732,6 +4766,7 @@ function loadData(){
   const storedItems=JSON.parse(localStorage.getItem('ab_cityItems')||localStorage.getItem('ab_cityitems')||'null');
   cityItems=storedItems&&storedItems.length>0?storedItems:JSON.parse(JSON.stringify(DEFAULT_CITY_ITEMS));
   loadAds();
+  sanitizeAllImagePlaceholders();
 }
 function saveAll(){
   try{
@@ -4905,7 +4940,7 @@ function renderFeaturedCities(){
   }
   let cards=featuredCities.map(city=>{
     const country=countries.find(c=>c.id===city.countryId);
-    const img=city.heroImage||'';
+    const img=sanitizeImageUrl(city.heroImage)||'';
     const bg=img?`background-image:url('${img}')`:`background:linear-gradient(135deg,${city.gradient||'#c85a3c,#c9a84c'})`;
     return`<div class="fc-card" onclick="openCity('${city.id}')">
       <div class="fc-img" style="${bg}">
@@ -4920,6 +4955,14 @@ function renderFeaturedCities(){
     </div>`;
   });
   track.innerHTML=interleaveAdsMarkup(cards, 'home-featured-cities', buildAdCarouselCardHTML).join('');
+}
+
+function openFeaturedCarouselItem(itemId){
+  const item=(cityItems||[]).find(x=>x.id===itemId);
+  if(!item)return;
+  currentCityId=item.cityId;
+  currentCatKey=item.category;
+  openItemDetail(itemId);
 }
 
 function renderFeaturedCategory(category, trackId){
@@ -4938,10 +4981,10 @@ function renderFeaturedCategory(category, trackId){
   let cards=items.map(item=>{
     const city=cities.find(c=>c.id===item.cityId);
     const country=city?countries.find(c=>c.id===city.countryId):null;
-    const img=item.image||'';
+    const img=sanitizeImageUrl(item.image)||'';
     const bg=img?`background-image:url('${img}')`:CAT.bg;
     const isOffer=category==='offers';
-    return`<div class="fc-card${category==='restaurants'?' restaurant':''}" onclick="openCity('${item.cityId}');setTimeout(()=>{openCatListing('${item.cityId}','${category}');setTimeout(()=>openItemDetail('${item.id}'),300)},300)">
+    return`<div class="fc-card${category==='restaurants'?' restaurant':''}" onclick="openFeaturedCarouselItem('${item.id}')">
       <div class="fc-img" style="${bg}">
         ${!img?`<span style="position:relative;z-index:2;font-size:2.8rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))">${item.icon||CAT.icon}</span>`:''}
         <div class="fc-img-overlay"></div>
@@ -4996,7 +5039,7 @@ function openCountry(id){
   const paletteIndex=Math.abs(Array.from(id).reduce((acc,char)=>acc+char.charCodeAt(0),0))%pastelPalette.length;
   const pastel=pastelPalette[paletteIndex];
   if(ch) ch.style.setProperty('--country-hero-pastel',pastel);
-  const cpImg=c.heroImage||c.pageHeroImage||'';
+  const cpImg=sanitizeImageUrl(c.heroImage)||sanitizeImageUrl(c.pageHeroImage)||'';
   if(chBg){
     chBg.classList.remove('country-hero-fallback','has-image');
     if(cpImg){
@@ -5046,7 +5089,7 @@ function openCountry(id){
   if(citiesForCountry.length){
     let cityItems=citiesForCountry.map(city=>{
       const highlights=(city.highlights||'').split(',').filter(Boolean).map(h=>`<span class="highlight-tag">${h.trim()}</span>`).join('');
-      const heroImgHtml=city.heroImage
+      const heroImgHtml=(sanitizeImageUrl(city.heroImage))
         ?`<div style="width:100%;height:190px;background:url('${city.heroImage}') center/cover no-repeat;position:relative">
              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.35),transparent)"></div>
            </div>`
@@ -5114,7 +5157,7 @@ function openCity(cityId){
   if(heroEl) heroEl.style.background=pastel;
 
   // City image = tile image = carousel image (heroImage)
-  const img=city.heroImage||'';
+  const img=sanitizeImageUrl(city.heroImage)||'';
   if(imgEl){
     if(img){
       imgEl.innerHTML='';
@@ -5194,8 +5237,8 @@ function openCatListing(cityId, catKey){
   if(hero) hero.style.setProperty('--cat-hero-pastel',cat.bg||'#FDE8E8');
   if(heroBg){
     heroBg.classList.remove('cat-listing-fallback','has-image');
-    const featuredItem=items.find(i=>i.image);
-    const heroImg=city.heroImage||city.pageHeroImage||(featuredItem&&featuredItem.image)||'';
+    const featuredItem=items.find(i=>sanitizeImageUrl(i.image));
+    const heroImg=sanitizeImageUrl(city.heroImage)||sanitizeImageUrl(city.pageHeroImage)||sanitizeImageUrl(featuredItem&&featuredItem.image)||'';
     if(heroImg){
       heroBg.innerHTML='';
       heroBg.style.backgroundImage=`url('${heroImg}')`;
@@ -5229,7 +5272,8 @@ function openCatListing(cityId, catKey){
   if(items.length){
     let listingCards=items.map(item=>{
       const tags=(item.tags||'').split(',').filter(Boolean).map(t=>`<span class="cat-tile-tag">${t.trim()}</span>`).join('');
-      const imgStyle=item.image?`background-image:url('${item.image}');background-color:#eee`:`background:${cat.bg}`;
+      const itemImg=sanitizeImageUrl(item.image);
+      const imgStyle=itemImg?`background-image:url('${itemImg}');background-color:#eee`:`background:${cat.bg}`;
       // Special badges for events, offers, important-links
       const eventBadge=item.category==='events'&&item.openingHours?`<div class="cat-tile-event-date">📅 ${item.openingHours}</div>`:'';
       const offerBadge=item.category==='offers'&&item.price?`<div class="cat-tile-offer-badge">🏷️ ${item.price}</div>`:'';
@@ -5242,7 +5286,7 @@ function openCatListing(cityId, catKey){
           </button>`;
       return`<div class="cat-tile">
         <div class="cat-tile-img" style="${imgStyle}">
-          ${!item.image?`<span style="position:relative;z-index:2;font-size:5rem;line-height:1;filter:drop-shadow(0 4px 12px rgba(13,13,13,.4))">${item.icon||cat.icon}</span>`:''}
+          ${!itemImg?`<span style="position:relative;z-index:2;font-size:5rem;line-height:1;filter:drop-shadow(0 4px 12px rgba(13,13,13,.4))">${item.icon||cat.icon}</span>`:''}
           <div class="cat-tile-img-overlay"></div>
         </div>
         <div class="cat-tile-body">
@@ -5294,7 +5338,7 @@ function showCityCats(){
 
 
 function hideHomeSections(){
-  ['hero','countries','main-footer','tips','featured-cities-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'].forEach(id=>{
+  ['hero','countries','main-footer','tips','featured-cities-section','featured-hotels-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display='none';
   });
@@ -5339,7 +5383,7 @@ function openItemDetail(itemId){
   // Right-side inset image: prefer item image, else fallback emoji
   heroBg.classList.remove('has-image','id-hero-fallback');
   heroBg.innerHTML='';
-  const heroImg=item.image||item.pageHeroImage||'';
+  const heroImg=sanitizeImageUrl(item.image)||sanitizeImageUrl(item.pageHeroImage)||'';
   if(heroImg){
     heroBg.style.backgroundImage=`url('${heroImg}')`;
     heroBg.style.background=`url('${heroImg}') center/cover no-repeat`;
@@ -6635,7 +6679,7 @@ function renderApCityItems(){
   grid.innerHTML=list.map(item=>{
     const cat=CAT_META[item.category]||{icon:'📌',label:item.category,bg:'linear-gradient(135deg,#888,#aaa)'};
     const city=cities.find(c=>c.id===item.cityId);
-    const img=item.image||'';
+    const img=sanitizeImageUrl(item.image)||'';
     const imgStyle=img?`background-image:url('${img}')`:cat.bg;
     const hasDots=[item.pageHeroImage,item.longDesc,item.openingHours,item.website,item.phone,item.mapCoords,item.gallery,item.placeId];
     const dotLabels=['📷 Hero','📄 About','🕐 Hours','🌐 Site','📞 Phone','📍 Map','🖼 Gallery','🔗 Places'];
@@ -7416,7 +7460,7 @@ function runSearch(){
         const cat=CAT_META[item.category]||{icon:'📌',label:item.category,bg:'#888'};
         const city=cities.find(c=>c.id===item.cityId);
         const country=city?countries.find(c=>c.id===city.countryId):null;
-        const img=item.image||'';
+        const img=sanitizeImageUrl(item.image)||'';
         const thumbStyle=img?`background-image:url('${img}')`:cat.bg;
         return`<div class="search-result-card" onclick="closeSearch();openCity('${item.cityId}');setTimeout(()=>{openCatListing('${item.cityId}','${item.category}');setTimeout(()=>openItemDetail('${item.id}'),300)},300)">
           <div class="search-result-thumb" style="${thumbStyle}">${!img?item.icon||cat.icon:''}</div>
@@ -7715,6 +7759,7 @@ document.addEventListener('click', function(e){
   }
 })();
 loadData();
+sanitizeAllImagePlaceholders();
 migrateFeaturedPinsToEntityOrder();
 renderHome();
 abSyncStateFromServer();
