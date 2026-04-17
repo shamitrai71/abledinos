@@ -10,6 +10,58 @@
 <style>
   #admin-page { display: block !important; min-height: 100vh; }
   body { background: #f0ede8; }
+
+  /* ── Admin Places Autofill ── */
+  .cif-autofill-wrap { position: relative; margin-bottom: 4px; }
+  .cif-autofill-search-row { position: relative; }
+  .cif-autofill-input-wrap {
+    display: flex; align-items: center;
+    background: #fff;
+    border: 1.5px solid var(--gold, #c9a84c);
+    border-radius: 12px;
+    padding: 0 12px;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(201,168,76,.13);
+  }
+  .cif-autofill-icon { font-size: 15px; opacity: .7; flex: 0 0 auto; }
+  .cif-autofill-input {
+    flex: 1; border: none; background: transparent;
+    padding: 11px 0; font-size: 14px; outline: none;
+    font-family: inherit; color: var(--ink, #0d0d0d);
+  }
+  .cif-autofill-input::placeholder { color: #aaa; }
+  .cif-autofill-spinner { font-size: 13px; flex: 0 0 auto; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cif-autofill-hint, .cif-autofill-status-text {
+    font-size: 11.5px; color: #888; margin: 5px 2px 0; line-height: 1.4;
+  }
+  #cif-autofill-status { font-size: 11.5px; color: #888; margin: 5px 2px 0; line-height: 1.4; }
+
+  .cif-autofill-dropdown {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 9999;
+    background: #fff;
+    border: 1px solid rgba(13,13,13,.1);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.13);
+    overflow: hidden;
+    max-height: 320px; overflow-y: auto;
+  }
+  .cif-autofill-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; text-align: left;
+    padding: 10px 14px;
+    border: none; background: transparent; cursor: pointer;
+    font-family: inherit;
+    border-bottom: 1px solid rgba(13,13,13,.05);
+    transition: background .12s;
+  }
+  .cif-autofill-item:last-child { border-bottom: none; }
+  .cif-autofill-item:hover { background: var(--cream, #f5f0e8); }
+  .cif-autofill-item-icon { font-size: 15px; flex: 0 0 auto; opacity: .7; }
+  .cif-autofill-item-body { display: flex; flex-direction: column; min-width: 0; }
+  .cif-autofill-item-name { font-size: 13.5px; font-weight: 600; color: var(--ink, #0d0d0d); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cif-autofill-item-meta { font-size: 11.5px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cif-autofill-empty { padding: 14px 16px; font-size: 13px; color: #aaa; text-align: center; }
 </style>
 </head>
 <body>
@@ -29,8 +81,6 @@
       <button class="ap-nav-tab" onclick="apTab('ap-ads',this)">📢 Ads</button>
       <button class="ap-nav-tab" onclick="apTab('ap-settings',this)">⚙️ Settings</button>
       <button class="ap-nav-tab" onclick="apTab('ap-palette',this)">🎨 Palette</button>
-      <button class="ap-nav-tab ap-ai-tab" onclick="apTab('ap-ai-assistant',this)">🤖 AI Assistant</button>
-      <button class="ap-nav-tab ap-ai-tab" onclick="apTab('ap-ai-images',this)">🖼 AI Images</button>
       <button class="ap-nav-tab ap-analytics-tab" onclick="apTab('ap-analytics',this)">📊 Analytics</button>
     </div>
     <div class="ap-nav-actions">      <button class="ap-exit-btn" onclick="closeAdmin()">← Back to Site</button>
@@ -115,14 +165,6 @@
         </select>
       </div>
       <div class="ap-cards" id="ap-cityitems-grid"></div>
-    </div>
-
-    <!-- FEATURED -->
-    <div id="ap-featured" class="ap-tab-pane">
-      <div class="ap-page-header">
-        <div><div class="ap-page-title">Featured Carousels</div><div class="ap-page-sub">Add or remove homepage featured cities and featured city items for Hotels, Restaurants, Attractions and Offers. Reorder items directly here.</div></div>
-      </div>
-      <div id="ap-featured-panels" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px"></div>
     </div>
 
     <!-- REVIEWS MODERATION -->
@@ -224,534 +266,6 @@
         <div style="display:flex;gap:10px">
           <button class="admin-btn admin-btn-primary" onclick="apRipple(event);savePalette()">Save Palette</button>
           <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="loadDefaultPalette()">Reset</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- AI ASSISTANT -->
-    <div id="ap-ai-assistant" class="ap-tab-pane">
-      <div class="ap-page-header">
-        <div><div class="ap-page-title">🤖 AI Content Assistant</div><div class="ap-page-sub">Use Claude, ChatGPT, or Gemini to generate content, descriptions, and travel tips — then push directly to your site</div></div>
-      </div>
-
-      <div class="ai-assistant-layout">
-
-        <!-- API KEY CONFIG BANNER -->
-        <div class="ai-key-banner" style="grid-column:1/-1">
-          <div class="ai-section-card ai-key-card">
-            <div class="ai-section-header" style="margin-bottom:12px">
-              <span class="ai-section-icon">🔑</span>
-              <div>
-                <h3>AI Agent API Key</h3>
-                <p>Choose your AI agent and enter its API key. This key is stored only in this browser and used only for that provider.</p>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label for="ai-provider">AI Agent</label>
-              <select id="ai-provider" class="input" onchange="aiProviderChanged()" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
-                <option value="claude">Claude</option>
-                <option value="chatgpt">ChatGPT</option>
-                <option value="gemini">Gemini</option>
-              </select>
-            </div>
-            <div class="ai-key-row">
-              <div class="ai-key-input-wrap">
-                <input type="password" id="ai-api-key" placeholder="Enter provider API key" class="ai-key-input" autocomplete="off" spellcheck="false">
-                <button class="ai-key-toggle" onclick="aiToggleKeyVisibility()" title="Show/hide key">👁</button>
-              </div>
-              <button class="ai-key-save-btn" onclick="aiSaveKey()">Save Key</button>
-              <button class="ai-key-clear-btn" onclick="aiClearKey()">Clear</button>
-            </div>
-            <div id="ai-key-status" class="ai-key-status"></div>
-            <div class="ai-key-help">
-              <details>
-                <summary>How do I get an API key?</summary>
-                <div class="ai-key-help-content">
-                  <ol>
-                    <li>Go to <strong>console.anthropic.com</strong> and create an account (or sign in)</li>
-                    <li>Navigate to <strong>Settings → API Keys</strong></li>
-                    <li>Click <strong>"Create Key"</strong> and give it a name (e.g. "Abledinos Admin")</li>
-                    <li>Copy the key (starts with <code>sk-ant-</code>) and paste it above</li>
-                    <li>Add credits to your account under <strong>Billing</strong> — the API uses pay-per-use pricing</li>
-                  </ol>
-                  <p style="margin-top:8px;font-size:.76rem;color:rgba(13,13,13,.45)">⚠️ Keep your API key private. Never share it publicly. Each generation costs roughly $0.003–$0.01 depending on length.</p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        <!-- LEFT: Actions -->
-        <div class="ai-actions-panel">
-
-          <!-- AI CREATE — NEW entries -->
-          <div class="ai-section-card ai-create-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🚀</span>
-              <div>
-                <h3>AI Create — Add New Entries</h3>
-                <p>Your selected AI provider will generate a full entry with descriptions, metadata & SEO text and add it to your site</p>
-              </div>
-            </div>
-
-            <div class="ai-create-tabs">
-              <button class="ai-create-tab active" onclick="aiCreateTab('country',this)">🗺 Country</button>
-              <button class="ai-create-tab" onclick="aiCreateTab('city',this)">🏙 City</button>
-              <button class="ai-create-tab" onclick="aiCreateTab('item',this)">📦 Item</button>
-            </div>
-
-            <!-- Create Country -->
-            <div id="ai-create-country" class="ai-create-pane active">
-              <div class="form-group"><label>Country Name</label><input type="text" id="aic-country-name" placeholder="e.g. Japan, Brazil, Morocco..."></div>
-              <div class="form-group" style="margin-bottom:0"><label>Extra Notes (optional)</label><textarea id="aic-country-notes" placeholder="e.g. Focus on culture, highlight beaches, mention visa-free entry..." style="min-height:50px"></textarea></div>
-              <button class="ai-create-go-btn" onclick="aiCreateCountry()">
-                <span class="ai-create-go-icon">✨</span> Generate & Add Country
-              </button>
-            </div>
-
-            <!-- Create City -->
-            <div id="ai-create-city" class="ai-create-pane">
-              <div class="form-group"><label>City Name</label><input type="text" id="aic-city-name" placeholder="e.g. Kyoto, Rio de Janeiro..."></div>
-              <div class="form-group"><label>Add to Country</label>
-                <select id="aic-city-country">
-                  <option value="">— Select country —</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom:0"><label>Extra Notes (optional)</label><textarea id="aic-city-notes" placeholder="e.g. Mention temples, food scene, cherry blossom season..." style="min-height:50px"></textarea></div>
-              <button class="ai-create-go-btn" onclick="aiCreateCity()">
-                <span class="ai-create-go-icon">✨</span> Generate & Add City
-              </button>
-            </div>
-
-            <!-- Create Item -->
-            <div id="ai-create-item" class="ai-create-pane">
-              <div class="form-group"><label>Item Name</label><input type="text" id="aic-item-name" placeholder="e.g. Fushimi Inari Shrine, Ramen Street..."></div>
-              <div class="form-row">
-                <div class="form-group"><label>City</label>
-                  <select id="aic-item-city" onchange="aiCreateItemCityChanged()">
-                    <option value="">— Select city —</option>
-                  </select>
-                </div>
-                <div class="form-group"><label>Category</label>
-                  <select id="aic-item-cat">
-                    <option value="restaurants">🍽 Restaurants</option>
-                    <option value="attractions">🏛 Attractions</option>
-                    <option value="activities">🎯 Activities</option>
-                    <option value="getting-around">🚇 Getting Around</option>
-                    <option value="shopping">🛍 Shopping</option>
-                    <option value="hotels">🏨 Hotels</option>
-                    <option value="local-cuisine">🥘 Local Cuisine</option>
-                    <option value="events">🎉 Events</option>
-                    <option value="offers">🏷️ Offers</option>
-                    <option value="important-links">📍 Travel Deeper</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group" style="margin-bottom:0"><label>Extra Notes (optional)</label><textarea id="aic-item-notes" placeholder="e.g. Mention price range, signature dishes, best time to visit..." style="min-height:50px"></textarea></div>
-              <button class="ai-create-go-btn" onclick="aiCreateItem()">
-                <span class="ai-create-go-icon">✨</span> Generate & Add Item
-              </button>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div class="ai-section-divider">
-            <span>— OR —</span>
-          </div>
-
-          <!-- GENERATE for existing entries -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">✍️</span>
-              <div>
-                <h3>Generate Content for Existing</h3>
-                <p>Write content for items already on your site</p>
-              </div>
-            </div>
-
-            <div class="ai-action-grid">
-              <button class="ai-action-btn" onclick="aiGenerate('country-desc')">
-                <span class="ai-action-emoji">🗺</span>
-                <span class="ai-action-label">Country Description</span>
-              </button>
-              <button class="ai-action-btn" onclick="aiGenerate('city-desc')">
-                <span class="ai-action-emoji">🏙</span>
-                <span class="ai-action-label">City Description</span>
-              </button>
-              <button class="ai-action-btn" onclick="aiGenerate('item-desc')">
-                <span class="ai-action-emoji">📦</span>
-                <span class="ai-action-label">Item Description</span>
-              </button>
-              <button class="ai-action-btn" onclick="aiGenerate('travel-tip')">
-                <span class="ai-action-emoji">💡</span>
-                <span class="ai-action-label">Travel Tip</span>
-              </button>
-              <button class="ai-action-btn" onclick="aiGenerate('tagline')">
-                <span class="ai-action-emoji">💬</span>
-                <span class="ai-action-label">Tagline / Slogan</span>
-              </button>
-              <button class="ai-action-btn" onclick="aiGenerate('seo-meta')">
-                <span class="ai-action-emoji">🔍</span>
-                <span class="ai-action-label">SEO Meta Text</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Context selector -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🎯</span>
-              <div>
-                <h3>Context</h3>
-                <p>Select which item to generate content for</p>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Country</label>
-              <select id="ai-country-sel" onchange="aiUpdateCities()">
-                <option value="">— Select country —</option>
-              </select>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>City (optional)</label>
-              <select id="ai-city-sel" onchange="aiUpdateItems()">
-                <option value="">— Select city —</option>
-              </select>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Item (optional)</label>
-              <select id="ai-item-sel">
-                <option value="">— Select item —</option>
-              </select>
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label>Additional Instructions (optional)</label>
-              <textarea id="ai-extra-prompt" placeholder="e.g. Make it sound luxurious, target families, mention local food..." style="min-height:60px"></textarea>
-            </div>
-          </div>
-
-          <!-- Tone selector -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🎨</span>
-              <div>
-                <h3>Tone & Style</h3>
-                <p>How should the content feel?</p>
-              </div>
-            </div>
-            <div class="ai-tone-grid">
-              <label class="ai-tone-chip"><input type="radio" name="ai-tone" value="professional" checked><span>Professional</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="ai-tone" value="adventurous"><span>Adventurous</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="ai-tone" value="luxurious"><span>Luxurious</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="ai-tone" value="casual"><span>Casual & Fun</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="ai-tone" value="poetic"><span>Poetic</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="ai-tone" value="informative"><span>Informative</span></label>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT: Output -->
-        <div class="ai-output-panel">
-          <div class="ai-section-card ai-output-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">📝</span>
-              <div>
-                <h3>AI Output</h3>
-                <p id="ai-output-status">Select an action to generate content</p>
-              </div>
-            </div>
-
-            <!-- Loading state -->
-            <div id="ai-loading" style="display:none">
-              <div class="ai-loading-animation">
-                <div class="ai-loading-dot"></div>
-                <div class="ai-loading-dot"></div>
-                <div class="ai-loading-dot"></div>
-              </div>
-              <p class="ai-loading-text">AI is writing...</p>
-            </div>
-
-            <!-- Result -->
-            <div id="ai-result-area" style="display:none">
-              <div id="ai-result-text" class="ai-result-box"></div>
-              <div class="ai-result-actions">
-                <button class="ai-push-btn" onclick="aiPushToSite()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-                  Push to Site
-                </button>
-                <button class="ai-copy-btn" onclick="aiCopyResult()">📋 Copy</button>
-                <button class="ai-regen-btn" onclick="aiRegenerate()">🔄 Regenerate</button>
-              </div>
-            </div>
-
-            <!-- Empty state -->
-            <div id="ai-empty-state" class="ai-empty-state">
-              <div class="ai-empty-icon">🤖</div>
-              <h4>Ready to create</h4>
-              <p>Pick a content type on the left, select which country/city/item it's for, and hit a generate button. Your selected AI provider will write travel content tailored to your site.</p>
-            </div>
-          </div>
-
-          <!-- Push history -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">📜</span>
-              <div>
-                <h3>Recent Generations</h3>
-                <p>Last 5 AI-generated pieces</p>
-              </div>
-            </div>
-            <div id="ai-history-list" class="ai-history-list">
-              <p class="ai-history-empty">No generations yet this session.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- AI IMAGE AGENT -->
-    <div id="ap-ai-images" class="ap-tab-pane">
-      <div class="ap-page-header">
-        <div><div class="ap-page-title">🖼 AI Image Agent</div><div class="ap-page-sub">Generate images with fal.ai from page context + prompt, then upload directly to Cloudinary</div></div>
-      </div>
-
-      <div class="ai-assistant-layout">
-
-        <!-- FAL.AI API KEY BANNER -->
-        <div class="ai-key-banner" style="grid-column:1/-1">
-          <div class="ai-section-card ai-key-card">
-            <div class="ai-section-header" style="margin-bottom:12px">
-              <span class="ai-section-icon">🔑</span>
-              <div>
-                <h3>fal.ai API Key</h3>
-                <p>Enter your fal.ai key to enable AI image generation. Stored only in this browser session and never sent anywhere except the fal.ai API.</p>
-              </div>
-            </div>
-            <div class="ai-key-row">
-              <div class="ai-key-input-wrap">
-                <input type="password" id="falai-api-key" placeholder="Your fal.ai key (from fal.ai/dashboard/keys)" class="ai-key-input" autocomplete="off" spellcheck="false">
-                <button class="ai-key-toggle" onclick="falaiToggleKey()" title="Show/hide key">👁</button>
-              </div>
-              <button class="ai-key-save-btn" onclick="falaiSaveKey()">Save Key</button>
-              <button class="ai-key-clear-btn" onclick="falaiClearKey()">Clear</button>
-            </div>
-            <div id="falai-key-status" class="ai-key-status"></div>
-            <div class="ai-key-help">
-              <details>
-                <summary>How do I get a fal.ai API key?</summary>
-                <div class="ai-key-help-content">
-                  <ol>
-                    <li>Go to <strong>fal.ai</strong> and create an account</li>
-                    <li>Navigate to <strong>Dashboard → API Keys</strong></li>
-                    <li>Click <strong>"Add key"</strong>, copy the generated key</li>
-                    <li>Paste it above and click Save Key</li>
-                    <li>Add credits under <strong>Billing</strong> — Flux starts at $0.015/image</li>
-                  </ol>
-                  <p style="margin-top:8px;font-size:.76rem;color:rgba(13,13,13,.45)">⚠️ Keep your key private. Each Flux Dev image costs ~$0.015, Flux Pro ~$0.05.</p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        <!-- LEFT: Controls -->
-        <div class="ai-actions-panel">
-
-          <!-- MODEL SELECTOR -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🤖</span>
-              <div><h3>Model</h3><p>Choose your fal.ai image model</p></div>
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <select id="falai-model" style="width:100%">
-                <option value="fal-ai/flux/dev">Flux Dev — $0.015/img (fast, great quality)</option>
-                <option value="fal-ai/flux-realism">Flux Realism — $0.025/img (photorealistic)</option>
-                <option value="fal-ai/flux/pro">Flux Pro — $0.05/img (highest quality)</option>
-                <option value="fal-ai/flux-pro/kontext">Flux Kontext Pro — $0.04/img (context-aware)</option>
-                <option value="fal-ai/stable-diffusion-v35-large">Stable Diffusion 3.5 — $0.02/img</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- CONTEXT READER -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🎯</span>
-              <div><h3>Auto Context</h3><p>Select what this image is for — context is injected into the prompt automatically</p></div>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Country (optional)</label>
-              <select id="falai-country-sel" onchange="falaiUpdateCities()">
-                <option value="">— None —</option>
-              </select>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>City (optional)</label>
-              <select id="falai-city-sel" onchange="falaiUpdateItems()">
-                <option value="">— None —</option>
-              </select>
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label>Item (optional)</label>
-              <select id="falai-item-sel">
-                <option value="">— None —</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- IMAGE TYPE -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">📐</span>
-              <div><h3>Image Type & Size</h3><p>What kind of shot is this?</p></div>
-            </div>
-            <div class="ai-tone-grid" style="margin-bottom:12px">
-              <label class="ai-tone-chip"><input type="radio" name="falai-imgtype" value="hero" checked><span>Hero / Wide</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="falai-imgtype" value="tile"><span>City Tile</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="falai-imgtype" value="food"><span>Food / Dish</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="falai-imgtype" value="landmark"><span>Landmark</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="falai-imgtype" value="hotel"><span>Hotel / Interior</span></label>
-              <label class="ai-tone-chip"><input type="radio" name="falai-imgtype" value="activity"><span>Activity</span></label>
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label>Aspect ratio</label>
-              <select id="falai-aspect">
-                <option value="landscape_16_9">Landscape 16:9 (hero banner)</option>
-                <option value="landscape_4_3">Landscape 4:3 (card tile)</option>
-                <option value="square_hd">Square HD (1:1)</option>
-                <option value="portrait_4_3">Portrait 4:3</option>
-                <option value="portrait_16_9">Portrait 9:16</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- PROMPT -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">✍️</span>
-              <div><h3>Custom Prompt</h3><p>Describe your image — context above is added automatically</p></div>
-            </div>
-            <div class="form-group" style="margin-bottom:8px">
-              <textarea id="falai-prompt" placeholder="e.g. Golden hour, dramatic lighting, travel photography style, ultra-detailed..." style="min-height:80px"></textarea>
-            </div>
-            <div id="falai-context-preview" style="font-size:.76rem;color:rgba(13,13,13,.45);line-height:1.5;padding:8px;background:var(--cream);border-radius:8px;display:none"></div>
-            <button class="admin-btn" style="margin-top:10px;width:100%;font-size:.82rem;background:var(--cream);color:var(--ink)" onclick="falaiPreviewContext()">👁 Preview full prompt</button>
-          </div>
-
-          <!-- NEGATIVE PROMPT -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🚫</span>
-              <div><h3>Negative Prompt</h3><p>What to avoid in the image</p></div>
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <textarea id="falai-neg-prompt" style="min-height:60px" placeholder="blur, low quality, text, watermark, cartoon, distorted...">blur, low quality, text, watermark, logo, cartoon, distorted faces, ugly, oversaturated</textarea>
-            </div>
-          </div>
-
-          <!-- GENERATE BUTTON -->
-          <button class="ai-create-go-btn" onclick="falaiGenerate()" id="falai-gen-btn">
-            <span class="ai-create-go-icon">✨</span> Generate Image
-          </button>
-
-        </div>
-
-        <!-- RIGHT: Output -->
-        <div class="ai-output-panel">
-
-          <!-- GENERATED IMAGE PREVIEW -->
-          <div class="ai-section-card ai-output-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">🖼</span>
-              <div>
-                <h3>Generated Image</h3>
-                <p id="falai-output-status">Configure fal.ai key, choose context and prompt, then generate</p>
-              </div>
-            </div>
-
-            <!-- Loading -->
-            <div id="falai-loading" style="display:none;text-align:center;padding:40px 0">
-              <div class="ai-loading-animation" style="justify-content:center">
-                <div class="ai-loading-dot"></div>
-                <div class="ai-loading-dot"></div>
-                <div class="ai-loading-dot"></div>
-              </div>
-              <p class="ai-loading-text" id="falai-loading-msg">Generating image with fal.ai...</p>
-            </div>
-
-            <!-- Image result -->
-            <div id="falai-result-area" style="display:none">
-              <div id="falai-image-wrap" style="width:100%;border-radius:12px;overflow:hidden;background:#f0ece4;margin-bottom:16px;position:relative">
-                <img id="falai-result-img" src="" alt="Generated image" style="width:100%;display:block;border-radius:12px">
-                <div id="falai-img-badge" style="position:absolute;top:10px;left:10px;background:rgba(13,13,13,.7);color:#fff;font-size:.72rem;padding:3px 10px;border-radius:50px;backdrop-filter:blur(4px)"></div>
-              </div>
-
-              <!-- Cloudinary upload -->
-              <div class="ai-section-card" style="margin-bottom:16px;padding:16px">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-                  <span style="font-size:1.4rem">☁️</span>
-                  <div>
-                    <div style="font-weight:600;font-size:.9rem">Upload to Cloudinary</div>
-                    <div style="font-size:.78rem;color:rgba(13,13,13,.5)">Save to your Cloudinary media library</div>
-                  </div>
-                </div>
-                <div id="falai-cloudinary-warning" style="display:none;background:#fff3cd;border:1px solid #f0c040;border-radius:8px;padding:10px;font-size:.8rem;margin-bottom:10px">
-                  ⚠️ Cloudinary is not configured. <button onclick="apConfigureCloudinary()" style="background:none;border:none;color:var(--sky);cursor:pointer;font-size:.8rem;text-decoration:underline">Configure it here</button>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap">
-                  <button class="admin-btn admin-btn-primary" onclick="falaiUploadToCloudinary()" id="falai-upload-btn" style="flex:1;min-width:120px">
-                    ☁️ Upload to Cloudinary
-                  </button>
-                  <button class="admin-btn" onclick="falaiDownloadImage()" style="flex:1;min-width:120px;background:var(--cream);color:var(--ink)">
-                    ⬇️ Download
-                  </button>
-                </div>
-                <div id="falai-upload-status" style="margin-top:10px;font-size:.8rem;display:none"></div>
-              </div>
-
-              <!-- Cloudinary URL result + apply to site -->
-              <div id="falai-cloudinary-result" style="display:none" class="ai-section-card" style="padding:16px;margin-bottom:16px">
-                <div style="font-weight:600;font-size:.9rem;margin-bottom:8px">☁️ Cloudinary URL</div>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <input type="text" id="falai-cloudinary-url" readonly style="flex:1;font-size:.78rem;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--ink)">
-                  <button onclick="falaiCopyCloudinaryUrl()" style="background:var(--ink);color:var(--cream);border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.8rem;white-space:nowrap">Copy URL</button>
-                </div>
-                <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-                  <button class="admin-btn admin-btn-primary" onclick="falaiApplyToSelected()" style="flex:1;min-width:140px">
-                    🚀 Apply to Selected Item
-                  </button>
-                  <button class="admin-btn" onclick="falaiCopyForManual()" style="flex:1;min-width:140px;background:var(--cream);color:var(--ink)">
-                    📋 Copy for Manual Use
-                  </button>
-                </div>
-              </div>
-
-              <div class="ai-result-actions">
-                <button class="ai-regen-btn" onclick="falaiGenerate()">🔄 Regenerate</button>
-                <button class="ai-copy-btn" onclick="falaiCopyPrompt()">📋 Copy Prompt</button>
-              </div>
-            </div>
-
-            <!-- Empty state -->
-            <div id="falai-empty-state" class="ai-empty-state">
-              <div class="ai-empty-icon">🎨</div>
-              <h4>Ready to generate</h4>
-              <p>Select a context (country/city/item), choose image type and model, add your prompt, and click Generate. The result uploads straight to Cloudinary.</p>
-            </div>
-          </div>
-
-          <!-- GENERATION HISTORY -->
-          <div class="ai-section-card">
-            <div class="ai-section-header">
-              <span class="ai-section-icon">📜</span>
-              <div><h3>Generated This Session</h3><p>Recent images — click to reload</p></div>
-            </div>
-            <div id="falai-history" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:4px">
-              <p style="font-size:.82rem;color:rgba(13,13,13,.4);grid-column:1/-1">No images generated yet.</p>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
