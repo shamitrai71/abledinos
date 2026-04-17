@@ -5139,6 +5139,7 @@ function openCity(cityId){
   const city=cities.find(x=>x.id===cityId);
   if(!city)return;
   currentCityId=cityId;
+  currentCountryId=city.countryId||currentCountryId;
 
   // Pastel palette — one chosen deterministically per city so it's stable
   const PASTELS=[
@@ -5228,6 +5229,7 @@ function openCatListing(cityId, catKey){
   const city=cities.find(x=>x.id===cityId);
   if(!city)return;
   currentCityId=cityId;
+  currentCountryId=city.countryId||currentCountryId;
   currentCatKey=catKey;
   const cat=CAT_META[catKey];
   const items=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===catKey);
@@ -5329,11 +5331,15 @@ function openCatListing(cityId, catKey){
 }
 
 function showCityCats(){
-  document.getElementById('cat-listing').style.display='none';
-  document.getElementById('item-detail').style.display='none';
-  document.getElementById('city-cats').style.display='block';
-  const tipsEl=document.getElementById('tips');if(tipsEl)tipsEl.style.display='none';
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(currentCityId){
+    openCity(currentCityId);
+    return;
+  }
+  if(currentCountryId){
+    openCountry(currentCountryId);
+    return;
+  }
+  showHome();
 }
 
 
@@ -5349,18 +5355,28 @@ function safeScrollTop(){
 }
 
 function showCatListing(){
-  hideHomeSections();
-  document.getElementById('country-page').style.display='none';
-  document.getElementById('city-cats').style.display='none';
-  document.getElementById('item-detail').style.display='none';
-  document.getElementById('cat-listing').style.display='block';
-  const tipsEl=document.getElementById('tips');if(tipsEl)tipsEl.style.display='none';
-  safeScrollTop();
+  if(currentCityId && currentCatKey){
+    openCatListing(currentCityId, currentCatKey);
+    return;
+  }
+  if(currentCityId){
+    openCity(currentCityId);
+    return;
+  }
+  if(currentCountryId){
+    openCountry(currentCountryId);
+    return;
+  }
+  showHome();
 }
 
 function openItemDetail(itemId){
   const item=(cityItems||[]).find(x=>x.id===itemId);
   if(!item)return;
+  currentCityId=item.cityId||currentCityId;
+  currentCatKey=item.category||currentCatKey;
+  const _itemCity=(cities||[]).find(x=>x.id===item.cityId);
+  currentCountryId=_itemCity&&_itemCity.countryId ? _itemCity.countryId : currentCountryId;
   const cat=CAT_META[item.category]||{icon:'📌',label:item.category,bg:'linear-gradient(135deg,#888,#aaa)'};
 
   // ── Pastel hero (same palette as city/country heroes) ──────────────────
@@ -5613,13 +5629,18 @@ function submitReview(){
   showToast('Review posted ✓');
 }
 function showCountry(){
-  hideHomeSections();
-  document.getElementById('city-cats').style.display='none';
-  document.getElementById('cat-listing').style.display='none';
-  document.getElementById('item-detail').style.display='none';
-  const tipsEl=document.getElementById('tips');if(tipsEl)tipsEl.style.display='none';
-  document.getElementById('country-page').style.display='block';
-  safeScrollTop();
+  if(currentCountryId){
+    openCountry(currentCountryId);
+    return;
+  }
+  if(currentCityId){
+    const _city=(cities||[]).find(x=>x.id===currentCityId);
+    if(_city && _city.countryId){
+      openCountry(_city.countryId);
+      return;
+    }
+  }
+  showHome();
 }
 function _homeSectionIds(){
   return ['hero','countries','main-footer','tips','featured-cities-section','featured-hotels-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'];
@@ -5848,7 +5869,6 @@ function apInitAll(){
   apSafeRun('country-pages', renderApCountryPages);
   apSafeRun('city-pages', renderApCityPages);
   apSafeRun('city-items', renderApCityItems);
-  apSafeRun('featured', renderApFeatured);
   apSafeRun('reviews', renderApReviews);
   apSafeRun('tips', renderApTips);
   apSafeRun('ads', renderApAds);
@@ -6951,6 +6971,10 @@ function sortAdsForDisplay(list){
 function renderApAds(){
   const grid=document.getElementById('ap-ads-grid');
   if(!grid)return;
+  if(!Array.isArray(ads) || !ads.length){
+    loadAds();
+  }
+  ads=(ads||[]).map(normalizeAd);
   const loaded=sortAdsForDisplay(ads||[]);
   if(!loaded.length){grid.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">📢</span>No ads yet.</div>';return;}
   grid.innerHTML=loaded.map(a=>{
@@ -7023,52 +7047,43 @@ function saveAdForm(id){
   const zone=(document.getElementById('adf-zone')?.value||'').trim() || 'home-countries-tiles';
   const bg=(document.getElementById('adf-bg')?.value||'#c9a84c').trim() || '#c9a84c';
   if(!title){alert('Ad title is required');return;}
-  const fileInput=document.getElementById('adf-img');
-  const file=fileInput&&fileInput.files&&fileInput.files[0];
+
   const imageUrl=(document.getElementById('adf-img-url')?.value||'').trim();
+  const preview=document.getElementById('adf-preview');
+  const existing=id?(ads||[]).find(x=>x.id===id):null;
+  const nextImg = imageUrl || (preview && (preview._url || preview._b64)) || (existing?.backgroundImage||existing?.image||'');
+
   const slotRaw=(document.getElementById('adf-slot')?.value||'').trim();
   const slotParsed=Number(slotRaw);
   const slot=zone==='hero-bottom'?1:(slotRaw!=='' && Number.isFinite(slotParsed) && slotParsed>0 ? slotParsed : 2);
   const orderRaw=(document.getElementById('adf-order')?.value||'').trim();
   const parsedOrder=Number(orderRaw);
   const order=orderRaw!=='' && Number.isFinite(parsedOrder) ? parsedOrder : 999;
-  const existing=id?(ads||[]).find(x=>x.id===id):null;
-  function persist(imgData){
-    if(!ads)ads=[];
-    const nextImg=typeof imgData==='string'?imgData:(existing?.backgroundImage||existing?.image||'');
-    const obj=normalizeAd({
-      ...(existing||{}),
-      id:id||existing?.id||uid(),
-      title,body,zone,slot,location:zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`,bg,cta,link,
-      image:nextImg,
-      backgroundImage:nextImg,
-      order,
-      enabled:!!document.getElementById('adf-enabled')?.checked
-    });
-    if(id){
-      const i=ads.findIndex(x=>x.id===id);
-      if(i>=0) ads[i]=obj;
-      else ads.push(obj);
-    }else{
-      ads.push(obj);
-    }
-    ads=sortAdsForDisplay(ads||[]);
-    saveAll();
-    renderApAds();
-    renderHome();
-    closeApForm();
-    showToast('Ad saved ✓');
+
+  if(!ads)ads=[];
+  const obj=normalizeAd({
+    ...(existing||{}),
+    id:id||existing?.id||uid(),
+    title,body,zone,slot,location:zone==='hero-bottom'?'hero-bottom':`${zone}-after-${slot}`,
+    bg,cta,link,
+    image:nextImg,
+    backgroundImage:nextImg,
+    order,
+    enabled:!!document.getElementById('adf-enabled')?.checked
+  });
+  if(id){
+    const i=ads.findIndex(x=>x.id===id);
+    if(i>=0) ads[i]=obj;
+    else ads.push(obj);
+  }else{
+    ads.push(obj);
   }
-  if(file){
-    const r=new FileReader();
-    r.onload=e=>persist(e.target.result);
-    r.readAsDataURL(file);
-  } else {
-    const preview=document.getElementById('adf-preview');
-    if(preview&&preview._removed) persist('');
-    else if(imageUrl) persist(imageUrl);
-    else persist(existing?.backgroundImage||existing?.image||'');
-  }
+  ads=sortAdsForDisplay(ads||[]);
+  saveAll();
+  renderApAds();
+  renderHome();
+  closeApForm();
+  showToast('Ad saved ✓');
 }
 
 function deleteAdById(id){
