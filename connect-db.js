@@ -76,6 +76,7 @@
       <button class="ap-nav-tab active" onclick="apTab('ap-countries',this)">🗺 Countries</button>
       <button class="ap-nav-tab" onclick="apTab('ap-cities',this)">🏙 Cities</button>
       <button class="ap-nav-tab" onclick="apTab('ap-city-items',this)">📦 City Items</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-featured',this)">✨ Featured</button>
       <button class="ap-nav-tab" onclick="apTab('ap-reviews',this)">⭐ Reviews</button>
       <button class="ap-nav-tab" onclick="apTab('ap-tips',this)">💡 Tips</button>
       <button class="ap-nav-tab" onclick="apTab('ap-ads',this)">📢 Ads</button>
@@ -167,6 +168,14 @@
       <div class="ap-cards" id="ap-cityitems-grid"></div>
     </div>
 
+    <!-- FEATURED -->
+    <div id="ap-featured" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Featured Carousels</div><div class="ap-page-sub">Add or remove homepage featured cities and featured city items for Hotels, Restaurants, Attractions and Offers. Reorder items directly here.</div></div>
+      </div>
+      <div id="ap-featured-panels" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px"></div>
+    </div>
+
     <!-- REVIEWS MODERATION -->
     <div id="ap-reviews" class="ap-tab-pane">
       <div class="ap-page-header">
@@ -200,7 +209,7 @@
     <div id="ap-ads" class="ap-tab-pane">
       <div class="ap-page-header">
         <div><div class="ap-page-title">Advertisements</div><div class="ap-page-sub">Manage sponsored tiles placed throughout the site</div></div>
-        <button class="ap-add-new-btn" onclick="openAdForm(null)">+ Add Ad</button>
+        <button type="button" class="ap-add-new-btn" onclick="openAdForm(null)">+ Add Ad</button>
       </div>
       <div class="ap-cards" id="ap-ads-grid"></div>
     </div>
