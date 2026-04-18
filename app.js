@@ -7270,24 +7270,70 @@ function loadDefaultPalette(){
 
 // ===================== SEARCH =====================
 
-function heroSearchInput(val){
-  renderGooglePlacesSuggestions('hero',val);
+// Local-only hero autocomplete: searches countries + cities from site data.
+// Does NOT call Google Places and does NOT show a "Search this site" footer.
+function heroSearchHits(query){
+  const q=String(query||'').trim().toLowerCase();
+  if(q.length<1)return [];
+  const countryHits=(countries||[]).filter(c=>{
+    const name=String(c.name||'').toLowerCase();
+    const iso=String(c.isoCode||c.id||'').toLowerCase();
+    return name.includes(q)||iso===q||iso.startsWith(q);
+  }).map(c=>({type:'country',id:c.id,name:c.name,flag:c.flag||'🏳️',sub:[c.season,c.currency].filter(Boolean).join(' · ')||'Country'}));
+  const countryById=Object.fromEntries((countries||[]).map(c=>[c.id,c]));
+  const cityHits=(cities||[]).filter(ct=>String(ct.name||'').toLowerCase().includes(q))
+    .map(ct=>{
+      const country=countryById[ct.countryId];
+      return{type:'city',id:ct.id,name:ct.name,flag:ct.icon||'🏙️',sub:country?`${country.flag||''} ${country.name}`.trim():'City'};
+    });
+  // Prefix matches rank above substring matches within each group
+  const rank=(name)=>String(name||'').toLowerCase().startsWith(q)?0:1;
+  countryHits.sort((a,b)=>rank(a.name)-rank(b.name)||a.name.localeCompare(b.name));
+  cityHits.sort((a,b)=>rank(a.name)-rank(b.name)||a.name.localeCompare(b.name));
+  // Countries first, then cities, capped so the list stays tidy
+  return [...countryHits.slice(0,5),...cityHits.slice(0,8)];
 }
 
-function openSearchWithQuery(query){
-  openSearch();
-  const input=document.getElementById('search-input');
-  if(input){
-    input.value=query||'';
-    if(query){
-      runSearch();
-      renderGooglePlacesSuggestions('overlay',query);
-    }
+function heroSearchInput(val){
+  const box=document.getElementById('hero-places-suggestions');
+  if(!box)return;
+  const trimmed=String(val||'').trim();
+  if(trimmed.length<1){closeGooglePlacesSuggestions('hero');return;}
+  const hits=heroSearchHits(trimmed);
+  if(!hits.length){
+    box.innerHTML=`<div class="places-suggestions-head"><div class="places-suggestions-title">No matches</div><div class="places-suggestions-hint">Try a different country or city name</div></div>`;
+    box.classList.add('open');
+    return;
   }
-  // Clear hero input
+  const esc=s=>escapeHtml(String(s||''));
+  const rows=hits.map(h=>`<button type="button" class="places-suggestion-item" onclick="heroPickSuggestion('${h.type}','${esc(h.id)}')">
+    <span class="places-suggestion-icon">${esc(h.flag)}</span>
+    <span class="places-suggestion-body"><span class="places-suggestion-name">${esc(h.name)}</span><span class="places-suggestion-meta">${esc(h.sub)}</span></span>
+    <span class="places-suggestion-badge">${h.type==='country'?'Country':'City'}</span>
+  </button>`).join('');
+  box.innerHTML=`<div class="places-suggestions-head"><div class="places-suggestions-title">Destinations</div><div class="places-suggestions-hint">Jump straight to a country or city page</div></div>${rows}`;
+  box.classList.add('open');
+}
+
+function heroPickSuggestion(type,id){
   const hi=document.getElementById('hero-search-input');
   if(hi)hi.value='';
   closeGooglePlacesSuggestions('hero');
+  if(type==='country'&&typeof openCountry==='function')openCountry(id);
+  else if(type==='city'&&typeof openCity==='function')openCity(id);
+}
+
+// Enter key / Search button from the hero: navigate to the top matching
+// country or city. No generic results page.
+function openSearchWithQuery(query){
+  const hits=heroSearchHits(query);
+  const hi=document.getElementById('hero-search-input');
+  if(hi)hi.value='';
+  closeGooglePlacesSuggestions('hero');
+  if(!hits.length)return;
+  const top=hits[0];
+  if(top.type==='country'&&typeof openCountry==='function')openCountry(top.id);
+  else if(top.type==='city'&&typeof openCity==='function')openCity(top.id);
 }
 
 function openSearch(){
