@@ -5439,6 +5439,31 @@ function openItemDetail(itemId){
   if(country)badges.push({text:country.flag+' '+country.name,gold:false});
   document.getElementById('item-detail-badges').innerHTML=badges.map(b=>
     `<span class="item-detail-badge${b.gold?' gold':''}">${b.text}</span>`).join('');
+
+  // Hero CTA pills — only for hotels and attractions, where the CTAs drive
+  // high-intent clicks (book, reserve, buy tickets). Same two CTAs as the
+  // "Visit" block below, just a more prominent placement near the title.
+  const heroPillsEl=document.getElementById('id-hero-cta-pills');
+  if(heroPillsEl){
+    const showPills=(item.category==='hotels'||item.category==='attractions');
+    const heroPills=[];
+    if(showPills){
+      const c1Url=(item.cta1Url||'').trim();
+      const c1Label=(item.cta1Label||'').trim()||'Learn More';
+      const c2Url=(item.cta2Url||'').trim();
+      const c2Label=(item.cta2Label||'').trim()||'Learn More';
+      if(c1Url)heroPills.push(`<a class="item-hero-cta-pill primary" href="${c1Url}" target="_blank" rel="noopener">${escapeHtml(c1Label)}</a>`);
+      if(c2Url)heroPills.push(`<a class="item-hero-cta-pill" href="${c2Url}" target="_blank" rel="noopener">${escapeHtml(c2Label)}</a>`);
+    }
+    if(heroPills.length){
+      heroPillsEl.style.display='flex';
+      heroPillsEl.innerHTML=heroPills.join('');
+    } else {
+      heroPillsEl.style.display='none';
+      heroPillsEl.innerHTML='';
+    }
+  }
+
   // Desc + tags
   document.getElementById('id-desc').textContent=item.desc||'';
   document.getElementById('id-tags').innerHTML=(item.tags||'').split(',').filter(Boolean)
@@ -5460,19 +5485,10 @@ function openItemDetail(itemId){
   const ldBlock=document.getElementById('id-longdesc-block');
   if(item.longDesc){ldBlock.style.display='block';document.getElementById('id-longdesc').textContent=item.longDesc;}
   else ldBlock.style.display='none';
-  // CTA bar — up to two admin-editable affiliate buttons, plus a Call link if a phone is on file
-  const ctaBar=document.getElementById('id-cta-bar');
-  const ctaBlock=document.getElementById('id-cta-block');
-  const ctas=[];
-  const cta1Url=(item.cta1Url||'').trim();
-  const cta1Label=(item.cta1Label||'').trim()||'Learn More';
-  const cta2Url=(item.cta2Url||'').trim();
-  const cta2Label=(item.cta2Label||'').trim()||'Learn More';
-  if(cta1Url)ctas.push(`<a class="item-detail-cta" href="${cta1Url}" target="_blank" rel="noopener">${escapeHtml(cta1Label)}</a>`);
-  if(cta2Url)ctas.push(`<a class="item-detail-cta outline" href="${cta2Url}" target="_blank" rel="noopener">${escapeHtml(cta2Label)}</a>`);
-  if(item.phone)ctas.push(`<a class="item-detail-cta outline" href="tel:${item.phone}">📞 Call</a>`);
-  if(ctas.length){ctaBlock.style.display='block';ctaBar.innerHTML=ctas.join('');}
-  else ctaBlock.style.display='none';
+  // CTA bar — rendered inside the Google Places block next to the Maps link.
+  // Place ID fetch may resolve later; we paint what we have now and repaint
+  // when the fetch lands. paintItemCtaBar() handles both passes.
+  paintItemCtaBar(item, null);
   // Gallery
   const galleryBlock=document.getElementById('id-gallery-block');
   const galleryImgs=(item.gallery||'').split(',').map(s=>s.trim()).filter(Boolean);
@@ -5527,12 +5543,27 @@ function openItemDetail(itemId){
   _currentItemId=item.id;
   _reviewStars=0;
   renderReviews(item);
-  // Google Places enrichment — async, non-blocking
+  // Google Places enrichment — async, non-blocking. Paint the CTA bar first
+  // with what we already have (so buttons appear immediately), then repaint
+  // if Google returns a better googleMapsUri.
   const gpBlock=document.getElementById('id-google-places-block');
-  if(gpBlock)gpBlock.style.display='none';
+  if(gpBlock){
+    // Show the block if we already have CTAs or a phone to render, even
+    // without Place ID data. The header label switches based on whether
+    // we're showing Google-live info or just admin-configured links.
+    const hasAnyCta=(item.cta1Url||item.cta2Url||item.phone||item.mapCoords||item.address||item.name);
+    gpBlock.style.display=hasAnyCta?'block':'none';
+    const gpLabel=document.getElementById('id-google-places-label');
+    if(gpLabel)gpLabel.textContent=item.placeId?'📍 Live from Google':'📍 Links & Location';
+  }
   if(item.placeId){
+    const requestedItemId=item.id;
     fetchPlaceDetailsViaProxy(item.placeId).then(place=>{
-      if(place)renderPlacesEnrichment(place);
+      if(_currentItemId!==requestedItemId)return; // user navigated away
+      if(place){
+        renderPlacesEnrichment(place);
+        paintItemCtaBar(item, place);
+      }
     });
   }
   // Show page
@@ -7607,6 +7638,40 @@ function gpToggleReview(idx,fullHtml,shortHtml){
   btnEl.dataset.expanded=expanded?"":"1";
 }
 
+// Paints the item-detail CTA bar (inside the Google Places block, next to
+// where reviews & details render). Called twice during page load: once
+// immediately with place=null so admin-configured CTAs show without waiting
+// for Google, and again after the Place details fetch resolves so the
+// "View on Google Maps" link can use the canonical googleMapsUri.
+function paintItemCtaBar(item, place){
+  const bar=document.getElementById('gp-cta-bar');
+  if(!bar||!item)return;
+  const parts=[];
+
+  // View on Google Maps link — prefer googleMapsUri from the fetched place,
+  // fall back to a search by the item's own coordinates, address or name.
+  const mapsUri = (place&&place.googleMapsUri)
+    || (item.mapCoords?getGoogleMapsSearchUrl(item.mapCoords):'')
+    || (item.address?getGoogleMapsSearchUrl(item.address):'')
+    || (item.name?getGoogleMapsSearchUrl(item.name):'');
+  if(mapsUri){
+    parts.push(`<a class="item-detail-cta outline" href="${escapeHtml(mapsUri)}" target="_blank" rel="noopener">📍 View on Google Maps</a>`);
+  }
+
+  // Admin-editable CTAs (affiliate links)
+  const cta1Url=(item.cta1Url||'').trim();
+  const cta1Label=(item.cta1Label||'').trim()||'Learn More';
+  const cta2Url=(item.cta2Url||'').trim();
+  const cta2Label=(item.cta2Label||'').trim()||'Learn More';
+  if(cta1Url)parts.push(`<a class="item-detail-cta" href="${escapeHtml(cta1Url)}" target="_blank" rel="noopener">${escapeHtml(cta1Label)}</a>`);
+  if(cta2Url)parts.push(`<a class="item-detail-cta outline" href="${escapeHtml(cta2Url)}" target="_blank" rel="noopener">${escapeHtml(cta2Label)}</a>`);
+
+  // Call fallback if a phone is on file
+  if(item.phone)parts.push(`<a class="item-detail-cta outline" href="tel:${escapeHtml(item.phone)}">📞 Call</a>`);
+
+  bar.innerHTML=parts.join('');
+}
+
 function renderPlacesEnrichment(place){
   const block=document.getElementById('id-google-places-block');
   if(!block)return;
@@ -7693,12 +7758,8 @@ function renderPlacesEnrichment(place){
     }).join('');
   }else{reviewsBlock.style.display='none';reviewsEl.innerHTML='';}
 
-  // ── Google Maps link ──────────────────────────────────────────
-  const mapsLink=document.getElementById('gp-maps-link');
-  if(place.googleMapsUri){
-    mapsLink.style.display='inline-flex';
-    mapsLink.href=place.googleMapsUri;
-  }else{mapsLink.style.display='none';}
+  // The Google Maps link and item CTAs render via paintItemCtaBar(),
+  // which openItemDetail calls both before and after this function runs.
 }
 
 // ── City-level Google Places enrichment ────────────────────────

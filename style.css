@@ -471,6 +471,11 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .item-detail-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .item-detail-badge{font-size:.78rem;font-weight:600;color:rgba(13,13,13,.55);background:rgba(13,13,13,.07);padding:4px 10px;border-radius:50px}
 .item-detail-badge.gold{background:var(--gold);color:var(--ink)}
+.item-hero-cta-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.item-hero-cta-pill{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--ink);background:#fff;border:1.5px solid var(--ink);padding:8px 16px;border-radius:50px;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.item-hero-cta-pill.primary{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.item-hero-cta-pill:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.item-hero-cta-pill.primary:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
 .item-detail-hero-right{
   flex:0 0 280px;
   position:relative;
@@ -592,6 +597,8 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   .item-detail-title{font-size:1.2rem}
   .item-detail-badges{gap:6px}
   .item-detail-badge{font-size:.68rem;padding:2px 8px}
+  .item-hero-cta-pills{gap:6px;margin-top:12px}
+  .item-hero-cta-pill{font-size:.76rem;padding:6px 14px}
   .item-detail-body{padding:20px 16px 56px;max-width:calc(100% - 0px)}
   .item-detail-block{padding:18px}
 }
