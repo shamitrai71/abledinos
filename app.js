@@ -5293,8 +5293,10 @@ function openCatListing(cityId, catKey){
       const eventBadge=item.category==='events'&&item.openingHours?`<div class="cat-tile-event-date">📅 ${item.openingHours}</div>`:'';
       const offerBadge=item.category==='offers'&&item.price?`<div class="cat-tile-offer-badge">🏷️ ${item.price}</div>`:'';
       const isLink=item.category==='important-links';
-      const ctaBtn=isLink&&item.website
-        ?`<a class="cat-tile-link-btn" href="${item.website}" target="_blank" rel="noopener">🔗 Visit Link</a>`
+      const linkUrl=item.cta1Url||item.website||'';
+      const linkLabel=item.cta1Label||'Visit Link';
+      const ctaBtn=isLink&&linkUrl
+        ?`<a class="cat-tile-link-btn" href="${linkUrl}" target="_blank" rel="noopener">🔗 ${escapeHtml(linkLabel)}</a>`
         :`<button class="cat-tile-cta" onclick="openItemDetail('${item.id}')">
             ${isLink?'View Details':item.category==='offers'?'See Offer':item.category==='events'?'Event Info':'View Details'}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -5458,14 +5460,16 @@ function openItemDetail(itemId){
   const ldBlock=document.getElementById('id-longdesc-block');
   if(item.longDesc){ldBlock.style.display='block';document.getElementById('id-longdesc').textContent=item.longDesc;}
   else ldBlock.style.display='none';
-  // CTA bar (website + directions)
+  // CTA bar — up to two admin-editable affiliate buttons, plus a Call link if a phone is on file
   const ctaBar=document.getElementById('id-cta-bar');
   const ctaBlock=document.getElementById('id-cta-block');
   const ctas=[];
-  const mapsQuery=item.mapCoords||item.address||item.name;
-  if(item.website)ctas.push(`<a class="item-detail-cta" href="${item.website}" target="_blank" rel="noopener">🌐 Visit Website</a>`);
-  if(mapsQuery)ctas.push(`<a class="item-detail-cta outline" href="${getGoogleMapsSearchUrl(mapsQuery)}" target="_blank" rel="noopener">📍 View on Google Maps</a>`);
-  if(mapsQuery)ctas.push(`<a class="item-detail-cta outline" href="${getGoogleMapsDirectionsUrl(mapsQuery)}" target="_blank" rel="noopener">🧭 Get Directions</a>`);
+  const cta1Url=(item.cta1Url||'').trim();
+  const cta1Label=(item.cta1Label||'').trim()||'Learn More';
+  const cta2Url=(item.cta2Url||'').trim();
+  const cta2Label=(item.cta2Label||'').trim()||'Learn More';
+  if(cta1Url)ctas.push(`<a class="item-detail-cta" href="${cta1Url}" target="_blank" rel="noopener">${escapeHtml(cta1Label)}</a>`);
+  if(cta2Url)ctas.push(`<a class="item-detail-cta outline" href="${cta2Url}" target="_blank" rel="noopener">${escapeHtml(cta2Label)}</a>`);
   if(item.phone)ctas.push(`<a class="item-detail-cta outline" href="tel:${item.phone}">📞 Call</a>`);
   if(ctas.length){ctaBlock.style.display='block';ctaBar.innerHTML=ctas.join('');}
   else ctaBlock.style.display='none';
@@ -5477,20 +5481,6 @@ function openItemDetail(itemId){
     document.getElementById('id-gallery').innerHTML=galleryImgs.map(url=>
       `<div class="item-detail-gallery-img" style="background-image:url('${url}')"></div>`).join('');
   } else galleryBlock.style.display='none';
-  // Location actions — open Google Maps directly instead of embedding a paid map
-  const mapBlock=document.getElementById('id-map-block');
-  const mapActions=document.getElementById('id-map-actions');
-  if(item.mapCoords||item.address||item.name){
-    const q=item.mapCoords||item.address||item.name;
-    mapBlock.style.display='block';
-    mapActions.innerHTML=`
-      <a class="item-detail-cta outline" href="${getGoogleMapsSearchUrl(q)}" target="_blank" rel="noopener">📍 Open in Google Maps</a>
-      <a class="item-detail-cta outline" href="${getGoogleMapsDirectionsUrl(q)}" target="_blank" rel="noopener">🧭 Start Directions</a>
-    `;
-  } else {
-    mapBlock.style.display='none';
-    mapActions.innerHTML='';
-  }
   // Special category rendering
   // Events — show date block
   const evtBlock=document.getElementById('id-event-date-block');
@@ -5515,7 +5505,9 @@ function openItemDetail(itemId){
       linksBlock.style.display='block';
       // Parse gallery field as pipe-separated "Label|URL" entries
       const linkEntries=(item.gallery||'').split(',').map(s=>s.trim()).filter(Boolean);
-      const mainLink=item.website?[{label:item.name,url:item.website,icon:item.icon||'🔗'}]:[];
+      const primaryUrl=item.cta1Url||item.website||'';
+      const primaryLabel=item.cta1Label||item.name;
+      const mainLink=primaryUrl?[{label:primaryLabel,url:primaryUrl,icon:item.icon||'🔗'}]:[];
       const extraLinks=linkEntries.map(e=>{
         const parts=e.split('|');
         return{label:parts[0]||e,url:parts[1]||e,icon:'🌐'};
@@ -6718,7 +6710,7 @@ function renderApCityItems(){
     const city=cities.find(c=>c.id===item.cityId);
     const img=sanitizeImageUrl(item.image)||'';
     const imgStyle=img?`background-image:url('${img}')`:cat.bg;
-    const hasDots=[item.pageHeroImage,item.longDesc,item.openingHours,item.website,item.phone,item.mapCoords,item.gallery,item.placeId];
+    const hasDots=[item.pageHeroImage,item.longDesc,item.openingHours,item.cta1Url,item.phone,item.mapCoords,item.gallery,item.placeId];
     const dotLabels=['📷 Hero','📄 About','🕐 Hours','🌐 Site','📞 Phone','📍 Map','🖼 Gallery','🔗 Places'];
     const dots=hasDots.map((v,i)=>
       `<span style="font-size:.68rem;background:${v?'var(--sage)':'var(--border)'};color:${v?'#fff':'rgba(13,13,13,.4)'};padding:2px 7px;border-radius:50px;margin-right:2px">${dotLabels[i]}</span>`
@@ -6801,8 +6793,17 @@ function openCityItemForm(id){
       <div class="form-group"><label>Opening Hours</label><input type="text" id="cif-hours" placeholder="Mon–Fri 9am–10pm" value="${item?item.openingHours||'':''}"></div>
       <div class="form-group"><label>Phone</label><input type="text" id="cif-phone" placeholder="+33 1 23 45 67 89" value="${item?item.phone||'':''}"></div>
     </div>
-    <div class="form-group"><label>Website URL</label><input type="url" id="cif-website" placeholder="https://..." value="${item?item.website||'':''}"></div>
     <div class="form-group"><label>Map Coordinates <span class="form-hint-inline">(lat,lng)</span></label><input type="text" id="cif-coords" placeholder="48.8566,2.3522" value="${item?item.mapCoords||'':''}"></div>
+    <hr class="admin-divider">
+    <p class="ap-section-label">🎯 Call-to-Action Buttons <span class="form-hint-inline" style="font-weight:400;margin-left:6px;opacity:.7">Shown in the "Visit" section on the item page. Leave blank to hide.</span></p>
+    <div class="form-row">
+      <div class="form-group"><label>CTA 1 Label</label><input type="text" id="cif-cta1-label" placeholder="Book Now" value="${item?item.cta1Label||'':''}"></div>
+      <div class="form-group"><label>CTA 1 Link <span class="form-hint-inline">(affiliate URL)</span></label><input type="url" id="cif-cta1-url" placeholder="https://..." value="${item?item.cta1Url||item.website||'':''}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>CTA 2 Label</label><input type="text" id="cif-cta2-label" placeholder="Check Availability" value="${item?item.cta2Label||'':''}"></div>
+      <div class="form-group"><label>CTA 2 Link <span class="form-hint-inline">(affiliate URL)</span></label><input type="url" id="cif-cta2-url" placeholder="https://..." value="${item?item.cta2Url||'':''}"></div>
+    </div>
     <hr class="admin-divider">
     <div class="form-group"><label>Gallery Image URLs <span class="form-hint-inline">(comma-separated, 700×420px each)</span></label>
       <textarea id="cif-gallery" placeholder="https://img1.jpg, https://img2.jpg, ...">${item?item.gallery||'':''}</textarea>
@@ -6843,7 +6844,10 @@ function saveCityItemForm(id){
     longDesc:document.getElementById('cif-longdesc').value.trim(),
     openingHours:document.getElementById('cif-hours').value.trim(),
     phone:document.getElementById('cif-phone').value.trim(),
-    website:document.getElementById('cif-website').value.trim(),
+    cta1Label:document.getElementById('cif-cta1-label').value.trim(),
+    cta1Url:document.getElementById('cif-cta1-url').value.trim(),
+    cta2Label:document.getElementById('cif-cta2-label').value.trim(),
+    cta2Url:document.getElementById('cif-cta2-url').value.trim(),
     mapCoords:document.getElementById('cif-coords').value.trim(),
     gallery:document.getElementById('cif-gallery').value.trim(),
     reviews:id?(cityItems.find(x=>x.id===id)?.reviews||[]):[],
@@ -8303,7 +8307,14 @@ async function apPlacesAutofill(placeId,displayName){
   set('cif-name',name);
   set('cif-address',place.formattedAddress||'');
   set('cif-phone',place.nationalPhoneNumber||place.internationalPhoneNumber||'');
-  set('cif-website',place.websiteUri||'');
+  // If Google returned a website and CTA 1 is still empty, seed CTA 1 with it
+  // so admins get a working starter button. The label and URL remain editable.
+  if(place.websiteUri){
+    const ctaUrlEl=document.getElementById('cif-cta1-url');
+    const ctaLabelEl=document.getElementById('cif-cta1-label');
+    if(ctaUrlEl&&!ctaUrlEl.value.trim())ctaUrlEl.value=place.websiteUri;
+    if(ctaLabelEl&&!ctaLabelEl.value.trim())ctaLabelEl.value='Visit Website';
+  }
   if(place.rating) set('cif-rating',place.rating+' \u2605');
   if(place.currentOpeningHours&&place.currentOpeningHours.weekdayDescriptions){
     set('cif-hours',place.currentOpeningHours.weekdayDescriptions.join(' | '));
