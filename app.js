@@ -5692,7 +5692,7 @@ function doLogin(){
     document.getElementById('login-error').style.display='block';
   }
 }
-document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+{ const _lp = document.getElementById('login-pass'); if(_lp) _lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()}); }
 
 
 
