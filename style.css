@@ -553,6 +553,17 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .gp-review-expand:hover{opacity:.75}
 .gp-hours-row{font-size:.84rem;padding:2px 0}
 @media(min-width:640px){.gp-details-grid{grid-template-columns:repeat(2,1fr)} .gp-photos{grid-template-columns:repeat(3,1fr)} .gp-photo{height:160px}}
+/* City-level Google Places enrichment */
+.city-google-block{margin:28px auto 0;max-width:1100px;padding:24px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 18px rgba(0,0,0,.04)}
+.city-google-block .cgb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.city-google-block .cgb-label{font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(13,13,13,.5)}
+.city-google-block .cgb-title{font-size:1.25rem;font-weight:700;color:var(--ink);margin:2px 0 0}
+.city-google-block .cgb-maps-link{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--sage);text-decoration:none;padding:8px 14px;border:1px solid var(--border);border-radius:50px;background:var(--cream);transition:background .2s}
+.city-google-block .cgb-maps-link:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.city-hub-meta .gp-pill{font-size:.78rem;padding:5px 12px}
+.city-hub-meta .gp-pill-rating{color:var(--gold)}
+.city-hub-meta a.gp-pill{text-decoration:none}
+.city-hub-meta a.gp-pill:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
 .item-detail-map{width:100%;height:320px;border-radius:var(--radius);border:none;display:block}
 .item-detail-cta-bar{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
 .item-detail-cta{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--cream);padding:12px 24px;border-radius:50px;font-size:.88rem;font-weight:700;text-decoration:none;transition:background .2s;border:none;cursor:pointer}

@@ -5216,6 +5216,19 @@ function openCity(cityId){
     aboutText.textContent = summary;
   }
 
+  // Reset any Google Places enrichment from a previously viewed city, then
+  // fetch fresh details if this city has a Place ID. The fetch is non-blocking
+  // and guards against races if the user navigates before it resolves.
+  const cgBlock=document.getElementById('city-google-block');
+  if(cgBlock){ cgBlock.style.display='none'; cgBlock.innerHTML=''; }
+  if(city.placeId){
+    const requestedCityId=cityId;
+    fetchPlaceDetailsViaProxy(city.placeId).then(place=>{
+      if(currentCityId!==requestedCityId)return; // user navigated away
+      if(place)renderCityPlacesEnrichment(place,city);
+    });
+  }
+
   hideHomeSections();
   document.getElementById('country-page').style.display='none';
   document.getElementById('item-detail').style.display='none';
@@ -7682,6 +7695,85 @@ function renderPlacesEnrichment(place){
     mapsLink.style.display='inline-flex';
     mapsLink.href=place.googleMapsUri;
   }else{mapsLink.style.display='none';}
+}
+
+// ── City-level Google Places enrichment ────────────────────────
+// Renders into two surfaces: compact pills on the hub hero (appended to
+// #city-cats-meta) and a full details block (#city-google-block) above the
+// about section. Links deep-link to Google Maps so users land in their own
+// Maps app/site — nothing is embedded.
+function buildMapsDeepLink(place,city){
+  if(place&&place.googleMapsUri)return place.googleMapsUri;
+  // place.location is {latitude, longitude} from the Places API (New)
+  const loc=place&&place.location;
+  if(loc&&Number.isFinite(loc.latitude)&&Number.isFinite(loc.longitude)){
+    return `https://www.google.com/maps/search/?api=1&query=${loc.latitude},${loc.longitude}`;
+  }
+  // Fall back to a name-based search so the user still ends up at the city on Maps
+  const q=encodeURIComponent([city&&city.name,city&&city.countryId?((countries.find(c=>c.id===city.countryId)||{}).name||''):''].filter(Boolean).join(' '));
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+
+function renderCityPlacesEnrichment(place,city){
+  if(!place||!city)return;
+  const mapsUrl=buildMapsDeepLink(place,city);
+
+  // ---- 1. Compact pills appended to the existing city-cats-meta row ----
+  const metaEl=document.getElementById('city-cats-meta');
+  if(metaEl){
+    const pills=[];
+    if(place.rating){
+      const stars='★'.repeat(Math.round(place.rating))+'☆'.repeat(5-Math.round(place.rating));
+      const count=place.userRatingCount?` <span class="gp-pill-count">(${place.userRatingCount.toLocaleString()})</span>`:'';
+      pills.push(`<span class="gp-pill gp-pill-rating" title="Google rating"><span class="gp-pill-num">${place.rating}</span> ${stars}${count}</span>`);
+    }
+    pills.push(`<a class="gp-pill" href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener" title="Open in Google Maps">📍 Open in Maps</a>`);
+    metaEl.insertAdjacentHTML('beforeend', pills.join(''));
+  }
+
+  // ---- 2. Full details block below the category grid ----
+  const block=document.getElementById('city-google-block');
+  if(!block)return;
+  const cells=[];
+  if(place.formattedAddress)cells.push({icon:'📍',label:'Address',val:escapeHtml(place.formattedAddress)});
+  if(place.nationalPhoneNumber||place.internationalPhoneNumber){
+    const tel=place.nationalPhoneNumber||place.internationalPhoneNumber;
+    cells.push({icon:'📞',label:'Phone',val:`<a href="tel:${escapeHtml(tel.replace(/[^\d+]/g,''))}" style="color:var(--ink);text-decoration:none">${escapeHtml(tel)}</a>`});
+  }
+  if(place.websiteUri){
+    const cleanUrl=place.websiteUri.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');
+    cells.push({icon:'🌐',label:'Website',val:`<a href="${escapeHtml(place.websiteUri)}" target="_blank" rel="noopener" style="color:var(--sage);word-break:break-all">${escapeHtml(cleanUrl)}</a>`});
+  }
+  if(place.currentOpeningHours&&Array.isArray(place.currentOpeningHours.weekdayDescriptions)){
+    const hoursHtml=place.currentOpeningHours.weekdayDescriptions.map(d=>`<div class="gp-hours-row">${escapeHtml(d)}</div>`).join('');
+    cells.push({icon:'🕐',label:'Hours',val:hoursHtml});
+  }else if(place.regularOpeningHours&&Array.isArray(place.regularOpeningHours.weekdayDescriptions)){
+    const hoursHtml=place.regularOpeningHours.weekdayDescriptions.map(d=>`<div class="gp-hours-row">${escapeHtml(d)}</div>`).join('');
+    cells.push({icon:'🕐',label:'Hours',val:hoursHtml});
+  }
+
+  // If Google returned nothing useful, don't show an empty block
+  if(!cells.length&&!place.rating){block.style.display='none';return;}
+
+  const ratingHtml=place.rating
+    ?`<span class="gp-pill gp-pill-rating"><span class="gp-pill-num">${place.rating}</span> ${'★'.repeat(Math.round(place.rating))+'☆'.repeat(5-Math.round(place.rating))}${place.userRatingCount?` <span class="gp-pill-count">(${place.userRatingCount.toLocaleString()})</span>`:''}</span>`
+    :'';
+  const detailsHtml=cells.length
+    ?`<div class="gp-details-grid">${cells.map(c=>`<div class="gp-detail-cell"><div class="gp-detail-head">${c.icon} <span class="gp-detail-label">${escapeHtml(c.label)}</span></div><div class="gp-detail-val">${c.val}</div></div>`).join('')}</div>`
+    :'';
+
+  block.innerHTML=`
+    <div class="cgb-head">
+      <div>
+        <div class="cgb-label">Live from Google</div>
+        <h3 class="cgb-title">${escapeHtml(city.name)} on Google Maps</h3>
+      </div>
+      <a class="cgb-maps-link" href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener">View on Google Maps →</a>
+    </div>
+    ${ratingHtml?`<div class="gp-info-pills">${ratingHtml}</div>`:''}
+    ${detailsHtml}
+  `;
+  block.style.display='block';
 }
 
 const GOOGLE_PLACES_STATE={hero:{timer:null,items:[]},overlay:{timer:null,items:[]}};
