@@ -370,31 +370,8 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   .city-detail-body{padding:36px 20px 60px}
   .city-detail-back{margin-left:20px}
 }
-/* ---- REVIEWS & RATINGS ---- */
-.id-reviews-list{display:flex;flex-direction:column;gap:16px;margin-top:4px}
-.id-review-card{background:var(--cream);border-radius:12px;padding:18px 20px;border:1px solid var(--border)}
-.id-review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
-.id-review-author{font-weight:700;font-size:.9rem;color:var(--ink)}
-.id-review-date{font-size:.75rem;color:rgba(13,13,13,.4)}
-.id-review-stars{display:flex;gap:2px}
-.id-review-star{font-size:.95rem;line-height:1}
-.id-review-body{font-size:.88rem;color:rgba(13,13,13,.65);line-height:1.65}
-.id-rating-summary{display:flex;align-items:center;gap:20px;padding:18px 20px;background:var(--ink);border-radius:12px;margin-bottom:16px;flex-wrap:wrap}
-.id-rating-big{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:var(--gold);line-height:1}
-.id-rating-stars-row{display:flex;gap:3px;margin-bottom:4px}
-.id-rating-star-big{font-size:1.3rem}
-.id-rating-count{font-size:.8rem;color:rgba(245,240,232,.5);margin-top:2px}
-.id-rating-bars{flex:1;min-width:140px}
-.id-rating-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.id-rating-bar-label{font-size:.72rem;color:rgba(245,240,232,.55);width:36px;flex-shrink:0}
-.id-rating-bar-track{flex:1;height:6px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden}
-.id-rating-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .5s ease}
-/* Add review form */
-.id-add-review{background:var(--card-bg);border:1.5px dashed var(--border);border-radius:12px;padding:20px;margin-top:16px}
-.id-add-review h4{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:14px;color:var(--ink)}
-.star-picker{display:flex;gap:6px;margin-bottom:12px}
-.star-picker-btn{font-size:1.4rem;background:none;border:none;cursor:pointer;opacity:.3;transition:opacity .2s,transform .15s;padding:0;line-height:1}
-.star-picker-btn.active,.star-picker-btn:hover{opacity:1;transform:scale(1.2)}
+/* Reviews & ratings CSS removed — the site uses Google reviews, rendered via
+   the .gp-review-* classes inside the Google Places enrichment block. */
 /* Google Maps container */
 .id-map-container{border-radius:var(--radius);overflow:hidden;border:none;position:relative}
 .id-map-container iframe{width:100%;height:340px;border:none;display:block}

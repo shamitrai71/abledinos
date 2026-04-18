@@ -5539,10 +5539,9 @@ function openItemDetail(itemId){
       }
     } else { linksBlock.style.display='none'; }
   }
-  // Reviews
+  // Track which item we last opened, so the Google Places fetch below can
+  // ignore its own late response if the user has navigated away.
   _currentItemId=item.id;
-  _reviewStars=0;
-  renderReviews(item);
   // Google Places enrichment — async, non-blocking. Paint the CTA bar first
   // with what we already have (so buttons appear immediately), then repaint
   // if Google returns a better googleMapsUri.
@@ -5576,94 +5575,10 @@ function openItemDetail(itemId){
   safeScrollTop();
 }
 
-// ── Reviews system ────────────────────────────────────────────────────────────
-let _currentItemId=null, _reviewStars=0;
+// Tracks the currently-open item so async Google Places responses can detect
+// navigation changes and skip stale paints.
+let _currentItemId=null;
 
-function setReviewStar(n){
-  _reviewStars=n;
-  document.querySelectorAll('.star-picker-btn').forEach((btn,i)=>{
-    btn.classList.toggle('active', i<n);
-  });
-}
-
-function renderReviews(item){
-  const reviews=(item.reviews||[]);
-  // Rating summary
-  const sumEl=document.getElementById('id-rating-summary');
-  if(reviews.length){
-    const avg=reviews.reduce((s,r)=>s+r.stars,0)/reviews.length;
-    const rounded=Math.round(avg*10)/10;
-    const counts=[5,4,3,2,1].map(s=>({s,c:reviews.filter(r=>r.stars===s).length}));
-    const fullStars=Math.floor(avg);
-    const halfStar=avg-fullStars>=0.5;
-    const starsHtml=Array.from({length:5},(_,i)=>{
-      const filled=i<fullStars?'var(--gold)':i===fullStars&&halfStar?'var(--gold)':'rgba(245,240,232,.2)';
-      return`<span class="id-rating-star-big" style="color:${filled}">★</span>`;
-    }).join('');
-    const barsHtml=counts.map(({s,c})=>`
-      <div class="id-rating-bar-row">
-        <span class="id-rating-bar-label">${s}★</span>
-        <div class="id-rating-bar-track"><div class="id-rating-bar-fill" style="width:${reviews.length?Math.round(c/reviews.length*100):0}%"></div></div>
-        <span style="font-size:.72rem;color:rgba(245,240,232,.45);width:20px">${c}</span>
-      </div>`).join('');
-    sumEl.style.display='flex';
-    sumEl.innerHTML=`
-      <div>
-        <div class="id-rating-big">${rounded}</div>
-        <div class="id-rating-stars-row">${starsHtml}</div>
-        <div class="id-rating-count">${reviews.length} review${reviews.length!==1?'s':''}</div>
-      </div>
-      <div class="id-rating-bars">${barsHtml}</div>`;
-  } else {
-    sumEl.style.display='none';
-  }
-  // Review cards
-  const listEl=document.getElementById('id-reviews-list');
-  if(reviews.length){
-    listEl.innerHTML=[...reviews].reverse().map(r=>{
-      const stars=Array.from({length:5},(_,i)=>`<span class="id-review-star" style="color:${i<r.stars?'var(--gold)':'rgba(13,13,13,.15)'}">★</span>`).join('');
-      return`<div class="id-review-card">
-        <div class="id-review-header">
-          <div>
-            <div class="id-review-author">${r.author||'Anonymous'}</div>
-            <div class="id-review-date">${r.date||''}</div>
-          </div>
-          <div class="id-review-stars">${stars}</div>
-        </div>
-        <div class="id-review-body">${r.text||''}</div>
-      </div>`;
-    }).join('');
-  } else {
-    listEl.innerHTML='<p style="font-size:.88rem;color:rgba(13,13,13,.4);padding:8px 0">No reviews yet. Be the first!</p>';
-  }
-  // Reset star picker
-  setReviewStar(0);
-  const nameEl=document.getElementById('id-review-name');
-  const textEl=document.getElementById('id-review-text');
-  if(nameEl)nameEl.value='';
-  if(textEl)textEl.value='';
-}
-
-function submitReview(){
-  if(!_currentItemId){return;}
-  const name=document.getElementById('id-review-name').value.trim()||'Anonymous';
-  const text=document.getElementById('id-review-text').value.trim();
-  if(!_reviewStars){alert('Please select a star rating.');return;}
-  if(!text){alert('Please write a review.');return;}
-  const idx=(cityItems||[]).findIndex(x=>x.id===_currentItemId);
-  if(idx<0)return;
-  if(!cityItems[idx].reviews)cityItems[idx].reviews=[];
-  cityItems[idx].reviews.push({
-    author:name,
-    stars:_reviewStars,
-    text:text,
-    date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
-    ts:Date.now()
-  });
-  saveAll();
-  renderReviews(cityItems[idx]);
-  showToast('Review posted ✓');
-}
 function showCountry(){
   if(currentCountryId){
     openCountry(currentCountryId);
@@ -5906,7 +5821,6 @@ function apInitAll(){
   apSafeRun('country-pages', renderApCountryPages);
   apSafeRun('city-pages', renderApCityPages);
   apSafeRun('city-items', renderApCityItems);
-  apSafeRun('reviews', renderApReviews);
   apSafeRun('tips', renderApTips);
   apSafeRun('ads', renderApAds);
   apSafeRun('settings', loadSettingsForm);
@@ -5926,7 +5840,7 @@ function apPopulateSelects(){
     const country=countries.find(x=>x.id===c.countryId);
     return`<option value="${c.id}">${c.icon||'🏙'} ${c.name}${country?' ('+country.name+')':''}`;
   }).join('');
-  ['ap-ci-city-filter','ap-rev-city-filter'].forEach(id=>{
+  ['ap-ci-city-filter'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.innerHTML=cityOpts;
   });
 }
@@ -6081,56 +5995,7 @@ function featuredClear(key){
 
 // ===================== REVIEWS MODERATION =====================
 
-function renderApReviews(){
-  const container=document.getElementById('ap-reviews-list');
-  if(!container)return;
-  const cityF=document.getElementById('ap-rev-city-filter');
-  const starsF=document.getElementById('ap-rev-stars-filter');
-  const cityFilter=cityF?cityF.value:'';
-  const starsFilter=starsF?parseInt(starsF.value)||0:0;
-  const allReviews=[];
-  (cityItems||[]).forEach(item=>{
-    (item.reviews||[]).forEach((r,rIdx)=>{
-      const city=cities.find(c=>c.id===item.cityId);
-      if(cityFilter&&item.cityId!==cityFilter)return;
-      if(starsFilter&&r.stars!==starsFilter)return;
-      allReviews.push({item,itemIdx:(cityItems||[]).indexOf(item),rIdx,r,city});
-    });
-  });
-  if(!allReviews.length){
-    container.innerHTML='<div class="ap-empty"><span class="ap-empty-icon">⭐</span>No reviews found.</div>';
-    return;
-  }
-  // Sort newest first
-  allReviews.sort((a,b)=>(b.r.ts||0)-(a.r.ts||0));
-  container.innerHTML=allReviews.map(({item,itemIdx,rIdx,r,city})=>{
-    const stars='⭐'.repeat(r.stars||0);
-    const date=r.ts?new Date(r.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
-    return`<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
-          <span style="font-size:.85rem;font-weight:700;color:var(--ink)">${item.icon||'📌'} ${item.name}</span>
-          <span style="font-size:.72rem;color:rgba(13,13,13,.4)">${city?city.icon+' '+city.name:''}</span>
-          <span style="font-size:.9rem">${stars}</span>
-          <span style="font-size:.72rem;color:rgba(13,13,13,.4)">${date}</span>
-        </div>
-        <div style="font-size:.82rem;font-weight:700;color:var(--ink);margin-bottom:3px">${r.author||'Anonymous'}</div>
-        <p style="font-size:.85rem;color:rgba(13,13,13,.65);line-height:1.6;margin:0">${r.text||''}</p>
-      </div>
-      <button onclick="deleteReview(${itemIdx},${rIdx})" style="background:#ffe5e5;color:#c0392b;border:none;padding:6px 12px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Delete</button>
-    </div>`;
-  }).join('');
-}
-
-function deleteReview(itemIdx,rIdx){
-  if(!confirm('Delete this review?'))return;
-  if(cityItems[itemIdx]&&cityItems[itemIdx].reviews){
-    cityItems[itemIdx].reviews.splice(rIdx,1);
-    saveAll();
-    renderApReviews();
-    showToast('Review deleted');
-  }
-}
+function renderApReviews(){ /* review moderation removed — Google reviews used instead */ }
 
 // ===================== SLIDE-IN FORM =====================
 
@@ -6881,7 +6746,6 @@ function saveCityItemForm(id){
     cta2Url:document.getElementById('cif-cta2-url').value.trim(),
     mapCoords:document.getElementById('cif-coords').value.trim(),
     gallery:document.getElementById('cif-gallery').value.trim(),
-    reviews:id?(cityItems.find(x=>x.id===id)?.reviews||[]):[],
   };
   if(id){const i=cityItems.findIndex(x=>x.id===id);if(i>=0)cityItems[i]=obj;else cityItems.push(obj);}
   else cityItems.push(obj);

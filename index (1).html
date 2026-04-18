@@ -1,65 +1,551 @@
-/**
- * places-photo.js — Netlify Function
- *
- * Proxies Google Places photo requests so the API key
- * never reaches the browser.
- *
- * Usage:  /.netlify/functions/places-photo?ref=places/XXXX/photos/YYYY&maxW=600
- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abledinos — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+<link rel="stylesheet" href="../style.css">
+<style>
+  #admin-page { display: block !important; min-height: 100vh; }
+  body { background: #f0ede8; }
 
-exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
-      body: ''
-    };
+  /* ── Admin Places Autofill ── */
+  .cif-autofill-wrap { position: relative; margin-bottom: 4px; }
+  .cif-autofill-search-row { position: relative; }
+  .cif-autofill-input-wrap {
+    display: flex; align-items: center;
+    background: #fff;
+    border: 1.5px solid var(--gold, #c9a84c);
+    border-radius: 12px;
+    padding: 0 12px;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(201,168,76,.13);
   }
-
-  if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, body: 'Method not allowed' };
+  .cif-autofill-icon { font-size: 15px; opacity: .7; flex: 0 0 auto; }
+  .cif-autofill-input {
+    flex: 1; border: none; background: transparent;
+    padding: 11px 0; font-size: 14px; outline: none;
+    font-family: inherit; color: var(--ink, #0d0d0d);
   }
-
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!apiKey) {
-    return { statusCode: 500, body: 'GOOGLE_PLACES_API_KEY not configured' };
+  .cif-autofill-input::placeholder { color: #aaa; }
+  .cif-autofill-spinner { font-size: 13px; flex: 0 0 auto; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cif-autofill-hint, .cif-autofill-status-text {
+    font-size: 11.5px; color: #888; margin: 5px 2px 0; line-height: 1.4;
   }
+  #cif-autofill-status { font-size: 11.5px; color: #888; margin: 5px 2px 0; line-height: 1.4; }
 
-  const ref = (event.queryStringParameters || {}).ref || '';
-  const maxW = parseInt((event.queryStringParameters || {}).maxW || '600', 10);
-
-  if (!ref) {
-    return { statusCode: 400, body: 'Missing ref parameter' };
+  .cif-autofill-dropdown {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 9999;
+    background: #fff;
+    border: 1px solid rgba(13,13,13,.1);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.13);
+    overflow: hidden;
+    max-height: 320px; overflow-y: auto;
   }
+  .cif-autofill-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; text-align: left;
+    padding: 10px 14px;
+    border: none; background: transparent; cursor: pointer;
+    font-family: inherit;
+    border-bottom: 1px solid rgba(13,13,13,.05);
+    transition: background .12s;
+  }
+  .cif-autofill-item:last-child { border-bottom: none; }
+  .cif-autofill-item:hover { background: var(--cream, #f5f0e8); }
+  .cif-autofill-item-icon { font-size: 15px; flex: 0 0 auto; opacity: .7; }
+  .cif-autofill-item-body { display: flex; flex-direction: column; min-width: 0; }
+  .cif-autofill-item-name { font-size: 13.5px; font-weight: 600; color: var(--ink, #0d0d0d); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cif-autofill-item-meta { font-size: 11.5px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cif-autofill-empty { padding: 14px 16px; font-size: 13px; color: #aaa; text-align: center; }
+</style>
+</head>
+<body>
+<div id="admin-page">
 
-  try {
-    const url = `https://places.googleapis.com/v1/${ref}/media?maxWidthPx=${maxW}&key=${apiKey}`;
-    const res = await fetch(url, { redirect: 'follow' });
+  <div class="ap-nav">
+    <div class="ap-nav-brand">
+      <span class="ap-nav-logo">s</span>
+      <span class="ap-nav-badge">Admin</span>
+    </div>
+    <div class="ap-nav-links">
+      <button class="ap-nav-tab active" onclick="apTab('ap-countries',this)">🗺 Countries</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-cities',this)">🏙 Cities</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-city-items',this)">📦 City Items</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-featured',this)">✨ Featured</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-tips',this)">💡 Tips</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-ads',this)">📢 Ads</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-settings',this)">⚙️ Settings</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-palette',this)">🎨 Palette</button>
+      <button class="ap-nav-tab ap-analytics-tab" onclick="apTab('ap-analytics',this)">📊 Analytics</button>
+    </div>
+    <div class="ap-nav-actions">      <button class="ap-exit-btn" onclick="closeAdmin()">← Back to Site</button>
+      <button class="ap-logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
 
-    if (!res.ok) {
-      console.error('Places photo error:', res.status);
-      return { statusCode: 502, body: 'Photo fetch failed' };
+  <div class="ap-content">
+
+    <div class="ap-page-header" style="padding:0 0 10px 0;border:none">
+      <div><div class="ap-page-title">Admin sync status</div><div class="ap-page-sub">Shared changes sync automatically when Neon is connected. You can still pull the latest shared data manually.</div></div>
+      
+            <div id="ap-sync-status" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:#ffffff;border:1px solid rgba(13,13,13,.08);box-shadow:0 4px 14px rgba(0,0,0,.05);max-width:460px">
+              <span id="ap-sync-dot" style="width:10px;height:10px;border-radius:50%;background:#b0b0b0;flex:0 0 auto"></span>
+              <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0">
+                <strong id="ap-sync-label" style="font-size:12px">Checking sync…</strong>
+                <span id="ap-sync-sub" style="font-size:11px;opacity:.7">Admin will show whether data is shared or browser-only.</span>
+                <span id="ap-sync-time" style="font-size:10px;opacity:.58;margin-top:2px">Last synced: —</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto">
+                <button type="button" onclick="manualAdminSyncNow(event)" style="border:1px solid rgba(13,13,13,.12);background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer" title="Pull latest shared data now">Sync now</button>
+                <button type="button" onclick="refreshAdminSyncStatus()" style="border:none;background:transparent;font-size:14px;cursor:pointer" title="Refresh sync status">↻</button>
+              </div>
+            </div>
+            <div id="ap-sync-error-wrap" style="display:none;margin-top:8px;max-width:460px;margin-left:auto;background:#fff6f2;border:1px solid rgba(185,90,32,.18);border-radius:14px;padding:8px 10px;box-shadow:0 4px 14px rgba(0,0,0,.04)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <strong style="font-size:11px;color:#9a4f1e">Sync error details</strong>
+                <button type="button" id="ap-sync-error-toggle" onclick="toggleAdminSyncErrorDetails()" style="margin-left:auto;border:none;background:transparent;font-size:11px;font-weight:700;cursor:pointer;color:#9a4f1e">Show details</button>
+              </div>
+              <div id="ap-sync-error-summary" style="font-size:11px;opacity:.75;margin-top:4px">The latest sync attempt returned an error.</div>
+              <pre id="ap-sync-error-details" style="display:none;white-space:pre-wrap;word-break:break-word;margin:8px 0 0;padding:8px 10px;background:#fff;border-radius:10px;border:1px solid rgba(13,13,13,.08);font-size:11px;line-height:1.45;max-height:180px;overflow:auto"></pre>
+            </div>
+    </div>
+
+    <!-- COUNTRIES -->
+    <div id="ap-countries" class="ap-tab-pane active">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Countries</div><div class="ap-page-sub">Manage country cards shown on the front page</div></div>
+        <button class="ap-add-new-btn" onclick="openCountryForm(null)">+ Add Country</button>
+      </div>
+      <div class="ap-cards" id="ap-countries-grid"></div>
+    </div>
+
+    <!-- CITIES -->
+    <div id="ap-cities" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Cities</div><div class="ap-page-sub">Manage city/destination cards</div></div>
+        <button class="ap-add-new-btn" onclick="openCityForm(null)">+ Add City</button>
+      </div>
+      <div class="ap-filters">
+        <select class="ap-filter-select" id="ap-city-country-filter" onchange="renderApCities()">
+          <option value="">All Countries</option>
+        </select>
+      </div>
+      <div class="ap-cards" id="ap-cities-grid"></div>
+    </div>
+
+
+
+    <!-- CITY ITEMS -->
+    <div id="ap-city-items" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">City Items</div><div class="ap-page-sub">Manage all city content items — tile info, detail page, hero photo, hours, website, phone, map and gallery</div></div>
+        <button class="ap-add-new-btn" onclick="openCityItemForm(null)">+ Add Item</button>
+      </div>
+      <div class="ap-filters">
+        <select class="ap-filter-select" id="ap-ci-city-filter" onchange="renderApCityItems()">
+          <option value="">All Cities</option>
+        </select>
+        <select class="ap-filter-select" id="ap-ci-cat-filter" onchange="renderApCityItems()">
+          <option value="">All Categories</option>
+          <option value="restaurants">🍽 Restaurants</option>
+          <option value="attractions">🏛 Attractions</option>
+          <option value="activities">🎯 Activities</option>
+          <option value="getting-around">🚇 Getting Around</option>
+          <option value="shopping">🛍 Shopping</option>
+          <option value="hotels">🏨 Hotels</option>
+          <option value="local-cuisine">🥘 Local Cuisine</option>
+          <option value="events">🎉 Events</option>
+          <option value="offers">🏷️ Offers</option>
+          <option value="important-links">📍 Travel Deeper</option>
+        </select>
+      </div>
+      <div class="ap-cards" id="ap-cityitems-grid"></div>
+    </div>
+
+    <!-- FEATURED -->
+    <div id="ap-featured" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Featured Carousels</div><div class="ap-page-sub">Add or remove homepage featured cities and featured city items for Hotels, Restaurants, Attractions and Offers. Reorder items directly here.</div></div>
+      </div>
+      <div id="ap-featured-panels" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px"></div>
+    </div>
+
+    <!-- REVIEWS MODERATION removed — site uses Google reviews via Places API -->
+
+        <div id="ap-tips" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Travel Tips</div><div class="ap-page-sub">Manage tips shown on the homepage</div></div>
+        <button class="ap-add-new-btn" onclick="openTipForm(null)">+ Add Tip</button>
+      </div>
+      <div class="ap-cards" id="ap-tips-grid"></div>
+    </div>
+
+    <!-- ADS -->
+    <div id="ap-ads" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Advertisements</div><div class="ap-page-sub">Manage sponsored tiles placed throughout the site</div></div>
+        <button type="button" class="ap-add-new-btn" onclick="openAdForm(null)">+ Add Ad</button>
+      </div>
+      <div class="ap-cards" id="ap-ads-grid"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="ap-settings" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Site Settings</div><div class="ap-page-sub">Configure hero text, CTA buttons and homepage stats</div></div>
+      </div>
+      <div class="ap-settings-card">
+        <div class="form-group"><label>Hero Title Line 1</label><input type="text" id="s-hero1" placeholder="Travel smarter,"></div>
+        <div class="form-group"><label>Hero Title Line 2</label><input type="text" id="s-hero2" placeholder="explore deeper"></div>
+        <div class="form-group"><label>Hero Subtitle</label><textarea id="s-herosub"></textarea></div>
+        <hr class="admin-divider">
+        <span class="ap-section-label">🔘 CTA Button 1 (Primary)</span>
+        <div class="form-row">
+          <div class="form-group"><label>Label</label><input type="text" id="s-cta1label" placeholder="Explore Destinations"></div>
+          <div class="form-group"><label>Link <span class="form-hint-inline">#id or https://…</span></label><input type="text" id="s-cta1link" placeholder="#countries"></div>
+        </div>
+        <span class="ap-section-label">🔘 CTA Button 2 (Ghost — optional)</span>
+        <div class="form-row">
+          <div class="form-group"><label>Label</label><input type="text" id="s-cta2label" placeholder="Leave blank to hide"></div>
+          <div class="form-group"><label>Link <span class="form-hint-inline">#id or https://…</span></label><input type="text" id="s-cta2link" placeholder="#tips"></div>
+        </div>
+        <hr class="admin-divider">
+        <div class="form-row">
+          <div class="form-group"><label>Stat 1 Number</label><input type="text" id="s-stat1n" placeholder="60+"></div>
+          <div class="form-group"><label>Stat 1 Label</label><input type="text" id="s-stat1l" placeholder="Countries"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stat 2 Number</label><input type="text" id="s-stat2n" placeholder="500+"></div>
+          <div class="form-group"><label>Stat 2 Label</label><input type="text" id="s-stat2l" placeholder="Destinations"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stat 3 Number</label><input type="text" id="s-stat3n" placeholder="100k+"></div>
+          <div class="form-group"><label>Stat 3 Label</label><input type="text" id="s-stat3l" placeholder="Travelers"></div>
+        </div>
+        <button class="admin-btn admin-btn-primary" onclick="apRipple(event);saveSettings()" style="margin-bottom:12px">Save Settings</button>
+        <hr class="admin-divider">
+        <button class="admin-btn admin-btn-danger" onclick="resetData()">⚠ Reset All Data to Defaults</button>
+      </div>
+    </div>
+
+    <!-- PALETTE -->
+    <div id="ap-palette" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Color Palette</div><div class="ap-page-sub">Customize the site-wide color scheme</div></div>
+      </div>
+      <div class="ap-settings-card">
+        <div class="form-row">
+          <div class="form-group"><label>Primary (Ink)</label><input type="color" id="p-ink" value="#0d0d0d"></div>
+          <div class="form-group"><label>Background (Cream)</label><input type="color" id="p-cream" value="#f5f0e8"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Accent (Gold)</label><input type="color" id="p-gold" value="#c9a84c"></div>
+          <div class="form-group"><label>Secondary (Terra)</label><input type="color" id="p-terra" value="#c85a3c"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Nature (Sage)</label><input type="color" id="p-sage" value="#4a7c6a"></div>
+          <div class="form-group"><label>Ocean (Sky)</label><input type="color" id="p-sky" value="#2d5f8a"></div>
+        </div>
+        <div id="palette-preview" style="height:90px;border-radius:var(--radius);margin:16px 0;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.9rem;transition:background .4s">Live Preview</div>
+        <div style="display:flex;gap:10px">
+          <button class="admin-btn admin-btn-primary" onclick="apRipple(event);savePalette()">Save Palette</button>
+          <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="loadDefaultPalette()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="ap-analytics" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">📊 User Analytics & AI Insights</div><div class="ap-page-sub">Analyze registered user demographics, travel preferences, and get AI-powered marketing recommendations</div></div>
+        <button class="ap-add-new-btn" style="background:var(--ink);color:var(--cream)" onclick="analyticsRefresh()">🔄 Refresh Data</button>
+      </div>
+
+      <!-- Stats Summary Row -->
+      <div class="analytics-stats-row" id="analytics-stats-row">
+        <div class="analytics-stat-card">
+          <div class="analytics-stat-icon">👥</div>
+          <div class="analytics-stat-num" id="an-total-users">0</div>
+          <div class="analytics-stat-label">Total Users</div>
+        </div>
+        <div class="analytics-stat-card">
+          <div class="analytics-stat-icon">🌍</div>
+          <div class="analytics-stat-num" id="an-total-countries">0</div>
+          <div class="analytics-stat-label">Countries</div>
+        </div>
+        <div class="analytics-stat-card">
+          <div class="analytics-stat-icon">🏙</div>
+          <div class="analytics-stat-num" id="an-total-cities">0</div>
+          <div class="analytics-stat-label">Cities</div>
+        </div>
+        <div class="analytics-stat-card">
+          <div class="analytics-stat-icon">✈️</div>
+          <div class="analytics-stat-num" id="an-top-style">—</div>
+          <div class="analytics-stat-label">Top Travel Style</div>
+        </div>
+        <div class="analytics-stat-card">
+          <div class="analytics-stat-icon">💰</div>
+          <div class="analytics-stat-num" id="an-top-budget">—</div>
+          <div class="analytics-stat-label">Top Budget</div>
+        </div>
+      </div>
+
+      <div class="analytics-layout">
+        <!-- LEFT: Charts & Breakdowns -->
+        <div class="analytics-left">
+
+          <!-- Age Group Distribution -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">📅</span>
+              <div><h3>Age Group Distribution</h3><p>Breakdown by age brackets</p></div>
+            </div>
+            <div id="an-age-chart" class="analytics-bar-chart"></div>
+          </div>
+
+          <!-- Gender Distribution -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">👤</span>
+              <div><h3>Gender Distribution</h3><p>User gender breakdown</p></div>
+            </div>
+            <div id="an-gender-chart" class="analytics-bar-chart"></div>
+          </div>
+
+          <!-- Top Interests -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">❤️</span>
+              <div><h3>Top Travel Interests</h3><p>Most popular interests among users</p></div>
+            </div>
+            <div id="an-interests-chart" class="analytics-bar-chart"></div>
+          </div>
+
+          <!-- Travel Style -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">🧳</span>
+              <div><h3>Travel Style Breakdown</h3><p>How users prefer to travel</p></div>
+            </div>
+            <div id="an-style-chart" class="analytics-bar-chart"></div>
+          </div>
+
+          <!-- Budget -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">💰</span>
+              <div><h3>Budget Range Distribution</h3><p>Spending preferences</p></div>
+            </div>
+            <div id="an-budget-chart" class="analytics-bar-chart"></div>
+          </div>
+
+          <!-- Location Map -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">🌍</span>
+              <div><h3>User Locations</h3><p>Geographic distribution by country</p></div>
+            </div>
+            <div id="an-location-list" class="analytics-location-list"></div>
+          </div>
+
+          <!-- User Table -->
+          <div class="ai-section-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">📋</span>
+              <div><h3>Registered Users</h3><p>Full list of all signed-up users</p></div>
+            </div>
+            <div id="an-user-table" class="analytics-user-table-wrap"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: AI Insights -->
+        <div class="analytics-right">
+          <div class="ai-section-card analytics-ai-card">
+            <div class="ai-section-header">
+              <span class="ai-section-icon">🤖</span>
+              <div><h3>AI Insights</h3><p>Ask your selected AI provider to analyze your user data</p></div>
+            </div>
+
+            <div class="analytics-ai-actions">
+              <button class="ai-action-btn" onclick="analyticsAI('summary')">
+                <span class="ai-action-emoji">📊</span>
+                <span class="ai-action-label">Full Summary</span>
+              </button>
+              <button class="ai-action-btn" onclick="analyticsAI('marketing')">
+                <span class="ai-action-emoji">📣</span>
+                <span class="ai-action-label">Marketing Tips</span>
+              </button>
+              <button class="ai-action-btn" onclick="analyticsAI('content')">
+                <span class="ai-action-emoji">✍️</span>
+                <span class="ai-action-label">Content Strategy</span>
+              </button>
+              <button class="ai-action-btn" onclick="analyticsAI('destinations')">
+                <span class="ai-action-emoji">🗺</span>
+                <span class="ai-action-label">Destination Recs</span>
+              </button>
+              <button class="ai-action-btn" onclick="analyticsAI('segments')">
+                <span class="ai-action-emoji">🎯</span>
+                <span class="ai-action-label">User Segments</span>
+              </button>
+              <button class="ai-action-btn" onclick="analyticsAI('growth')">
+                <span class="ai-action-emoji">📈</span>
+                <span class="ai-action-label">Growth Strategy</span>
+              </button>
+            </div>
+
+            <!-- Custom question -->
+            <div class="form-group" style="margin-top:16px;margin-bottom:12px">
+              <label>Ask a custom question about your users</label>
+              <textarea id="analytics-custom-q" placeholder="e.g. Which destinations should we promote to our 25-34 age group who prefer luxury travel?" style="min-height:70px"></textarea>
+            </div>
+            <button class="ai-create-go-btn" onclick="analyticsAI('custom')" style="margin-top:0">
+              <span class="ai-create-go-icon">✨</span> Ask AI
+            </button>
+
+            <!-- AI Output -->
+            <div id="analytics-ai-loading" style="display:none;margin-top:20px">
+              <div class="ai-loading-animation">
+                <div class="ai-loading-dot"></div>
+                <div class="ai-loading-dot"></div>
+                <div class="ai-loading-dot"></div>
+              </div>
+              <p class="ai-loading-text">AI is analyzing your users...</p>
+            </div>
+            <div id="analytics-ai-result" class="analytics-ai-result" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div><!-- /ap-content -->
+</div><!-- /admin-page -->
+
+<!-- FORM OVERLAY (shared slide-in panel) -->
+<div id="ap-form-overlay" class="ap-form-overlay" onclick="apFormOverlayClick(event)">
+  <div class="ap-form-panel" id="ap-form-panel">
+    <div class="ap-form-header">
+      <h3 id="ap-form-heading">Edit</h3>
+      <button class="ap-form-close" onclick="closeApForm()">✕</button>
+    </div>
+    <div class="ap-form-body" id="ap-form-body">
+      <!-- Filled dynamically -->
+    </div>
+    <div class="ap-form-actions" id="ap-form-actions">
+      <!-- Filled dynamically -->
+    </div>
+  </div>
+</div>
+
+
+<div class="success-toast" id="toast"><span class="toast-check" id="toast-check">✓</span><span id="toast-msg"></span></div>
+
+<script src="../app.js"></script>
+<script>
+(function(){
+  function safeParse(v, fallback){ try { return JSON.parse(v); } catch(e) { return fallback; } }
+  var currentUser = safeParse(localStorage.getItem('ab_current_user_v1'), null);
+  var legacySession = safeParse(localStorage.getItem('abledinosPrototypeSession'), null);
+  var email = String((currentUser && currentUser.email) || (legacySession && legacySession.email) || '').trim().toLowerCase();
+  var role = String((currentUser && currentUser.role) || (legacySession && legacySession.role) || '').trim().toLowerCase();
+  var isSuperAdmin = !!(currentUser && (role === 'superadmin' || email === 'esraigroup@gmail.com'));
+  if(!isSuperAdmin){
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:DM Sans,sans-serif;color:#0d0d0d"><div style="text-align:center;max-width:420px;padding:40px"><h2>Admin Access Required</h2><p style="margin:16px 0;opacity:.6">Please log in through the main site first with the superadmin account, then open the admin panel from your profile.</p><a href="/" style="color:#c9a84c;text-decoration:none;font-weight:600">&larr; Back to site</a></div></div>';
+    return;
+  }
+  function formatSyncTime(iso){
+    if(!iso) return 'Last synced: —';
+    try{
+      var d = new Date(iso);
+      if(isNaN(d.getTime())) return 'Last synced: —';
+      return 'Last synced: ' + d.toLocaleString([], { year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+    }catch(_){ return 'Last synced: —'; }
+  }
+  function renderSyncStatus(status){
+    var s = status || (window.abGetSyncStatus ? window.abGetSyncStatus() : null) || {};
+    var dot = document.getElementById('ap-sync-dot');
+    var label = document.getElementById('ap-sync-label');
+    var sub = document.getElementById('ap-sync-sub');
+    var time = document.getElementById('ap-sync-time');
+    var errorWrap = document.getElementById('ap-sync-error-wrap');
+    var errorSummary = document.getElementById('ap-sync-error-summary');
+    var errorDetails = document.getElementById('ap-sync-error-details');
+    var hasError = !!(s && s.error);
+    var isShared = s.mode === 'neon' && !!s.ok;
+    if(dot) dot.style.background = isShared ? '#2e8b57' : '#d27d2d';
+    if(label) label.textContent = isShared ? 'Shared Neon sync active' : 'Browser-only fallback active';
+    if(sub) sub.textContent = s.message || (isShared ? 'Admin edits are syncing across devices.' : 'Admin edits are only saved in this browser right now.');
+    if(time) time.textContent = formatSyncTime(s.updatedAt);
+    if(errorWrap) errorWrap.style.display = hasError ? 'block' : 'none';
+    if(errorSummary) errorSummary.textContent = hasError ? ('Scope: ' + String(s.scope || 'sync') + ' • Click details to inspect the latest error.') : 'The latest sync attempt returned an error.';
+    if(errorDetails) errorDetails.textContent = hasError ? [
+      'Message: ' + String(s.message || 'Unknown sync error'),
+      'Mode: ' + String(s.mode || 'unknown'),
+      'Scope: ' + String(s.scope || 'sync'),
+      'Time: ' + String(s.updatedAt || '—'),
+      '',
+      String(s.error || '')
+    ].join('\n') : '';
+    if(!hasError){
+      var toggle = document.getElementById('ap-sync-error-toggle');
+      if(toggle) toggle.textContent = 'Show details';
+      if(errorDetails) errorDetails.style.display = 'none';
     }
-
-    const contentType = res.headers.get('content-type') || 'image/jpeg';
-    const buffer = Buffer.from(await res.arrayBuffer());
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: buffer.toString('base64'),
-      isBase64Encoded: true
-    };
-  } catch (err) {
-    console.error('Places photo network error:', err);
-    return { statusCode: 502, body: 'Network error fetching photo' };
   }
-};
+  window.toggleAdminSyncErrorDetails = function(){
+    var details = document.getElementById('ap-sync-error-details');
+    var toggle = document.getElementById('ap-sync-error-toggle');
+    if(!details || !toggle) return;
+    var open = details.style.display !== 'none';
+    details.style.display = open ? 'none' : 'block';
+    toggle.textContent = open ? 'Show details' : 'Hide details';
+  };
+  window.refreshAdminSyncStatus = async function(){
+    renderSyncStatus(window.abGetSyncStatus ? window.abGetSyncStatus() : null);
+    if(window.abRefreshAdminSyncStatus){
+      await window.abRefreshAdminSyncStatus();
+      renderSyncStatus(window.abGetSyncStatus ? window.abGetSyncStatus() : null);
+    }
+  };
+  window.manualAdminSyncNow = async function(ev){
+    var btn = ev && ev.currentTarget ? ev.currentTarget : null;
+    var old = btn ? btn.textContent : '';
+    if(btn){ btn.disabled = true; btn.textContent = 'Syncing…'; btn.style.opacity = '.75'; }
+    try{
+      await window.refreshAdminSyncStatus();
+      if(typeof renderHome === 'function') renderHome();
+      if(typeof apInitAll === 'function') apInitAll();
+      var s = window.abGetSyncStatus ? window.abGetSyncStatus() : null;
+      if(typeof showToast === 'function'){
+        showToast(s && s.mode === 'neon' && s.ok ? 'Sync successful ✓' : 'Sync failed — using browser fallback');
+      }
+    } catch(err) {
+      if(typeof showToast === 'function') showToast('Sync failed — using browser fallback');
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = old || 'Sync now'; btn.style.opacity = '1'; }
+    }
+  };
+
+  window.closeAdmin = function(){ window.location.href='/'; };
+  window.doLogout = function(){
+    try{ localStorage.removeItem('ab_current_user_v1'); }catch(_){ }
+    try{ localStorage.removeItem('abledinosPrototypeSession'); }catch(_){ }
+    try{ localStorage.removeItem('ab_sync_status_v1'); }catch(_){ }
+    window.location.href='/';
+  };
+
+  window.addEventListener('ab:sync-status', function(ev){ renderSyncStatus(ev.detail); });
+  if(typeof loadData === 'function') loadData();
+  if(typeof apInitAll === 'function') apInitAll();
+  renderSyncStatus(window.abGetSyncStatus ? window.abGetSyncStatus() : null);
+  window.refreshAdminSyncStatus();
+})();
+</script>
+</body>
+</html>
