@@ -5116,6 +5116,11 @@ function openCountry(id){
     cg.innerHTML=`<p style="color:rgba(13,13,13,.4);grid-column:1/-1">No destinations added yet for this country. Add some in the Admin Panel.</p>`;
   }
   hideHomeSections();
+  // Hide sibling inner pages so they don't stack underneath when the user
+  // navigates back to a country from a city/category/item view.
+  document.getElementById('city-cats').style.display='none';
+  document.getElementById('cat-listing').style.display='none';
+  document.getElementById('item-detail').style.display='none';
   const cp=document.getElementById('country-page');
   if(cp) cp.style.display='block';
   safeScrollTop();
@@ -5339,7 +5344,9 @@ function openCatListing(cityId, catKey){
       mapActions.innerHTML='';
     }
   }
+  document.getElementById('country-page').style.display='none';
   document.getElementById('city-cats').style.display='none';
+  document.getElementById('item-detail').style.display='none';
   const tipsEl=document.getElementById('tips');if(tipsEl)tipsEl.style.display='none';
   document.getElementById('cat-listing').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
