@@ -5081,6 +5081,7 @@ function openSearchWithCategory(cat){
 function openCountry(id){
   const c=countries.find(x=>x.id===id);
   if(!c)return;
+  history.pushState({page:'country',countryId:id},'');
   currentCountryId=id;
   document.getElementById('cp-flag').textContent=c.flag;
   document.getElementById('cp-name').textContent=c.name;
@@ -5194,6 +5195,7 @@ const CAT_META = {
 function openCity(cityId){
   const city=cities.find(x=>x.id===cityId);
   if(!city)return;
+  history.pushState({page:'city',cityId:cityId,countryId:city.countryId||currentCountryId},'');
   currentCityId=cityId;
   currentCountryId=city.countryId||currentCountryId;
 
@@ -5297,6 +5299,7 @@ function openCity(cityId){
 function openCatListing(cityId, catKey){
   const city=cities.find(x=>x.id===cityId);
   if(!city)return;
+  history.pushState({page:'catListing',cityId:cityId,catKey:catKey,countryId:city.countryId||currentCountryId},'');
   currentCityId=cityId;
   currentCountryId=city.countryId||currentCountryId;
   currentCatKey=catKey;
@@ -5446,6 +5449,7 @@ function showCatListing(){
 function openItemDetail(itemId){
   const item=(cityItems||[]).find(x=>x.id===itemId);
   if(!item)return;
+  history.pushState({page:'item',itemId:itemId,cityId:item.cityId,catKey:item.category},'');
   currentCityId=item.cityId||currentCityId;
   currentCatKey=item.category||currentCatKey;
   const _itemCity=(cities||[]).find(x=>x.id===item.cityId);
@@ -5655,6 +5659,7 @@ function _homeSectionIds(){
   return ['hero','countries','main-footer','tips','featured-cities-section','featured-hotels-section','featured-restaurants-section','featured-attractions-section','featured-offers-section'];
 }
 function showHome(){
+  history.pushState({page:'home'},'');
   _homeSectionIds().forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display='';
@@ -7963,7 +7968,93 @@ document.addEventListener('keydown', function(e){
   }
 });
 
+// ===================== BROWSER BACK BUTTON (popstate) =====================
+// When a pushState entry is popped (user hits mobile/browser back), route to
+// the correct JS page instead of leaving the SPA entirely.
+window.addEventListener('popstate', function(e){
+  const s = e.state;
+  if(!s || !s.page){
+    // No state — we're back before the first pushState; just show home.
+    _showHomeInternal();
+    return;
+  }
+  switch(s.page){
+    case 'home':
+      _showHomeInternal();
+      break;
+    case 'country':
+      if(s.countryId) _openCountryInternal(s.countryId);
+      else _showHomeInternal();
+      break;
+    case 'city':
+      if(s.cityId) _openCityInternal(s.cityId);
+      else if(s.countryId) _openCountryInternal(s.countryId);
+      else _showHomeInternal();
+      break;
+    case 'catListing':
+      if(s.cityId && s.catKey) _openCatListingInternal(s.cityId, s.catKey);
+      else if(s.cityId) _openCityInternal(s.cityId);
+      else _showHomeInternal();
+      break;
+    case 'item':
+      if(s.itemId) _openItemDetailInternal(s.itemId);
+      else if(s.cityId && s.catKey) _openCatListingInternal(s.cityId, s.catKey);
+      else _showHomeInternal();
+      break;
+    default:
+      _showHomeInternal();
+  }
+});
+
+// Internal versions that DON'T push another history entry (called by popstate only).
+// They just run the display logic of the originals, skipping the pushState call.
+function _showHomeInternal(){
+  _homeSectionIds().forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='';
+  });
+  ['country-page','city-cats','cat-listing','item-detail','admin-page','login-page','profile-page','signup-page'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  const footer=document.getElementById('main-footer')||document.querySelector('footer');
+  if(footer) footer.style.display='';
+  currentCountryId=null;
+  currentCityId=null;
+  currentCatKey=null;
+  safeScrollTop();
+}
+function _openCountryInternal(id){
+  // Temporarily suppress pushState then call the real function
+  const orig=history.pushState.bind(history);
+  history.pushState=function(){};
+  openCountry(id);
+  history.pushState=orig;
+}
+function _openCityInternal(cityId){
+  const orig=history.pushState.bind(history);
+  history.pushState=function(){};
+  openCity(cityId);
+  history.pushState=orig;
+}
+function _openCatListingInternal(cityId,catKey){
+  const orig=history.pushState.bind(history);
+  history.pushState=function(){};
+  openCatListing(cityId,catKey);
+  history.pushState=orig;
+}
+function _openItemDetailInternal(itemId){
+  const orig=history.pushState.bind(history);
+  history.pushState=function(){};
+  openItemDetail(itemId);
+  history.pushState=orig;
+}
+
 document.addEventListener('DOMContentLoaded', function(){
+  // Seed the initial history entry so the very first back-press returns here
+  // (replaceState so we don't add an extra entry on top of the browser's own)
+  history.replaceState({page:'home'},'');
+
   const ensureCategoryCards = () => {
     document.querySelectorAll('.city-cat-card').forEach(card => {
       const key = card.getAttribute('data-cat-key');
