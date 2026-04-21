@@ -777,7 +777,7 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   inset:0;
   background:linear-gradient(to top,rgba(13,13,13,.18),rgba(13,13,13,.02));
 }
-.cat-listing-page-body{max-width:980px;margin:0 auto;padding:0 32px 80px}
+.cat-listing-page-body{max-width:980px;margin:0 auto;padding:0 0 80px}
 .cat-listing-body{padding:24px 0 0;max-width:none;margin:0}
 @media(max-width:768px){
   #cat-listing{padding-top:calc(var(--nav-h) + 14px)}

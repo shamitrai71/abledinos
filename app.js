@@ -5306,9 +5306,10 @@ function openCatListing(cityId, catKey){
   const cat=CAT_META[catKey];
   const items=(cityItems||[]).filter(i=>i.cityId===cityId&&i.category===catKey);
   // Hero
+  const pastelBg='linear-gradient(135deg,#FDE8E8,#FFF4E5)';
   const hero=document.getElementById('cat-listing-hero');
   const heroBg=document.getElementById('cat-listing-hero-bg');
-  if(hero) hero.style.setProperty('--cat-hero-pastel',cat.bg||'#FDE8E8');
+  if(hero) hero.style.setProperty('--cat-hero-pastel',pastelBg);
   if(heroBg){
     heroBg.classList.remove('cat-listing-fallback','has-image');
     const featuredItem=items.find(i=>sanitizeImageUrl(i.image));
@@ -5321,7 +5322,7 @@ function openCatListing(cityId, catKey){
     } else {
       heroBg.style.backgroundImage='none';
       heroBg.style.backgroundColor='transparent';
-      heroBg.style.background=cat.bg||'linear-gradient(135deg,#FDE8E8,#FFF4E5)';
+      heroBg.style.background=pastelBg;
       heroBg.innerHTML=`<span>${cat.icon||'🍽️'}</span>`;
       heroBg.classList.add('cat-listing-fallback');
     }
