@@ -560,10 +560,12 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   #item-detail{padding-top:calc(var(--nav-h) + 14px)}
   .item-detail-hero{
     flex-direction:row;
+    align-items:center;
     max-width:calc(100% - 32px);
     margin-left:16px;
     margin-right:16px;
     min-height:90px;
+    height:auto;
     border-radius:14px;
   }
   .item-detail-hero-left{padding:12px 16px;gap:2px}
@@ -573,6 +575,15 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
   .item-detail-badge{font-size:.65rem;padding:2px 7px}
   .item-hero-cta-pills{gap:5px;margin-top:6px}
   .item-hero-cta-pill{font-size:.72rem;padding:5px 12px}
+  .item-detail-hero-right{
+    flex:0 0 92px;
+    padding:10px 10px 10px 0;
+  }
+  .item-detail-hero-bg{
+    width:76px;
+    height:76px;
+    border-radius:12px;
+  }
   .item-detail-body{padding:20px 16px 56px;max-width:calc(100% - 0px)}
   .item-detail-block{padding:18px}
 }
@@ -1408,7 +1419,8 @@ footer span{font-size:.8rem}
 }
 
 .item-detail-hero{
-  height:460px !important;
+  height:auto !important;
+  min-height:120px !important;
 }
 
 @media(max-width:768px){
@@ -1426,7 +1438,8 @@ footer span{font-size:.8rem}
     height:360px !important;
   }
   .item-detail-hero{
-    height:380px !important;
+    height:auto !important;
+    min-height:90px !important;
   }
 }
 
