@@ -1,15 +1,865 @@
-{
-  "name": "abledino-project",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Static travel site with Netlify Functions and Neon-backed shared persistence.",
-  "dependencies": {
-    "@neondatabase/serverless": "^0.10.4"
-  },
-  "scripts": {
-    "dev": "netlify dev",
-    "start": "netlify dev",
-    "build": "echo \"Static site - no build step required\"",
-    "serve": "npx serve ."
-  }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abledinos — Smart Travel, Brilliant Destinations</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button class="floating-account-btn" id="floatingAccountBtn" onclick="openAccountArea()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>
+  <span id="floatingAccountBtnText">Login</span>
+</button>
+
+
+<!-- NAV -->
+
+<!-- MOBILE MENU -->
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a href="javascript:void(0)" onclick="closeMobileMenu();showHome();setTimeout(()=>document.getElementById('featured-cities-section').scrollIntoView({behavior:'smooth'}),80)">Destinations</a>
+  <button class="nm-link" onclick="closeMobileMenu();openSearch()">🔍 Search</button>
+  <button class="nm-admin" onclick="closeMobileMenu();openLogin()">Admin</button>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div class="search-overlay-head-wrap">
+    <div class="search-overlay-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input id="search-input" type="text" placeholder="Search countries, cities, restaurants, attractions…" oninput="runSearch()" autocomplete="off" spellcheck="false">
+      <button class="search-close-btn" onclick="closeSearch()">✕</button>
+    </div>
+    <div class="places-suggestions overlay-places-suggestions" id="search-places-suggestions"></div>
+  </div>
+  <div class="search-dropdowns">
+    <select class="search-dd" id="sd-country" onchange="onSdCountry()">
+      <option value="">All Countries</option>
+    </select>
+    <select class="search-dd" id="sd-city" onchange="onSdCity()">
+      <option value="">All Cities</option>
+    </select>
+    <select class="search-dd" id="sd-category" onchange="onSdCategory()">
+      <option value="">All Categories</option>
+      <option value="restaurants">🍽 Restaurants</option>
+      <option value="attractions">🏛 Attractions</option>
+      <option value="activities">🎯 Activities</option>
+      <option value="important-links">📍 Travel Deeper</option>
+      <option value="getting-around">🚇 Getting Around</option>
+      <option value="shopping">🛍 Shopping</option>
+      <option value="hotels">🏨 Hotels</option>
+      <option value="local-cuisine">🥘 Local Cuisine</option>
+      <option value="events">🎉 Events</option>
+      <option value="offers">🏷️ Offers</option>
+    </select>
+    <button onclick="clearSearch()" style="background:none;border:1.5px solid var(--border);border-radius:50px;padding:9px 16px;font-size:.82rem;font-family:inherit;cursor:pointer;color:rgba(13,13,13,.5);transition:border-color .2s" onmouseover="this.style.borderColor='var(--ink)'" onmouseout="this.style.borderColor='var(--border)'">Clear</button>
+  </div>
+  <div class="search-body" id="search-body">
+    <div class="search-empty"><span class="search-empty-icon">🔍</span>Start typing or use the dropdowns to explore</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-wordmark" onclick="showHome()"><span class="hero-wordmark-able">Able</span><span class="hero-wordmark-dinos">dinos</span></div>
+    <h1 class="hero-title">Travel <em>smarter</em>,<br>explore <em>deeper</em></h1>
+    <p class="hero-sub">Curated destinations, insider tips, and immersive travel guides for the modern explorer. Every journey, extraordinary.</p>
+    <div class="hero-search-wrap">
+      <div class="hero-search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;color:rgba(13,13,13,.35);margin-right:10px"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="hero-search-input" placeholder="Search countries, cities, restaurants…" oninput="heroSearchInput(this.value)" onkeydown="if(event.key==='Enter')openSearchWithQuery(this.value)" autocomplete="off" spellcheck="false">
+        <button class="hero-search-go" onclick="openSearchWithQuery(document.getElementById('hero-search-input').value)">
+          Search
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="places-suggestions hero-places-suggestions" id="hero-places-suggestions"></div>
+    </div>
+    <div class="hero-btns">
+      <a class="btn-primary" id="hero-cta1" href="javascript:void(0)" onclick="document.getElementById('countries').scrollIntoView({behavior:'smooth'})">Explore Destinations</a>
+      <a class="btn-ghost" id="hero-cta2" href="javascript:void(0)" style="display:none"></a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>60+</strong><span>Countries</span></div>
+      <div class="hero-stat"><strong>500+</strong><span>Destinations</span></div>
+      <div class="hero-stat"><strong>100k+</strong><span>Travelers</span></div>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+
+
+<!-- FEATURED CITIES CAROUSEL -->
+<section class="featured-section" id="featured-cities-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Handpicked</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Cities</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearch()">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('cities-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="cities-track-outer">
+      <div class="carousel-track" id="cities-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('cities-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- FEATURED HOTELS CAROUSEL -->
+<section class="featured-section" id="featured-hotels-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Smart stays</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Hotels</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('hotels')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('hotels-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="hotels-track-outer">
+      <div class="carousel-track" id="hotels-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('hotels-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<section class="featured-section" id="featured-restaurants-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Dining</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Restaurants</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('restaurants')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('restaurants-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="restaurants-track-outer">
+      <div class="carousel-track" id="restaurants-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('restaurants-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- FEATURED ATTRACTIONS CAROUSEL -->
+<section class="featured-section" id="featured-attractions-section">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Must See</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Attractions</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('attractions')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('attractions-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="attractions-track-outer">
+      <div class="carousel-track" id="attractions-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('attractions-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- FEATURED OFFERS CAROUSEL -->
+<section class="featured-section" id="featured-offers-section" style="padding-bottom:40px">
+  <div class="featured-section-inner">
+    <div class="featured-header">
+      <div class="featured-header-left">
+        <div class="section-label">Deals</div>
+        <h2 class="section-title" style="margin-bottom:0;font-size:clamp(1.5rem,3.5vw,2.4rem)">Featured Offers</h2>
+      </div>
+      <button class="featured-see-all" onclick="openSearchWithCategory('offers')">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" onclick="carouselScroll('offers-track',-1)" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="carousel-track-outer" id="offers-track-outer">
+      <div class="carousel-track" id="offers-track"></div>
+    </div>
+    <button class="carousel-arrow next" onclick="carouselScroll('offers-track',1)" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- COUNTRIES -->
+<section id="countries" class="section">
+  <div class="section-label">Top Destinations</div>
+  <h2 class="section-title">Explore by Country</h2>
+  <p class="section-sub">Tap any country to discover its cities, restaurants, and attractions.</p>
+  <div class="countries-grid" id="countries-grid"></div>
+</section>
+
+<!-- COUNTRY PAGE -->
+<div id="country-page">
+  <div id="country-hero-section" class="country-hero">
+    <div class="country-hero-left">
+      <div class="country-hero-content">
+        <button class="country-hero-back" onclick="showHome()">&#8592; Back</button>
+        <span id="cp-flag" class="country-hero-flag"></span>
+        <h1 id="cp-name" class="country-hero-name"></h1>
+        <p id="cp-tagline" class="country-hero-tagline"></p>
+        <div id="cp-hero-meta" class="country-hero-meta"></div>
+      </div>
+    </div>
+  </div>
+  <button class="back-btn" onclick="showHome()">
+    ← Back to All Destinations
+  </button>
+  <div class="country-page-body">
+    <div id="cp-about-section" style="display:none;">
+      <div style="font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">About</div>
+      <p id="cp-about-text" style="font-size:.95rem;line-height:1.8;color:rgba(13,13,13,.68)"></p>
+      <div id="cp-meta-row" style="display:flex;gap:20px;flex-wrap:wrap;margin-top:14px"></div>
+    </div>
+    <div class="city-section">
+      <h2 id="cp-cities-title">Top Cities & Destinations</h2>
+      <p id="cp-cities-sub"></p>
+      <div class="cities-grid" id="cities-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CITY CATEGORY HUB -->
+<div id="city-cats">
+  <!-- compact split hero -->
+  <div id="city-cats-hero" class="city-hub-hero">
+    <div class="city-hub-hero-left">
+      <button class="city-hub-back" onclick="showCountry()">&#8592; Back</button>
+      <div class="city-hub-icon" id="city-cats-icon"></div>
+      <h1 class="city-hub-title" id="city-cats-title"></h1>
+      <div class="city-hub-meta" id="city-cats-meta"></div>
+    </div>
+  </div>
+  <div class="city-cats-grid" id="city-cats-grid"></div>
+  <div id="city-google-block" class="city-google-block" style="display:none"></div>
+  <section class="city-about-section" id="city-about-section">
+    <div class="city-about-label">City Guide</div>
+    <h2 class="city-about-title" id="city-about-title">About this city</h2>
+    <p class="city-about-text" id="city-about-text">Discover highlights, local character, and practical tips for this destination.</p>
+  </section>
+</div>
+
+<!-- CATEGORY LISTING PAGE -->
+<div id="cat-listing">
+  <div class="cat-listing-hero" id="cat-listing-hero">
+    <div class="cat-listing-hero-left">
+      <div class="cat-listing-hero-content">
+        <button class="cat-listing-back" onclick="showCityCats()">&#8592; Back</button>
+        <span class="cat-listing-icon" id="cat-listing-icon"></span>
+        <h1 class="cat-listing-title" id="cat-listing-title"></h1>
+        <p class="cat-listing-sub" id="cat-listing-sub"></p>
+        <div class="cat-listing-meta" id="cat-listing-meta"></div>
+      </div>
+    </div>
+  </div>
+  <div class="cat-listing-page-body">
+    <div class="cat-listing-body">
+      <div class="cat-grid" id="cat-listing-grid"></div>
+      <div id="cat-map-section" style="display:none;margin-top:40px">
+        <div class="item-detail-block">
+          <div class="item-detail-block-label">📍 Map — All Locations</div>
+          <p class="map-link-note">Open all matching places in Google Maps instead of loading a paid embedded map on every visit.</p>
+          <div class="item-detail-cta-bar" id="cat-map-actions"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ITEM DETAIL PAGE -->
+<div id="item-detail">
+  <div class="item-detail-hero" id="item-detail-hero">
+    <div class="item-detail-hero-left">
+      <div class="item-detail-hero-content">
+        <button class="item-detail-hero-back" onclick="showCatListing()">&#8592; Back</button>
+        <span class="item-detail-icon" id="item-detail-icon"></span>
+        <h1 class="item-detail-title" id="item-detail-title"></h1>
+        <div class="item-detail-badges" id="item-detail-badges"></div>
+        <div class="item-hero-cta-pills" id="id-hero-cta-pills" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+  <div class="item-detail-body">
+    <div id="id-event-date-block" style="display:none;align-items:center;gap:8px;background:var(--gold);color:var(--ink);padding:12px 20px;border-radius:10px;font-weight:700;font-size:.9rem;margin-bottom:16px"></div>
+    <div id="id-offer-highlight-block" style="display:none;margin-bottom:16px"></div>
+    <div class="item-detail-block" id="id-desc-block">
+      <div class="item-detail-block-label">Overview</div>
+      <p id="id-desc"></p>
+      <div id="id-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"></div>
+    </div>
+    <div class="item-detail-block" id="id-links-block" style="display:none">
+      <div class="item-detail-block-label">🔗 Links & Resources</div>
+      <div class="id-links-list" id="id-links-list"></div>
+    </div>
+    <div class="item-detail-block" id="id-info-block">
+      <div class="item-detail-block-label">Details</div>
+      <div class="item-detail-info-grid" id="id-info-grid"></div>
+    </div>
+    <div class="item-detail-block" id="id-longdesc-block" style="display:none">
+      <div class="item-detail-block-label">About</div>
+      <p id="id-longdesc"></p>
+    </div>
+    <div class="item-detail-block" id="id-google-places-block" style="display:none">
+      <div class="item-detail-block-label" id="id-google-places-label">📍 Live from Google</div>
+      <div id="gp-info-pills" class="gp-info-pills"></div>
+      <div id="gp-details-grid" class="gp-details-grid"></div>
+      <div id="gp-photos-block" style="display:none">
+        <div class="gp-sub-label">Photos</div>
+        <div id="gp-photos" class="gp-photos"></div>
+      </div>
+      <div id="gp-reviews-block" style="display:none">
+        <div class="gp-sub-label">Google Reviews</div>
+        <div id="gp-reviews" class="gp-reviews"></div>
+      </div>
+      <div id="gp-cta-bar" class="item-detail-cta-bar" style="margin-top:16px"></div>
+    </div>
+    <div class="item-detail-block" id="id-gallery-block" style="display:none">
+      <div class="item-detail-block-label">📸 Gallery</div>
+      <div class="item-detail-gallery" id="id-gallery"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TIPS FOR BRILLIANT JOURNEYS -->
+<section id="tips">
+  <div class="section-label">Smart Travel</div>
+  <h2 class="section-title">Tips for Brilliant Journeys</h2>
+  <p class="section-sub">Seasoned wisdom to make every trip seamless, affordable, and unforgettable.</p>
+  <div class="tips-grid" id="tips-grid"></div>
+</section>
+
+<footer id="main-footer">
+  <strong>Able<span style="color:var(--gold)">Dinos</span></strong>
+  <span>© 2025 AbleDinos. Smart travel for brilliant explorers. All rights reserved.</span>
+
+</footer>
+
+<!-- LOGIN MODAL -->
+<div id="login-modal">
+  <div class="login-box">
+    <div class="login-logo">Able<span>Dinos</span></div>
+    <p class="login-sub">Admin Access — Super Admin Portal</p>
+    <div id="login-error" class="login-error">Invalid email or password. Please try again.</div>
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="admin@example.com"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+    <button class="admin-btn admin-btn-primary" onclick="doLogin()" style="margin-bottom:12px">Sign In</button>
+    <button class="admin-btn" style="background:var(--cream);color:var(--ink)" onclick="closeLogin()">Cancel</button>
+  </div>
+</div>
+
+<!-- ADMIN FULL PAGE -->
+
+<section id="login-page">
+  <div class="auth-shell">
+    <button class="inline-back" onclick="showHome()">← Back to site</button>
+    <div class="login-card">
+      <div class="login-kicker">Account Access</div>
+      <h1 class="login-title">Login to continue</h1>
+      <p class="login-sub">Use Google, Facebook, or email. Super Admin access appears from the profile page after login.</p>
+      <div class="login-error" id="loginPageError"></div>
+      <div class="login-socials">
+        <button class="login-social-btn google-btn" onclick="mockSocialLogin('google')">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="login-social-btn fb-btn" onclick="mockSocialLogin('facebook')">
+          <svg viewBox="0 0 24 24"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.93-1.956 1.886v2.283h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" fill="#fff"/></svg>
+          Continue with Facebook
+        </button>
+      </div>
+      <div class="login-divider">or use email</div>
+      <div class="login-form">
+        <div class="group">
+          <label for="prototypeLoginEmail">Email</label>
+          <input id="prototypeLoginEmail" type="email" placeholder="you@example.com" autocomplete="email"
+            onkeydown="if(event.key==='Enter')doPrototypeLogin()">
+        </div>
+        <div class="group">
+          <label for="prototypeLoginPassword">Password</label>
+          <input id="prototypeLoginPassword" type="password" placeholder="Enter password" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter')doPrototypeLogin()">
+        </div>
+        <button class="login-primary" type="button" onclick="doPrototypeLogin()">Login</button>
+      </div>
+      <div class="login-signup-link">
+        Don't have an account? <a href="#" onclick="event.preventDefault();openSignupPage()">Sign up here</a>
+      </div>
+      <div class="login-note">
+        This build uses a prototype auth layer. Google and Facebook are demo flows for UI testing. Super Admin prototype credentials are enabled only in this file.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="signup-page">
+  <div class="auth-shell">
+    <button class="inline-back" onclick="showHome()">← Back to site</button>
+    <div class="signup-card">
+      <div class="login-kicker">Create Account</div>
+      <h1 class="login-title">Join Abledinos</h1>
+      <p class="login-sub">Create your travel profile for personalized recommendations, saved destinations, and exclusive deals.</p>
+      <div class="login-error" id="signupPageError"></div>
+
+      <div class="signup-form">
+        <!-- Row 1: Name -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupFirstName">First Name <span class="req">*</span></label>
+            <input id="signupFirstName" type="text" placeholder="John" autocomplete="given-name">
+          </div>
+          <div class="group">
+            <label for="signupLastName">Last Name <span class="req">*</span></label>
+            <input id="signupLastName" type="text" placeholder="Doe" autocomplete="family-name">
+          </div>
+        </div>
+
+        <!-- Screen Name -->
+        <div class="group">
+          <label for="signupScreenName">Screen Name <span class="hint-inline">(displayed publicly on reviews)</span></label>
+          <input id="signupScreenName" type="text" placeholder="e.g. Wanderlust_John, TravelBug42" autocomplete="nickname" maxlength="30">
+        </div>
+
+        <!-- Row 2: Email -->
+        <div class="group">
+          <label for="signupEmail">Email Address <span class="req">*</span></label>
+          <input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <!-- Row 3: Password -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupPassword">Password <span class="req">*</span></label>
+            <input id="signupPassword" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+          </div>
+          <div class="group">
+            <label for="signupPasswordConfirm">Confirm Password <span class="req">*</span></label>
+            <input id="signupPasswordConfirm" type="password" placeholder="Re-enter password" autocomplete="new-password">
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="signup-divider">
+          <span>📋 Your Travel Profile</span>
+        </div>
+
+        <!-- Row 4: Mobile -->
+        <div class="signup-row">
+          <div class="group" style="flex:0 0 120px">
+            <label for="signupCountryCode">Code</label>
+            <select id="signupCountryCode">
+              <option value="+91">🇮🇳 +91</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+61">🇦🇺 +61</option>
+              <option value="+81">🇯🇵 +81</option>
+              <option value="+49">🇩🇪 +49</option>
+              <option value="+33">🇫🇷 +33</option>
+              <option value="+86">🇨🇳 +86</option>
+              <option value="+55">🇧🇷 +55</option>
+              <option value="+7">🇷🇺 +7</option>
+              <option value="+39">🇮🇹 +39</option>
+              <option value="+34">🇪🇸 +34</option>
+              <option value="+82">🇰🇷 +82</option>
+              <option value="+65">🇸🇬 +65</option>
+              <option value="+60">🇲🇾 +60</option>
+              <option value="+66">🇹🇭 +66</option>
+              <option value="+20">🇪🇬 +20</option>
+              <option value="+27">🇿🇦 +27</option>
+              <option value="+52">🇲🇽 +52</option>
+              <option value="+62">🇮🇩 +62</option>
+              <option value="+90">🇹🇷 +90</option>
+              <option value="+48">🇵🇱 +48</option>
+              <option value="+31">🇳🇱 +31</option>
+              <option value="+46">🇸🇪 +46</option>
+            </select>
+          </div>
+          <div class="group" style="flex:1">
+            <label for="signupMobile">Mobile Number</label>
+            <input id="signupMobile" type="tel" placeholder="9876543210" autocomplete="tel-national">
+          </div>
+        </div>
+
+        <!-- Row 5: DOB & Gender -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupDob">Date of Birth</label>
+            <input id="signupDob" type="date" autocomplete="bday">
+          </div>
+          <div class="group">
+            <label for="signupGender">Gender</label>
+            <select id="signupGender">
+              <option value="">— Select —</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 6: Age Group & Nationality -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupAgeGroup">Age Group</label>
+            <select id="signupAgeGroup">
+              <option value="">— Select —</option>
+              <option value="18-24">18 – 24</option>
+              <option value="25-34">25 – 34</option>
+              <option value="35-44">35 – 44</option>
+              <option value="45-54">45 – 54</option>
+              <option value="55-64">55 – 64</option>
+              <option value="65+">65+</option>
+            </select>
+          </div>
+          <div class="group">
+            <label for="signupNationality">Nationality</label>
+            <input id="signupNationality" type="text" placeholder="e.g. Indian, American..." autocomplete="country-name">
+          </div>
+        </div>
+
+        <!-- Row 7: City & Country -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupCity">City <span class="req">*</span></label>
+            <input id="signupCity" type="text" placeholder="e.g. Mumbai, London..." autocomplete="address-level2">
+          </div>
+          <div class="group">
+            <label for="signupCountry">Country <span class="req">*</span></label>
+            <input id="signupCountry" type="text" placeholder="e.g. India, UK..." autocomplete="country-name">
+          </div>
+        </div>
+
+        <!-- Row 8: State & Pin Code -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupState">State / Province</label>
+            <input id="signupState" type="text" placeholder="e.g. Maharashtra, California..." autocomplete="address-level1">
+          </div>
+          <div class="group">
+            <label for="signupPinCode">Pin / ZIP Code</label>
+            <input id="signupPinCode" type="text" placeholder="e.g. 400001" autocomplete="postal-code">
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="signup-divider">
+          <span>✈️ Travel Preferences</span>
+        </div>
+
+        <!-- Row 9: Travel Style & Budget -->
+        <div class="signup-row">
+          <div class="group">
+            <label for="signupTravelStyle">Travel Style</label>
+            <select id="signupTravelStyle">
+              <option value="">— Select —</option>
+              <option value="solo">Solo Explorer</option>
+              <option value="couple">Couple / Romantic</option>
+              <option value="family">Family with Kids</option>
+              <option value="group">Group / Friends</option>
+              <option value="business">Business Travel</option>
+              <option value="backpacker">Backpacker / Budget</option>
+              <option value="luxury">Luxury / Premium</option>
+            </select>
+          </div>
+          <div class="group">
+            <label for="signupBudget">Budget Range</label>
+            <select id="signupBudget">
+              <option value="">— Select —</option>
+              <option value="budget">Budget ($ / ₹)</option>
+              <option value="mid">Mid-Range ($$ / ₹₹)</option>
+              <option value="premium">Premium ($$$ / ₹₹₹)</option>
+              <option value="luxury">Luxury ($$$$ / ₹₹₹₹)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 10: Interests -->
+        <div class="group">
+          <label>Travel Interests <span class="hint-inline">(select all that apply)</span></label>
+          <div class="signup-interests-grid">
+            <label class="signup-interest"><input type="checkbox" value="beaches"> 🏖 Beaches</label>
+            <label class="signup-interest"><input type="checkbox" value="mountains"> 🏔 Mountains</label>
+            <label class="signup-interest"><input type="checkbox" value="culture"> 🏛 Culture & History</label>
+            <label class="signup-interest"><input type="checkbox" value="food"> 🍽 Food & Cuisine</label>
+            <label class="signup-interest"><input type="checkbox" value="nightlife"> 🎶 Nightlife</label>
+            <label class="signup-interest"><input type="checkbox" value="adventure"> 🧗 Adventure Sports</label>
+            <label class="signup-interest"><input type="checkbox" value="wildlife"> 🦁 Wildlife & Nature</label>
+            <label class="signup-interest"><input type="checkbox" value="shopping"> 🛍 Shopping</label>
+            <label class="signup-interest"><input type="checkbox" value="wellness"> 🧘 Wellness & Spa</label>
+            <label class="signup-interest"><input type="checkbox" value="photography"> 📸 Photography</label>
+            <label class="signup-interest"><input type="checkbox" value="architecture"> 🏗 Architecture</label>
+            <label class="signup-interest"><input type="checkbox" value="festivals"> 🎉 Festivals & Events</label>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button class="login-primary signup-submit" type="button" onclick="doPrototypeSignup()">Create Account</button>
+      </div>
+
+      <div class="login-signup-link" style="margin-top:16px">
+        Already have an account? <a href="#" onclick="event.preventDefault();openLoginPage()">Login here</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="profile-page">
+  <div class="profile-shell">
+    <button class="inline-back" onclick="showHome()">← Back to site</button>
+    <div class="profile-hero">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div id="profileAvatarWrap" style="position:relative;width:80px;height:80px;border-radius:50%;overflow:hidden;background:var(--cream);border:3px solid var(--gold);flex-shrink:0;cursor:pointer" onclick="document.getElementById('profileAvatarInput').click()" title="Click to change photo">
+          <div id="profileAvatarImg" style="width:100%;height:100%;background:center/cover no-repeat;display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(13,13,13,.25)" stroke-width="1.5" style="width:36px;height:36px"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.8-4 5-6 8-6s6.2 2 8 6"/></svg>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;text-align:center;font-size:.6rem;padding:3px 0;font-weight:600">EDIT</div>
+          <input type="file" id="profileAvatarInput" accept="image/*" style="display:none" onchange="handleProfileAvatarUpload(this)">
+        </div>
+        <div>
+          <h1 class="profile-title">Your profile</h1>
+          <p id="profileScreenNameDisplay" style="font-size:.95rem;color:var(--gold);font-weight:600;margin-top:2px;display:none"></p>
+          <p class="profile-sub">Manage your account, view your travel profile, and access special tools if your account has elevated permissions.</p>
+        </div>
+      </div>
+    </div>
+    <div class="profile-grid">
+      <!-- Account overview card -->
+      <div class="profile-card">
+        <h3>Account overview</h3>
+        <p>Your sign-in details and account information.</p>
+        <div class="profile-meta">
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Name</div>
+            <div class="profile-meta-val" id="profileName">Guest User</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Screen Name</div>
+            <div class="profile-meta-val" id="profileScreenName" style="color:var(--gold)">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Email</div>
+            <div class="profile-meta-val" id="profileEmail">Not signed in</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Provider</div>
+            <div class="profile-meta-val" id="profileProvider">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Role</div>
+            <div class="profile-meta-val" id="profileRole">User</div>
+          </div>
+        </div>
+        <!-- Edit screen name inline -->
+        <div id="profileEditScreenName" style="display:none;margin-top:14px;padding:14px;background:var(--cream);border-radius:12px">
+          <label style="font-size:.78rem;font-weight:600;color:rgba(13,13,13,.55);display:block;margin-bottom:6px">Change Screen Name</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="profileScreenNameInput" placeholder="e.g. Wanderlust_John" maxlength="30" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit">
+            <button onclick="saveProfileScreenName()" style="background:var(--gold);color:var(--ink);border:none;padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div id="profileChangePassword" style="display:none;margin-top:14px;padding:14px;background:var(--cream);border-radius:12px">
+          <label style="font-size:.78rem;font-weight:600;color:rgba(13,13,13,.55);display:block;margin-bottom:8px">Change Password</label>
+          <div style="display:grid;gap:8px">
+            <input type="password" id="profileCurrentPassword" placeholder="Current password" autocomplete="current-password" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit">
+            <input type="password" id="profileNewPassword" placeholder="New password" autocomplete="new-password" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit">
+            <input type="password" id="profileConfirmPassword" placeholder="Confirm new password" autocomplete="new-password" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit">
+          </div>
+          <div id="profilePasswordError" class="login-error" style="display:none;margin-top:10px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button onclick="saveChangedPassword()" style="background:var(--gold);color:var(--ink);border:none;padding:9px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">Update Password</button>
+            <button onclick="toggleChangePassword()" style="background:#fff;color:var(--ink);border:1.5px solid var(--border);padding:9px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer">Cancel</button>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="profile-btn primary" onclick="showHome()">Continue exploring</button>
+          <button class="profile-btn secondary" onclick="toggleEditScreenName()">Edit Screen Name</button>
+          <button class="profile-btn secondary" onclick="toggleChangePassword()">Change Password</button>
+          <button class="profile-btn secondary" onclick="prototypeLogout()">Logout</button>
+        </div>
+      </div>
+
+      <!-- Personal Details card (only for signed-up users) -->
+      <div class="profile-card" id="profileDetailsCard" style="display:none">
+        <h3>📋 Personal Details</h3>
+        <p>Information from your registration.</p>
+        <div class="profile-meta">
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Mobile</div>
+            <div class="profile-meta-val" id="profileMobile">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Date of Birth</div>
+            <div class="profile-meta-val" id="profileDob">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Gender</div>
+            <div class="profile-meta-val" id="profileGender">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Age Group</div>
+            <div class="profile-meta-val" id="profileAgeGroup">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Nationality</div>
+            <div class="profile-meta-val" id="profileNationality">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Member Since</div>
+            <div class="profile-meta-val" id="profileJoined">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location card (only for signed-up users) -->
+      <div class="profile-card" id="profileLocationCard" style="display:none">
+        <h3>📍 Location</h3>
+        <p>Your home base for personalized travel suggestions.</p>
+        <div class="profile-meta">
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">City</div>
+            <div class="profile-meta-val" id="profileCity">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">State / Province</div>
+            <div class="profile-meta-val" id="profileState">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Country</div>
+            <div class="profile-meta-val" id="profileCountry">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Pin / ZIP Code</div>
+            <div class="profile-meta-val" id="profilePinCode">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Travel Preferences card (only for signed-up users) -->
+      <div class="profile-card" id="profileTravelCard" style="display:none">
+        <h3>✈️ Travel Preferences</h3>
+        <p>Your travel style helps us curate better recommendations.</p>
+        <div class="profile-meta">
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Travel Style</div>
+            <div class="profile-meta-val" id="profileTravelStyle">—</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Budget Range</div>
+            <div class="profile-meta-val" id="profileBudget">—</div>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <div class="profile-meta-label" style="margin-bottom:8px">Interests</div>
+          <div id="profileInterests" class="profile-interests-tags">—</div>
+        </div>
+      </div>
+
+      <!-- Admin card -->
+      <div class="profile-card admin-card" id="adminAccessCard" style="display:none">
+        <div class="admin-pill">Super Admin</div>
+        <h3>Admin panel access</h3>
+        <p>This account has elevated access. Use the button below to manage countries, cities, page content, tips, palette settings, and admin-side editing flows.</p>
+        <div class="profile-meta" style="margin-top:16px">
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Access Level</div>
+            <div class="profile-meta-val">Full Admin</div>
+          </div>
+          <div class="profile-meta-cell">
+            <div class="profile-meta-label">Panel Entry</div>
+            <div class="profile-meta-val">Profile-only</div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="profile-btn primary" onclick="openAdminFromProfile()">Open Admin Panel</button>
+        </div>
+      </div>
+
+      <!-- Normal user card (for non-signup users) -->
+      <div class="profile-card" id="normalUserCard">
+        <h3>Travel profile</h3>
+        <p>Create a full travel profile to get personalized recommendations, analytics, and curated experiences.</p>
+        <div class="profile-actions">
+          <button class="profile-btn secondary" onclick="showHome()">Browse destinations</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Admin panel lives at /admin/index.html -->
+
+<!-- FORM OVERLAY (shared slide-in panel) -->
+<div id="ap-form-overlay" class="ap-form-overlay" onclick="apFormOverlayClick(event)">
+  <div class="ap-form-panel" id="ap-form-panel">
+    <div class="ap-form-header">
+      <h3 id="ap-form-heading">Edit</h3>
+      <button class="ap-form-close" onclick="closeApForm()">✕</button>
+    </div>
+    <div class="ap-form-body" id="ap-form-body">
+      <!-- Filled dynamically -->
+    </div>
+    <div class="ap-form-actions" id="ap-form-actions">
+      <!-- Filled dynamically -->
+    </div>
+  </div>
+</div>
+
+<div class="success-toast" id="toast"><span class="toast-check" id="toast-check">✓</span><span id="toast-msg"></span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- AI ASSISTANT ENGINE -->
+
+<!-- ANALYTICS ENGINE -->
+
+<!-- EXPORT & DEPLOY ENGINE -->
+
+<!-- FAL.AI IMAGE AGENT -->
+
+
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

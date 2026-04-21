@@ -77,6 +77,7 @@
       <button class="ap-nav-tab" onclick="apTab('ap-cities',this)">🏙 Cities</button>
       <button class="ap-nav-tab" onclick="apTab('ap-city-items',this)">📦 City Items</button>
       <button class="ap-nav-tab" onclick="apTab('ap-featured',this)">✨ Featured</button>
+      <button class="ap-nav-tab" onclick="apTab('ap-reviews',this)">⭐ Reviews</button>
       <button class="ap-nav-tab" onclick="apTab('ap-tips',this)">💡 Tips</button>
       <button class="ap-nav-tab" onclick="apTab('ap-ads',this)">📢 Ads</button>
       <button class="ap-nav-tab" onclick="apTab('ap-settings',this)">⚙️ Settings</button>
@@ -175,7 +176,26 @@
       <div id="ap-featured-panels" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px"></div>
     </div>
 
-    <!-- REVIEWS MODERATION removed — site uses Google reviews via Places API -->
+    <!-- REVIEWS MODERATION -->
+    <div id="ap-reviews" class="ap-tab-pane">
+      <div class="ap-page-header">
+        <div><div class="ap-page-title">Reviews</div><div class="ap-page-sub">View and moderate all user-submitted reviews across every item</div></div>
+      </div>
+      <div class="ap-filters">
+        <select class="ap-filter-select" id="ap-rev-city-filter" onchange="renderApReviews()">
+          <option value="">All Cities</option>
+        </select>
+        <select class="ap-filter-select" id="ap-rev-stars-filter" onchange="renderApReviews()">
+          <option value="">All Ratings</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5 stars</option>
+          <option value="4">⭐⭐⭐⭐ 4 stars</option>
+          <option value="3">⭐⭐⭐ 3 stars</option>
+          <option value="2">⭐⭐ 2 stars</option>
+          <option value="1">⭐ 1 star</option>
+        </select>
+      </div>
+      <div id="ap-reviews-list" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
 
         <div id="ap-tips" class="ap-tab-pane">
       <div class="ap-page-header">
