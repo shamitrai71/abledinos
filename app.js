@@ -6452,8 +6452,8 @@ function openCityForm(id){
     </div>
     <small class="form-hint" style="display:block;margin:-2px 0 10px">Use the buttons above to quickly add or remove this city from the homepage featured cities carousel.</small>
     <hr class="admin-divider">
-    <p class="ap-section-label">🖼 Shared Square Image — 1200 × 1200 px recommended</p>
-    ${apImgField('cityf-img','cityf-img-url','cityf-img-preview','cityf-img-remove','Cloudinary URL or direct image URL. Use one square image for the hero inset, tiles and carousels. Keep the subject centered.')}
+    <p class="ap-section-label">🖼 Landscape Image — 1200 × 800 px recommended (3:2)</p>
+    ${apImgField('cityf-img','cityf-img-url','cityf-img-preview','cityf-img-remove','Cloudinary URL or direct image URL. Landscape 3:2 image used on tiles and carousels (mobile-first). Keep the subject centered.')}
   `;
   openApForm(c?`Edit: ${c.icon||'🏙'} ${c.name}`:'New City', body,
     ()=>saveCityForm(id),
@@ -6738,8 +6738,8 @@ function openCityItemForm(id){
     </div>
     <small class="form-hint" id="cif-featured-hint" style="display:block;margin:-4px 0 10px">This controls the order inside the homepage ${item?(CAT_META[item.category]?.label||item.category):'category'} carousel. Leave blank to remove it from the homepage.</small>
     <hr class="admin-divider">
-    <p class="ap-section-label">🖼 Shared Square Image — 1200 × 1200 px recommended</p>
-    ${apImgField('cif-img','cif-img-url','cif-img-preview','cif-img-remove','Cloudinary URL or direct image URL. Use one square image for the hero inset, tiles and carousels. Keep the subject centered.')}
+    <p class="ap-section-label">🖼 Landscape Image — 1200 × 800 px recommended (3:2)</p>
+    ${apImgField('cif-img','cif-img-url','cif-img-preview','cif-img-remove','Cloudinary URL or direct image URL. Landscape 3:2 image used on tiles and carousels (mobile-first). Keep the subject centered.')}
     <hr class="admin-divider">
     <p class="ap-section-label">📝 Detail Page</p>
     <small class="form-hint" style="display:block;margin-bottom:12px">This detail page uses the same shared square image as the item tile and carousels.</small>
