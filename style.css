@@ -530,6 +530,9 @@ nav.scrolled{background:rgba(245,240,232,0.96);backdrop-filter:blur(12px);box-sh
 .gp-review-time{font-size:.72rem;color:rgba(13,13,13,.4);display:block;margin-top:1px}
 .gp-review-stars{color:var(--gold);font-size:.9rem;letter-spacing:1px;margin-bottom:6px;flex:0 0 auto}
 .gp-review-text{font-size:.85rem;color:rgba(13,13,13,.65);line-height:1.65;margin:0}
+.gp-review-text-wrap{position:relative}
+.gp-review-text-wrap.is-collapsed{max-height:7.8em;overflow:hidden}
+.gp-review-text-wrap.is-collapsed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2.6em;background:linear-gradient(to bottom, rgba(248,246,241,0), var(--cream));pointer-events:none}
 .gp-review-expand{background:none;border:none;padding:5px 0 0;font-size:.78rem;font-weight:600;color:var(--sage,#4a7c6a);cursor:pointer;font-family:inherit;display:block}
 .gp-review-expand:hover{opacity:.75}
 .gp-hours-row{font-size:.84rem;padding:2px 0}
