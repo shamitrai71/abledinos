@@ -5471,21 +5471,25 @@ function openItemDetail(itemId){
   const heroBg=document.getElementById('item-detail-hero-bg');
 
   // Set pastel background on the card
-  heroEl.style.setProperty('--item-hero-pastel', pastel);
+  if(heroEl) heroEl.style.setProperty('--item-hero-pastel', pastel);
 
-  // Right-side inset image: prefer item image, else fallback emoji
-  heroBg.classList.remove('has-image','id-hero-fallback');
-  heroBg.innerHTML='';
-  const heroImg=sanitizeImageUrl(item.image)||sanitizeImageUrl(item.pageHeroImage)||'';
-  if(heroImg){
-    heroBg.style.backgroundImage=`url('${heroImg}')`;
-    heroBg.style.background=`url('${heroImg}') center/cover no-repeat`;
-    heroBg.classList.add('has-image');
-  } else {
-    heroBg.style.backgroundImage='none';
-    heroBg.style.background='rgba(255,255,255,.35)';
-    heroBg.classList.add('id-hero-fallback');
-    heroBg.innerHTML=`<span>${item.icon||cat.icon}</span>`;
+  // Right-side inset image: prefer item image, else fallback emoji.
+  // Guarded — the hero inset element may have been removed from the HTML
+  // (it is optional; the detail page works fine without it).
+  if(heroBg){
+    heroBg.classList.remove('has-image','id-hero-fallback');
+    heroBg.innerHTML='';
+    const heroImg=sanitizeImageUrl(item.image)||sanitizeImageUrl(item.pageHeroImage)||'';
+    if(heroImg){
+      heroBg.style.backgroundImage=`url('${heroImg}')`;
+      heroBg.style.background=`url('${heroImg}') center/cover no-repeat`;
+      heroBg.classList.add('has-image');
+    } else {
+      heroBg.style.backgroundImage='none';
+      heroBg.style.background='rgba(255,255,255,.35)';
+      heroBg.classList.add('id-hero-fallback');
+      heroBg.innerHTML=`<span>${item.icon||cat.icon}</span>`;
+    }
   }
 
   document.getElementById('item-detail-icon').textContent=item.icon||cat.icon;
